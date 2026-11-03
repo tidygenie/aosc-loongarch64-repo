@@ -1,0 +1,44 @@
+# 构建环境与流程
+
+## 依赖
+
+```bash
+sudo apt install gcc g++ make cmake meson ninja pkg-config git curl \
+                 pkg-config libdrm wayland mesa vulkan-headers \
+                 go nodejs yarn python-3
+```
+
+- `vkgl-loonggpu` 需要 **SPIRV-Cross**（默认从 `/usr` 找静态库；也可设置 `SPIRV_CROSS_DIR`）：
+
+```bash
+git clone --depth 1 https://github.com/KhronosGroup/SPIRV-Cross.git
+cmake -S SPIRV-Cross -B SPIRV-Cross/build -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DSPIRV_CROSS_STATIC=ON -DSPIRV_CROSS_CLI=OFF
+cmake --build SPIRV-Cross/build -j4
+```
+
+## 单个包
+
+```bash
+./scripts/build-package.sh packages/graphics-drivers/vkgl-loonggpu
+```
+
+脚本会：
+
+1. 读取 `spec` 的 `VER`；
+2. 在临时目录设置 `SRCDIR`（源码）与 `PKGDIR`（staging 根）；
+3. 执行 `autobuild/build`；
+4. 用 `autobuild/defines` 的元数据生成 `control` 并 `dpkg-deb --build`；
+5. 产物放在 `build/<pkgname>_<ver>-<rel>_loongarch64.deb`。
+
+## 手工构建（abbs 兼容）
+
+在 AOSC abbs 环境（`acbs-build` 或 `abbs`）中，把本仓库的 `packages/` 目录作为配方树即可。
+配方中的 `ABTYPE=self` 表示完全由 `autobuild/build` 负责构建与暂存。
+
+## 注意事项
+
+- 架构字段必须是 `loongarch64`（不是 `loong64`），否则 apt 不认。
+- 依赖写 AOSC 包名（`glibc` 而非 `libc6`）。
+- `plasma-loonggpu-compat` 的 shim 用 `LD_PRELOAD` 注入，编译时链接 `libdrm`/`libEGL`。
+- 构建内核见 [KERNEL.md](KERNEL.md)，它不走 `scripts/build-package.sh` 的通用流程。

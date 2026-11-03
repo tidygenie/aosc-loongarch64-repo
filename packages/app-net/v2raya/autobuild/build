@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# v2raya：完全按上游 build.sh 构建（GUI 用 yarn/vite，后端用 go build）
+set -euo pipefail
+
+export PATH="$HOME/infra/tools/go/bin:$PATH"
+export GOTOOLCHAIN=local
+export GOPROXY="${GOPROXY:-https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,https://proxy.golang.org,direct}"
+export GOSUMDB=off
+export GOFLAGS=-mod=mod
+export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+export CI=1
+
+cd "$SRCDIR"
+
+# 上游 build.sh 写死 CGO_ENABLED=0，导致 SQLite 驱动不可用（v2raya 启动即失败）。
+# 这里改成 1，让 service 端能用 mattn/go-sqlite3。
+sed -i 's/CGO_ENABLED=0 go build/CGO_ENABLED=1 go build/g' build.sh
+grep -n "CGO_ENABLED" build.sh | head -3
+
+export CGO_ENABLED=1
+
+echo "[build] 上游构建脚本 build.sh $VER"
+./build.sh "$VER"
+
+echo "[build] 安装文件"
+install -Dvm755 v2raya      "$PKGDIR/usr/bin/v2raya"
+# 2.5.x 需要自带 core（xray 内核），上游 build.sh 会产出 v2raya_core
+install -Dvm755 v2raya_core "$PKGDIR/usr/bin/v2raya_core"
+
+# geo 数据：优先用 v2ray 包里的（离线可用），避免启动时联网下载
+if [[ -f /usr/share/v2ray/geoip.dat ]] && [[ -f /usr/share/v2ray/geosite.dat ]]; then
+  install -Dvm644 /usr/share/v2ray/geoip.dat   "$PKGDIR/usr/share/v2raya/geoip.dat"
+  install -Dvm644 /usr/share/v2ray/geosite.dat "$PKGDIR/usr/share/v2raya/geosite.dat"
+fi
+
+install -Dvm644 install/universal/v2raya.service      "$PKGDIR/usr/lib/systemd/system/v2raya.service"
+install -Dvm644 install/universal/v2raya-lite.service "$PKGDIR/usr/lib/systemd/user/v2raya-lite.service"
+install -Dvm644 install/universal/v2raya.default      "$PKGDIR/etc/default/v2raya"
+install -Dvm644 install/universal/v2raya.desktop      "$PKGDIR/usr/share/applications/v2raya.desktop"
+install -Dvm644 install/universal/v2raya.png          "$PKGDIR/usr/share/icons/hicolor/512x512/apps/v2raya.png"
+
+install -d "$PKGDIR/usr/share/doc/v2raya"
+[[ -f LICENSE ]] && install -vm644 LICENSE "$PKGDIR/usr/share/doc/v2raya/LICENSE"
+[[ -f README.md ]] && install -vm644 README.md "$PKGDIR/usr/share/doc/v2raya/README.md"
+
+echo "[build] 产物:"
+"$PKGDIR/usr/bin/v2raya" --version || true

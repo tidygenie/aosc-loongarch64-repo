@@ -1,0 +1,13 @@
+#!/bin/sh
+# Plasma 6.7 persists software rendering after one failed GL startup.
+# The LoongGPU EGL path is supported now, so discard only that stale lock.
+config=${XDG_CONFIG_HOME:-$HOME/.config}/kdeglobals
+if [ -f "$config" ] && grep -q '^SceneGraphBackend=software$' "$config"; then
+    cp -p "$config" "$config.before-loonggpu-compat"
+    awk '
+        /^\[/ { keep=$0 != "[QtQuickRendererSettings]"; if (keep) print; next }
+        keep == 0 && /^SceneGraphBackend=software$/ { next }
+        { print }
+    ' "$config" > "$config.loonggpu-tmp" && mv "$config.loonggpu-tmp" "$config"
+fi
+exec /usr/bin/plasmashell --no-respawn

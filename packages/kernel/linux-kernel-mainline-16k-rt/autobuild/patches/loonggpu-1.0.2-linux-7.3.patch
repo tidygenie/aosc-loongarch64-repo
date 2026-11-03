@@ -1,0 +1,270 @@
+只在 b 中存在：conftest
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/include/loonggpu_dc.h b/include/loonggpu_dc.h
+--- a/include/loonggpu_dc.h	2026-05-18 10:52:15.000000000 +0800
++++ b/include/loonggpu_dc.h	2026-11-01 23:13:43.255710167 +0800
+@@ -1,6 +1,7 @@
+ #ifndef __DC_INTERFACE_H__
+ #define __DC_INTERFACE_H__
+ 
++#include <linux/version.h>
+ #include "loonggpu_dc_irq.h"
+ #include "loonggpu_dc_i2c.h"
+ #include "loonggpu_ih.h"
+@@ -174,7 +175,11 @@
+ 	/**
+ 	 * Caches device atomic state for suspend/resume
+ 	 */
++	#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0)
++	struct drm_atomic_commit *cached_state;
++#else
+ 	struct drm_atomic_state *cached_state;
++#endif
+ 
+ 	spinlock_t irq_handler_list_table_lock;
+ 	struct irq_list_head irq_handler_list_low_tab[DC_IRQ_SOURCES_NUMBER];
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/include/loonggpu_helper.h b/include/loonggpu_helper.h
+--- a/include/loonggpu_helper.h	2026-10-17 00:56:09.000000000 +0800
++++ b/include/loonggpu_helper.h	2026-11-01 23:16:37.096857343 +0800
+@@ -495,7 +495,10 @@
+ #define LG_DMA_RESV_USAGE_READ		0
+ #endif
+ 
+-#if defined(LG_ATOMIC_CHECK_HAS_DRM_ATOMIC_STATE)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0)
++/* 7.2+：plane atomic_check 也改为收 drm_atomic_commit */
++#define lg_dc_plane_atomic_check_args	struct drm_plane *plane, struct drm_atomic_commit *state
++#elif defined(LG_ATOMIC_CHECK_HAS_DRM_ATOMIC_STATE)
+ #define lg_dc_plane_atomic_check_args	struct drm_plane *plane, struct drm_atomic_state *state
+ #else
+ #define lg_dc_plane_atomic_check_args	struct drm_plane *plane, struct drm_plane_state *state
+@@ -669,10 +672,17 @@
+ typedef struct ttm_bo_global lg_ttm_global_t;
+ #endif
+ 
+-#if defined(LG_ATOMIC_CHECK_HAS_CRTC_STATE_ARG)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0)
++/* Linux 7.2+ 把 atomic_check 的第二个参数从 drm_atomic_state 换成 drm_atomic_commit */
++typedef struct drm_atomic_commit lg_atomic_check_state_arg;
++/* 整个 atomic commit 路径在 7.2+ 用 drm_atomic_commit 取代 drm_atomic_state */
++typedef struct drm_atomic_commit lg_atomic_commit_t;
++#elif defined(LG_ATOMIC_CHECK_HAS_CRTC_STATE_ARG)
+ typedef struct drm_crtc_state lg_atomic_check_state_arg;
++typedef struct drm_atomic_state lg_atomic_commit_t;
+ #else
+ typedef struct drm_atomic_state lg_atomic_check_state_arg;
++typedef struct drm_atomic_state lg_atomic_commit_t;
+ #endif
+ 
+ static inline lg_ttm_global_t *lg_get_ttm_bo_glob(lg_ttm_device_t *bdev)
+@@ -1459,3 +1469,19 @@
+ }
+ 
+ #endif /* __LOONGGPU_HELPER_H__ */
++
++
++/* Linux 7.x 把 is_cow_mapping(vm_flags) 换成了 vma_is_cow_mapping(vma) */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++#define lg_is_cow_mapping(flags, vma) vma_is_cow_mapping(vma)
++#else
++#define lg_is_cow_mapping(flags, vma) is_cow_mapping(flags)
++#endif
++
++
++/* Linux 7.x 去掉了 dma_fence_array_create 的 signal_on_any 参数 */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++#define lg_dma_fence_array_create(n, f, c, seq, any) dma_fence_array_create(n, f, c, seq)
++#else
++#define lg_dma_fence_array_create(n, f, c, seq, any) dma_fence_array_create(n, f, c, seq, any)
++#endif
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/loonggpu/loonggpu_dc_drv.c b/loonggpu/loonggpu_dc_drv.c
+--- a/loonggpu/loonggpu_dc_drv.c	2026-06-09 19:38:55.000000000 +0800
++++ b/loonggpu/loonggpu_dc_drv.c	2026-11-01 23:13:20.470046038 +0800
+@@ -1358,7 +1358,7 @@
+ }
+ 
+ static int loonggpu_dc_atomic_commit(struct drm_device *dev,
+-				  struct drm_atomic_state *state,
++				  lg_atomic_commit_t *state,
+ 				  bool nonblock)
+ {
+ 	return drm_atomic_helper_commit(dev, state, nonblock);
+@@ -1618,7 +1618,7 @@
+ 			 lower_32_bits(afb->address));
+ }
+ 
+-static void loonggpu_dc_commit_planes(struct drm_atomic_state *state,
++static void loonggpu_dc_commit_planes(lg_atomic_commit_t *state,
+ 				   struct drm_device *dev,
+ 				   struct drm_crtc *pcrtc,
+ 				   bool *wait_for_vblank)
+@@ -1856,7 +1856,7 @@
+ 	}
+ }
+ 
+-static void loonggpu_dc_atomic_commit_tail(struct drm_atomic_state *state)
++static void loonggpu_dc_atomic_commit_tail(lg_atomic_commit_t *state)
+ {
+ 	struct drm_device *dev = state->dev;
+ 	struct loonggpu_device *adev = dev->dev_private;
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/loonggpu/loonggpu_gem.c b/loonggpu/loonggpu_gem.c
+--- a/loonggpu/loonggpu_gem.c	2025-11-29 15:45:25.000000000 +0800
++++ b/loonggpu/loonggpu_gem.c	2026-11-01 23:15:26.022399729 +0800
+@@ -67,7 +67,7 @@
+          * instead. Clearing VM_MAYWRITE prevents the mapping from ever
+          * becoming writable and makes is_cow_mapping(vm_flags) false.
+          */
+-        if (is_cow_mapping(vma->vm_flags) &&
++        if (lg_is_cow_mapping(vma->vm_flags, vma) &&
+             !(vma->vm_flags & VM_ACCESS_FLAGS))
+                 vm_flags_clear(vma, VM_MAYWRITE);
+ 
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/loonggpu/loonggpu_ids.c b/loonggpu/loonggpu_ids.c
+--- a/loonggpu/loonggpu_ids.c	2026-10-17 00:56:09.000000000 +0800
++++ b/loonggpu/loonggpu_ids.c	2026-11-01 23:17:53.991783056 +0800
+@@ -103,8 +103,7 @@
+ 		uint64_t context = dma_fence_context_alloc(1);
+ 		struct dma_fence_array *array;
+ 
+-		array = dma_fence_array_create(count, fences, context,
+-					       1, false);
++		array = lg_dma_fence_array_create(count, fences, context, 1, false);
+ 		if (!array) {
+ 			kfree(fences);
+ 			goto fallback;
+@@ -205,8 +204,7 @@
+ 		for (j = 0; j < i; ++j)
+ 			dma_fence_get(fences[j]);
+ 
+-		array = dma_fence_array_create(i, fences, fence_context,
+-					       seqno, true);
++		array = lg_dma_fence_array_create(i, fences, fence_context, seqno, true);
+ 		if (!array) {
+ 			for (j = 0; j < i; ++j)
+ 				dma_fence_put(fences[j]);
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/loonggpu/loonggpu_prime.c b/loonggpu/loonggpu_prime.c
+--- a/loonggpu/loonggpu_prime.c	2025-11-26 11:29:08.000000000 +0800
++++ b/loonggpu/loonggpu_prime.c	2026-11-01 23:18:11.411912864 +0800
+@@ -177,7 +177,7 @@
+ 	} else {
+ 		struct dma_fence_array *array;
+ 
+-		array = dma_fence_array_create(count, fences,
++		array = lg_dma_fence_array_create(count, fences,
+ 					       dma_fence_context_alloc(1), 0,
+ 					       false);
+ 		if (!array)
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/loonggpu-bridge/bridge_phy.c b/loonggpu-bridge/bridge_phy.c
+--- a/loonggpu-bridge/bridge_phy.c	2026-10-17 00:56:09.000000000 +0800
++++ b/loonggpu-bridge/bridge_phy.c	2026-11-01 23:19:22.176075959 +0800
+@@ -1,3 +1,4 @@
++#include <linux/string.h>
+ #include <drm/drm_atomic_helper.h>
+ #include "loonggpu.h"
+ #include "loonggpu_dc.h"
+@@ -531,7 +532,7 @@
+ 	mode->hdisplay = hdisplay;
+ 	mode->vdisplay = vdisplay;
+ 	mode->type &= ~DRM_MODE_TYPE_PREFERRED;
+-	strncpy(mode->name, name, DRM_DISPLAY_MODE_LEN);
++	strscpy(mode->name, name, DRM_DISPLAY_MODE_LEN);
+ 
+ 	return mode;
+ 
+@@ -843,7 +844,11 @@
+ /**
+  * @section Bridge-phy core functions
+  */
+-static void bridge_phy_enable(struct drm_bridge *bridge)
++static void bridge_phy_enable(struct drm_bridge *bridge
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++			       , struct drm_atomic_commit *state
++#endif
++			       )
+ {
+ 	struct loonggpu_bridge_phy *phy = to_bridge_phy(bridge);
+ 
+@@ -856,7 +861,11 @@
+ 		phy->cfg_funcs->hdmi_audio(phy);
+ }
+ 
+-static void bridge_phy_disable(struct drm_bridge *bridge)
++static void bridge_phy_disable(struct drm_bridge *bridge
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++				, struct drm_atomic_commit *state
++#endif
++				)
+ {
+ 	struct loonggpu_bridge_phy *phy = to_bridge_phy(bridge);
+ 
+@@ -945,8 +954,14 @@
+ }
+ 
+ static const struct drm_bridge_funcs bridge_funcs = {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++	/* 7.x 彻底移除 .enable/.disable，只剩 atomic 版本 */
++	.atomic_enable = bridge_phy_enable,
++	.atomic_disable = bridge_phy_disable,
++#else
+ 	.enable = bridge_phy_enable,
+ 	.disable = bridge_phy_disable,
++#endif
+ 	.attach = bridge_phy_attach,
+ };
+ 
+@@ -1206,7 +1221,7 @@
+ 		if (!ret)
+ 			DRM_ERROR("Failed to verify chip %s, return [%s]\n",
+ 				  phy->res->chip_name, str);
+-		strncpy(phy->res->vendor_str, str, NAME_SIZE_MAX - 1);
++		strscpy(phy->res->vendor_str, str, NAME_SIZE_MAX - 1);
+ 		return ret;
+ 	}
+ 
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/loonggpu-bridge/it66121_drv.c b/loonggpu-bridge/it66121_drv.c
+--- a/loonggpu-bridge/it66121_drv.c	2026-10-17 00:56:09.000000000 +0800
++++ b/loonggpu-bridge/it66121_drv.c	2026-11-01 23:19:22.175788376 +0800
+@@ -100,7 +100,7 @@
+ 	}
+ 
+ 	DRM_DEV_DEBUG(to_dev(phy), "PHY vendor: %c%c\n", buf[1], buf[0]);
+-	strncpy(buf, str, ARRAY_SIZE(buf));
++	strscpy(buf, str, ARRAY_SIZE(buf));
+ 
+ 	return true;
+ }
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/loonggpu-bridge/lt8618_drv.c b/loonggpu-bridge/lt8618_drv.c
+--- a/loonggpu-bridge/lt8618_drv.c	2026-02-10 17:16:48.000000000 +0800
++++ b/loonggpu-bridge/lt8618_drv.c	2026-11-01 23:19:22.175407273 +0800
+@@ -779,7 +779,7 @@
+ 	}
+ 
+ 	phy->chip_version = version_val[2];
+-	strncpy(str, version_val, ARRAY_SIZE(version_val));
++	strscpy(str, version_val, ARRAY_SIZE(version_val));
+ 
+ 	lt8618_dev = phy->priv;
+ 	if (version_val[2] == 0xE1)
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/loonggpu-bridge/lt8718_drv.c b/loonggpu-bridge/lt8718_drv.c
+--- a/loonggpu-bridge/lt8718_drv.c	2026-10-17 00:56:09.000000000 +0800
++++ b/loonggpu-bridge/lt8718_drv.c	2026-11-01 23:19:22.175215882 +0800
+@@ -522,7 +522,7 @@
+         }
+ 
+         phy->chip_version = version_val[1];
+-        strncpy(str, version_val, ARRAY_SIZE(version_val));
++        strscpy(str, version_val, ARRAY_SIZE(version_val));
+         lt8718_dev = phy->priv;
+         if (version_val[1] == 0x06)
+             lt8718_dev->ver = LT8718_VER_1;
+diff -ur '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod*' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' a/loonggpu-bridge/lt9721_drv.c b/loonggpu-bridge/lt9721_drv.c
+--- a/loonggpu-bridge/lt9721_drv.c	2025-04-23 14:27:30.000000000 +0800
++++ b/loonggpu-bridge/lt9721_drv.c	2026-11-01 23:19:22.175015910 +0800
+@@ -64,7 +64,7 @@
+ 	}
+ 
+ 	phy->chip_version = version_val[1];
+-	strncpy(str, version_val, ARRAY_SIZE(version_val));
++	strscpy(str, version_val, ARRAY_SIZE(version_val));
+ 
+ 	lt9721_dev = phy->priv;
+ 	if (version_val[1] == 0x06)

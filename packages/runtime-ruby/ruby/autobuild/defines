@@ -1,0 +1,9 @@
+PKGNAME=ruby
+PKGSEC=ruby
+PKGDEP="gcc-runtime glibc gdbm openssl libffi yaml gmp zlib ncurses readline"
+BUILDDEP="gcc make"
+PKGDES="An object-oriented language for quick and easy programming"
+PKGHOMEPAGE="https://www.ruby-lang.org/"
+ABTYPE=self
+ABHOST=noarch
+REL=1

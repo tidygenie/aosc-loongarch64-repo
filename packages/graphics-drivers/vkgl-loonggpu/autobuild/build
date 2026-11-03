@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# vkgl: Vulkan 1.0 subset implemented on top of the vendor gsgpu GL 2.1 stack.
+set -euo pipefail
+FILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/../files" && pwd)"
+SPV="${SPIRV_CROSS_DIR:-/usr}"
+
+g++ -std=c++17 -O2 -fPIC -shared -o /tmp/libvkgl.so "$FILES/vkgl.cpp" \
+  -I"$SPV/include" \
+  $(pkg-config --cflags --libs wayland-client 2>/dev/null || echo -lwayland-client) \
+  -lEGL -lGLESv2 -lgbm \
+  "$SPV/lib/libspirv-cross-glsl.a" "$SPV/lib/libspirv-cross-core.a" \
+  "$SPV/lib/libspirv-cross-msl.a" "$SPV/lib/libspirv-cross-cpp.a" \
+  "$SPV/lib/libspirv-cross-reflect.a" "$SPV/lib/libspirv-cross-util.a" \
+  -lpthread
+
+install -Dvm644 /tmp/libvkgl.so "$PKGDIR/usr/lib/vkgl/libvkgl.so"
+install -Dvm644 "$FILES/vkgl_icd.json" "$PKGDIR/usr/share/vulkan/icd.d/vkgl_loonggpu.json"
+install -Dvm644 "$FILES"/README* "$PKGDIR/usr/share/doc/vkgl-loonggpu/README" 2>/dev/null || true

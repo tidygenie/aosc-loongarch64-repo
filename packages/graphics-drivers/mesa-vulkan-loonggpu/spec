@@ -1,0 +1,4 @@
+VER=26.1.5
+SRCS="tarball::https://archive.mesa3d.org/mesa-${VER}.tar.gz"
+CHKSUMS="SKIP"
+CHKUPDATE="anitya::id=15923"

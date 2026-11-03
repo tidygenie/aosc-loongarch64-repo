@@ -1,0 +1,97 @@
+diff -ruN a/loonggpu/loonggpu_dc_crtc.c b/loonggpu/loonggpu_dc_crtc.c
+--- a/loonggpu/loonggpu_dc_crtc.c
++++ b/loonggpu/loonggpu_dc_crtc.c
+@@ -581,9 +581,25 @@
+ bool crtc_primary_plane_set(struct loonggpu_dc_crtc *crtc,
+ 					 struct dc_primary_plane *primary)
+ {
++	struct loonggpu_device *adev;
++	u32 link, stride;
++
+ 	if (IS_ERR_OR_NULL(crtc) || IS_ERR_OR_NULL(primary))
+ 		return false;
+ 
++	/* The address and pitch must always describe the same scanout BO. */
++	if (primary->stride) {
++		adev = crtc->dc->adev;
++		link = crtc->resource->base.link;
++		stride = primary->stride;
++		if (crtc->array_mode == 2)
++			stride *= 4;
++
++		if (dc_readl(adev, gdc_reg->crtc_reg[link].stride) != stride)
++			dc_writel(adev, gdc_reg->crtc_reg[link].stride, stride);
++		crtc->timing->stride = primary->stride;
++	}
++
+ 	return dc_crtc_fb_address_update(crtc, primary->address);
+ }
+ 
+@@ -859,6 +875,7 @@
+ 	plane.type = DC_PLANE_PRIMARY;
+ 	plane.primary.address.low_part = lower_32_bits(disp_bo->gpu_addr);
+ 	plane.primary.address.high_part = upper_32_bits(disp_bo->gpu_addr);
++	plane.primary.stride = disp_bo->pitch;
+ 
+ 	dc_submit_plane_update(adev->dc, lcrtc->crtc_id, &plane);
+ 
+diff -ruN a/loonggpu/loonggpu_dc_drv.c b/loonggpu/loonggpu_dc_drv.c
+--- a/loonggpu/loonggpu_dc_drv.c
++++ b/loonggpu/loonggpu_dc_drv.c
+@@ -1432,9 +1432,12 @@
+ 	struct loonggpu_bo *abo = gem_to_loonggpu_bo(fb->obj[0]);
+ 	struct loonggpu_device *adev = crtc->dev->dev_private;
+ 	struct loonggpu_dc *dc = adev->dc;
++	struct loonggpu_dc_crtc *dc_crtc =
++		dc->link_info[acrtc->crtc_id].crtc;
+ 	struct drm_display_mode *native_mode = &dc->native_mode;
+ 	struct loonggpu_ring *ring = &adev->bpipe.ring;
+ 	lg_dma_resv_t *resv;
++	struct dc_timing_info timing;
+ 	uint64_t crtc_array_mode, crtc_address;
+ 	int align = 64;
+ 
+@@ -1480,6 +1483,15 @@
+ 
+ 	crtc_array_mode = LOONGGPU_TILING_GET(abo->tiling_flags, ARRAY_MODE);
+ 
++	/* GBM uses private tiling even when KMS modifiers are unavailable.
++	 * Keep the DC tiling mode in sync with the BO being scanned out. */
++	if (dc_crtc->array_mode != crtc_array_mode) {
++		timing = *dc_crtc->timing;
++		timing.stride = fb->pitches[0];
++		dc_crtc->array_mode = crtc_array_mode;
++		dc_submit_timing_update(dc, acrtc->crtc_id, &timing);
++	}
++
+ 	if (crtc_array_mode == 0 && crtc->x) {
+ 		if (!(fb->width % 64))
+ 			align = 64;
+@@ -1593,6 +1605,7 @@
+ 
+ 		plane->primary.address.low_part = lower_32_bits(disp_bo->gpu_addr);
+ 		plane->primary.address.high_part = upper_32_bits(disp_bo->gpu_addr);
++		plane->primary.stride = disp_bo->pitch;
+ 
+ 		spin_lock_irqsave(&crtc->dev->event_lock, flags);
+ 		acrtc->pflip_copy = LOONGGPU_FLIP_COPY_DONE;
+@@ -1828,6 +1841,7 @@
+ 
+ 			plane->primary.address.low_part = lower_32_bits(disp_bo->gpu_addr);
+ 			plane->primary.address.high_part = upper_32_bits(disp_bo->gpu_addr);
++			plane->primary.stride = disp_bo->pitch;
+ 
+ 			timing->depth = (disp_bo->cpp << 3);
+ 			timing->stride = disp_bo->pitch;
+diff -ruN a/loonggpu/loonggpu_dc_plane.c b/loonggpu/loonggpu_dc_plane.c
+--- a/loonggpu/loonggpu_dc_plane.c
++++ b/loonggpu/loonggpu_dc_plane.c
+@@ -90,7 +90,7 @@
+ 	struct loonggpu_bo *rbo;
+ 	int r;
+ 
+-	if (!old_state->fb)
++	if (!old_state->fb || !old_state->fb->obj[0])
+ 		return;
+ 
+ 	rbo = gem_to_loonggpu_bo(old_state->fb->obj[0]);

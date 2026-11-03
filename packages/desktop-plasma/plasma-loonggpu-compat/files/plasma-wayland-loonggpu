@@ -1,0 +1,11 @@
+#!/bin/sh
+# KDE Plasma Wayland session for Loongson LG110 / gsgpu.
+export XDG_SESSION_TYPE=wayland
+export __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/40_gsgpu.json
+export GBM_BACKEND=gsgpu
+export KWIN_DISABLE_VULKAN=1
+export QT_QPA_PLATFORM=wayland
+export XKB_DEFAULT_LAYOUT=us
+unset LIBSEAT_BACKEND
+sleep 2
+exec /usr/bin/startplasma-wayland

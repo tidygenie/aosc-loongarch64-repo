@@ -1,0 +1,1915 @@
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/atomic_check.h b/conftest/compile-tests/atomic_check.h
+--- a/conftest/compile-tests/atomic_check.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/atomic_check.h	2026-11-01 23:11:14.384868022 +0800
+@@ -0,0 +1 @@
++#undef LG_ATOMIC_CHECK_HAS_CRTC_STATE_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/bo_pin_count.h b/conftest/compile-tests/bo_pin_count.h
+--- a/conftest/compile-tests/bo_pin_count.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/bo_pin_count.h	2026-11-01 23:10:54.421709742 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_TBO_PIN_COUNT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/del_timer.h b/conftest/compile-tests/del_timer.h
+--- a/conftest/compile-tests/del_timer.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/del_timer.h	2026-11-01 23:11:23.509940372 +0800
+@@ -0,0 +1 @@
++#undef LG_DEL_TIMER
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/dma_buf_ops_has_map.h b/conftest/compile-tests/dma_buf_ops_has_map.h
+--- a/conftest/compile-tests/dma_buf_ops_has_map.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/dma_buf_ops_has_map.h	2026-11-01 23:11:05.917800890 +0800
+@@ -0,0 +1 @@
++#undef LG_DMA_BUF_OPS_HAS_MAP
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/dma_resv_add_fence.h b/conftest/compile-tests/dma_resv_add_fence.h
+--- a/conftest/compile-tests/dma_resv_add_fence.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/dma_resv_add_fence.h	2026-11-01 23:10:23.639465680 +0800
+@@ -0,0 +1 @@
++#define LG_DMA_RESV_ADD_FENCE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/dma_resv_get_excl.h b/conftest/compile-tests/dma_resv_get_excl.h
+--- a/conftest/compile-tests/dma_resv_get_excl.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/dma_resv_get_excl.h	2026-11-01 23:10:51.504686613 +0800
+@@ -0,0 +1 @@
++#undef LG_DMA_RESV_GET_EXCL_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/dma_resv_get_list.h b/conftest/compile-tests/dma_resv_get_list.h
+--- a/conftest/compile-tests/dma_resv_get_list.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/dma_resv_get_list.h	2026-11-01 23:11:06.462805211 +0800
+@@ -0,0 +1 @@
++#undef LG_DMA_RESV_GET_LIST
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/dma_resv_replace_fences.h b/conftest/compile-tests/dma_resv_replace_fences.h
+--- a/conftest/compile-tests/dma_resv_replace_fences.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/dma_resv_replace_fences.h	2026-11-01 23:11:19.177906025 +0800
+@@ -0,0 +1 @@
++#define LG_DMA_RESV_REPLACE_FENCES
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/dma_resv_reserve_fences.h b/conftest/compile-tests/dma_resv_reserve_fences.h
+--- a/conftest/compile-tests/dma_resv_reserve_fences.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/dma_resv_reserve_fences.h	2026-11-01 23:10:23.252462611 +0800
+@@ -0,0 +1 @@
++#define LG_HAS_DMA_RESV_RESERVE_FENCES
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/dma_resv_usage_bookkeep.h b/conftest/compile-tests/dma_resv_usage_bookkeep.h
+--- a/conftest/compile-tests/dma_resv_usage_bookkeep.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/dma_resv_usage_bookkeep.h	2026-11-01 23:10:46.925650308 +0800
+@@ -0,0 +1 @@
++#define LG_DMA_RESV_USAGE_BOOKKEEP_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/dma_resv_wait_timeout.h b/conftest/compile-tests/dma_resv_wait_timeout.h
+--- a/conftest/compile-tests/dma_resv_wait_timeout.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/dma_resv_wait_timeout.h	2026-11-01 23:10:19.559433331 +0800
+@@ -0,0 +1 @@
++#define LG_DMA_RESV_WAIT_TIMEOUT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_bridge_attach.h b/conftest/compile-tests/drm_bridge_attach.h
+--- a/conftest/compile-tests/drm_bridge_attach.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_bridge_attach.h	2026-11-01 23:10:36.208565336 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_BRIDGE_ATTACH_HAS_FLAGS_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_bridge_funcs_attach_has_drm_encoder.h b/conftest/compile-tests/drm_bridge_funcs_attach_has_drm_encoder.h
+--- a/conftest/compile-tests/drm_bridge_funcs_attach_has_drm_encoder.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_bridge_funcs_attach_has_drm_encoder.h	2026-11-01 23:11:25.451955770 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_BRIDGE_FUNCS_ATTACH_HAS_DRM_ENCODER
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_buddy_block_trim_has_start.h b/conftest/compile-tests/drm_buddy_block_trim_has_start.h
+--- a/conftest/compile-tests/drm_buddy_block_trim_has_start.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_buddy_block_trim_has_start.h	2026-11-01 23:11:10.077833873 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_BUDDY_BLOCK_TRIM_HAS_START
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_buddy_free_list_has_flags.h b/conftest/compile-tests/drm_buddy_free_list_has_flags.h
+--- a/conftest/compile-tests/drm_buddy_free_list_has_flags.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_buddy_free_list_has_flags.h	2026-11-01 23:11:09.503829322 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_BUDDY_FREE_LIST_HAS_FLAGS
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_connector_for_each_possible_encoder.h b/conftest/compile-tests/drm_connector_for_each_possible_encoder.h
+--- a/conftest/compile-tests/drm_connector_for_each_possible_encoder.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_connector_for_each_possible_encoder.h	2026-11-01 23:10:35.391558858 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_CONNECTOR_FOR_EACH_POSSIBLE_ENCODER_HAS_I
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_crtc_helper_funcs.h b/conftest/compile-tests/drm_crtc_helper_funcs.h
+--- a/conftest/compile-tests/drm_crtc_helper_funcs.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_crtc_helper_funcs.h	2026-11-01 23:10:38.507583564 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_CRTC_HELPER_FUNCS_HAS_GET_SCANOUT_POSITION
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_crtc_state_has_async_flip.h b/conftest/compile-tests/drm_crtc_state_has_async_flip.h
+--- a/conftest/compile-tests/drm_crtc_state_has_async_flip.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_crtc_state_has_async_flip.h	2026-11-01 23:10:33.032540154 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_CRTC_STATE_HAS_ASYNC_FLIP
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_device_has_pdev.h b/conftest/compile-tests/drm_device_has_pdev.h
+--- a/conftest/compile-tests/drm_device_has_pdev.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_device_has_pdev.h	2026-11-01 23:11:04.290787990 +0800
+@@ -0,0 +1 @@
++#undef LG_DDEV_HAS_PDEV
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_device_open_count.h b/conftest/compile-tests/drm_device_open_count.h
+--- a/conftest/compile-tests/drm_device_open_count.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_device_open_count.h	2026-11-01 23:10:44.441630613 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DEVICE_HAS_ATOMIC_OPEN_COUNT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_do_get_edid.h b/conftest/compile-tests/drm_do_get_edid.h
+--- a/conftest/compile-tests/drm_do_get_edid.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_do_get_edid.h	2026-11-01 23:11:20.444916070 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DO_GET_EDID
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_driver_gem_prime_export_has_dev_arg.h b/conftest/compile-tests/drm_driver_gem_prime_export_has_dev_arg.h
+--- a/conftest/compile-tests/drm_driver_gem_prime_export_has_dev_arg.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_driver_gem_prime_export_has_dev_arg.h	2026-11-01 23:10:33.544544214 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRIVER_GEM_PRIME_EXPORT_HAS_DEV_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_driver_has_date.h b/conftest/compile-tests/drm_driver_has_date.h
+--- a/conftest/compile-tests/drm_driver_has_date.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_driver_has_date.h	2026-11-01 23:11:20.951920090 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRIVER_HAS_DATE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_driver_has_gem_free.h b/conftest/compile-tests/drm_driver_has_gem_free.h
+--- a/conftest/compile-tests/drm_driver_has_gem_free.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_driver_has_gem_free.h	2026-11-01 23:11:01.507765924 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRIVER_HAS_GEM_FREE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_driver_has_gem_prime_export.h b/conftest/compile-tests/drm_driver_has_gem_prime_export.h
+--- a/conftest/compile-tests/drm_driver_has_gem_prime_export.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_driver_has_gem_prime_export.h	2026-11-01 23:11:04.941793152 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRIVER_HAS_GEM_PRIME_EXPORT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_driver_has_gem_prime_res_obj.h b/conftest/compile-tests/drm_driver_has_gem_prime_res_obj.h
+--- a/conftest/compile-tests/drm_driver_has_gem_prime_res_obj.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_driver_has_gem_prime_res_obj.h	2026-11-01 23:10:31.968531718 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRIVER_HAS_GEM_PRIME_RES_OBJ
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_driver_has_get_vblank_timestamp.h b/conftest/compile-tests/drm_driver_has_get_vblank_timestamp.h
+--- a/conftest/compile-tests/drm_driver_has_get_vblank_timestamp.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_driver_has_get_vblank_timestamp.h	2026-11-01 23:10:38.983587338 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRIVER_HAS_GET_VBLANK_TIMESTAMP
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_driver_has_lastclose.h b/conftest/compile-tests/drm_driver_has_lastclose.h
+--- a/conftest/compile-tests/drm_driver_has_lastclose.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_driver_has_lastclose.h	2026-11-01 23:11:11.130842222 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRIVER_HAS_LASTCLOSE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_driver_irq_shared_flag_present.h b/conftest/compile-tests/drm_driver_irq_shared_flag_present.h
+--- a/conftest/compile-tests/drm_driver_irq_shared_flag_present.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_driver_irq_shared_flag_present.h	2026-11-01 23:10:30.067516646 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRIVER_IRQ_SHARED_FLAG_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_driver_prime_flag_present.h b/conftest/compile-tests/drm_driver_prime_flag_present.h
+--- a/conftest/compile-tests/drm_driver_prime_flag_present.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_driver_prime_flag_present.h	2026-11-01 23:10:29.629513173 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRIVER_PRIME_FLAG_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_driver_syncobj_timeline_present.h b/conftest/compile-tests/drm_driver_syncobj_timeline_present.h
+--- a/conftest/compile-tests/drm_driver_syncobj_timeline_present.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_driver_syncobj_timeline_present.h	2026-11-01 23:11:07.426812854 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRIVER_SYNCOBJ_TIMELINE_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_fb_helper_alloc_info.h b/conftest/compile-tests/drm_fb_helper_alloc_info.h
+--- a/conftest/compile-tests/drm_fb_helper_alloc_info.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_fb_helper_alloc_info.h	2026-11-01 23:10:21.062445248 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_FB_HELPER_ALLOC_INFO
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_fb_helper_fill_info.h b/conftest/compile-tests/drm_fb_helper_fill_info.h
+--- a/conftest/compile-tests/drm_fb_helper_fill_info.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_fb_helper_fill_info.h	2026-11-01 23:10:13.783387534 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_FB_HELPER_FILL_INFO_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_fb_helper_funcs_has_fb_probe.h b/conftest/compile-tests/drm_fb_helper_funcs_has_fb_probe.h
+--- a/conftest/compile-tests/drm_fb_helper_funcs_has_fb_probe.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_fb_helper_funcs_has_fb_probe.h	2026-11-01 23:11:23.201937930 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_FB_HELPER_FUNCS_HAS_FB_PROBE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_fb_helper_init_has_max_conn_count.h b/conftest/compile-tests/drm_fb_helper_init_has_max_conn_count.h
+--- a/conftest/compile-tests/drm_fb_helper_init_has_max_conn_count.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_fb_helper_init_has_max_conn_count.h	2026-11-01 23:10:39.941594934 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_FB_HELP_INIT_HAS_MAX_CONN_COUNT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_fb_helper_prepare.h b/conftest/compile-tests/drm_fb_helper_prepare.h
+--- a/conftest/compile-tests/drm_fb_helper_prepare.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_fb_helper_prepare.h	2026-11-01 23:10:49.845673460 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_FB_HELPER_PREPARE_HAS_BPP
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_fb_helper_single_add_all_connectors.h b/conftest/compile-tests/drm_fb_helper_single_add_all_connectors.h
+--- a/conftest/compile-tests/drm_fb_helper_single_add_all_connectors.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_fb_helper_single_add_all_connectors.h	2026-11-01 23:11:12.513853188 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_FB_HELPER_SINGLE_ADD_ALL_CONNECTORS
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_gem_dmabuf_kmap.h b/conftest/compile-tests/drm_gem_dmabuf_kmap.h
+--- a/conftest/compile-tests/drm_gem_dmabuf_kmap.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_gem_dmabuf_kmap.h	2026-11-01 23:11:07.296811824 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_GEM_DMABUF_KMAP_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_gem_object_put.h b/conftest/compile-tests/drm_gem_object_put.h
+--- a/conftest/compile-tests/drm_gem_object_put.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_gem_object_put.h	2026-11-01 23:10:15.784403400 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_GEM_OBJECT_PUT_UNLOCKED
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_get_format_info_has_pixel_format.h b/conftest/compile-tests/drm_get_format_info_has_pixel_format.h
+--- a/conftest/compile-tests/drm_get_format_info_has_pixel_format.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_get_format_info_has_pixel_format.h	2026-11-01 23:11:26.570964642 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_GET_FORMAT_INFO_HAS_PIXEL_FORMAT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_gpu_sched_stat_has_stat_reset.h b/conftest/compile-tests/drm_gpu_sched_stat_has_stat_reset.h
+--- a/conftest/compile-tests/drm_gpu_sched_stat_has_stat_reset.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_gpu_sched_stat_has_stat_reset.h	2026-11-01 23:11:27.623972991 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_GPU_SCHED_STAT_HAS_STAT_RESET
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_gpu_scheduler_has_num_rqs.h b/conftest/compile-tests/drm_gpu_scheduler_has_num_rqs.h
+--- a/conftest/compile-tests/drm_gpu_scheduler_has_num_rqs.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_gpu_scheduler_has_num_rqs.h	2026-11-01 23:11:21.490924364 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_GPU_SCHEDULER_HAS_NUM_RQS
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_hdmi_avi_infoframe_from_display_mode_const_conn.h b/conftest/compile-tests/drm_hdmi_avi_infoframe_from_display_mode_const_conn.h
+--- a/conftest/compile-tests/drm_hdmi_avi_infoframe_from_display_mode_const_conn.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_hdmi_avi_infoframe_from_display_mode_const_conn.h	2026-11-01 23:10:31.460527690 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_HDMI_AVI_INFOFRAME_FROM_DISPLAY_MODE_HAS_CONST_CONNECTOR_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_hdmi_avi_infoframe_from_display_mode.h b/conftest/compile-tests/drm_hdmi_avi_infoframe_from_display_mode.h
+--- a/conftest/compile-tests/drm_hdmi_avi_infoframe_from_display_mode.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_hdmi_avi_infoframe_from_display_mode.h	2026-11-01 23:10:31.365526937 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_HDMI_AVI_INFOFRAME_FROM_DISPLAY_MODE_HAS_CONNECTOR_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_mode_config_funcs_fb_create_has_info.h b/conftest/compile-tests/drm_mode_config_funcs_fb_create_has_info.h
+--- a/conftest/compile-tests/drm_mode_config_funcs_fb_create_has_info.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_mode_config_funcs_fb_create_has_info.h	2026-11-01 23:11:27.101968852 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_MODE_CONFIG_FUNCS_FB_CREATE_HAS_INFO
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_mode_config_funcs_has_output_poll_changed.h b/conftest/compile-tests/drm_mode_config_funcs_has_output_poll_changed.h
+--- a/conftest/compile-tests/drm_mode_config_funcs_has_output_poll_changed.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_mode_config_funcs_has_output_poll_changed.h	2026-11-01 23:11:10.595837981 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_MODE_CFG_FUNC_HAS_OUTPUT_POLL_CHANGED
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_mode_config_has_fb_base.h b/conftest/compile-tests/drm_mode_config_has_fb_base.h
+--- a/conftest/compile-tests/drm_mode_config_has_fb_base.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_mode_config_has_fb_base.h	2026-11-01 23:10:50.339677377 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_MODE_CONFIG_HAS_FB_BASE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_need_swiotlb.h b/conftest/compile-tests/drm_need_swiotlb.h
+--- a/conftest/compile-tests/drm_need_swiotlb.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_need_swiotlb.h	2026-11-01 23:10:14.514393330 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_NEED_SWIOTLB_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_plane_atomic_check_has_atomic_state_arg.h b/conftest/compile-tests/drm_plane_atomic_check_has_atomic_state_arg.h
+--- a/conftest/compile-tests/drm_plane_atomic_check_has_atomic_state_arg.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_plane_atomic_check_has_atomic_state_arg.h	2026-11-01 23:10:47.777657063 +0800
+@@ -0,0 +1 @@
++#undef LG_ATOMIC_CHECK_HAS_DRM_ATOMIC_STATE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_plane_helper_destroy.h b/conftest/compile-tests/drm_plane_helper_destroy.h
+--- a/conftest/compile-tests/drm_plane_helper_destroy.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_plane_helper_destroy.h	2026-11-01 23:10:52.351693329 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_PLANE_HELPER_DESTROY
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_prime_pages_to_sg.h b/conftest/compile-tests/drm_prime_pages_to_sg.h
+--- a/conftest/compile-tests/drm_prime_pages_to_sg.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_prime_pages_to_sg.h	2026-11-01 23:10:40.738601253 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_PRIME_PAGES_TO_SG_HAS_DRM_DEVICE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_prime_sg_to_dma_addr_array.h b/conftest/compile-tests/drm_prime_sg_to_dma_addr_array.h
+--- a/conftest/compile-tests/drm_prime_sg_to_dma_addr_array.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_prime_sg_to_dma_addr_array.h	2026-11-01 23:10:22.662457934 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_PRIME_SG_TO_DMA_ADDR_ARRAY
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_backend_ops_has_prepare.h b/conftest/compile-tests/drm_sched_backend_ops_has_prepare.h
+--- a/conftest/compile-tests/drm_sched_backend_ops_has_prepare.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_backend_ops_has_prepare.h	2026-11-01 23:10:46.436646431 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SCHED_BACKEDN_OPS_HAS_PREPARE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_backend_ops_timedout_job_ret_sched_stat.h b/conftest/compile-tests/drm_sched_backend_ops_timedout_job_ret_sched_stat.h
+--- a/conftest/compile-tests/drm_sched_backend_ops_timedout_job_ret_sched_stat.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_backend_ops_timedout_job_ret_sched_stat.h	2026-11-01 23:10:45.430638454 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SCHED_BACKEND_OPS_TIMEDOUT_JOB_RET_SCHED_STAT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_dependency_optimized.h b/conftest/compile-tests/drm_sched_dependency_optimized.h
+--- a/conftest/compile-tests/drm_sched_dependency_optimized.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_dependency_optimized.h	2026-11-01 23:10:26.410487650 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_SCHED_DEPENDENCY_OPTIMIZED
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_entity_init.h b/conftest/compile-tests/drm_sched_entity_init.h
+--- a/conftest/compile-tests/drm_sched_entity_init.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_entity_init.h	2026-11-01 23:10:37.658576833 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SCHED_ENTITY_INIT_HAS_PRIORITY_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_entity_push_job.h b/conftest/compile-tests/drm_sched_entity_push_job.h
+--- a/conftest/compile-tests/drm_sched_entity_push_job.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_entity_push_job.h	2026-11-01 23:10:45.932642435 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SCHED_ENTITY_PUSH_JOB_REMOVES_ENTITY
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_init_has_device.h b/conftest/compile-tests/drm_sched_init_has_device.h
+--- a/conftest/compile-tests/drm_sched_init_has_device.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_init_has_device.h	2026-11-01 23:10:57.459733829 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_SCHED_INIT_HAS_DEVICE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_init_has_device_rq.h b/conftest/compile-tests/drm_sched_init_has_device_rq.h
+--- a/conftest/compile-tests/drm_sched_init_has_device_rq.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_init_has_device_rq.h	2026-11-01 23:11:07.918816755 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_SCHED_INIT_HAS_DEVICE_RQ
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_init_has_device_rq_submit_wq.h b/conftest/compile-tests/drm_sched_init_has_device_rq_submit_wq.h
+--- a/conftest/compile-tests/drm_sched_init_has_device_rq_submit_wq.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_init_has_device_rq_submit_wq.h	2026-11-01 23:11:08.447820950 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_SCHED_INIT_HAS_SUBMIT_WQ
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_init_has_drm_sched_init_args.h b/conftest/compile-tests/drm_sched_init_has_drm_sched_init_args.h
+--- a/conftest/compile-tests/drm_sched_init_has_drm_sched_init_args.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_init_has_drm_sched_init_args.h	2026-11-01 23:11:22.003928431 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SCHED_INIT_HAS_DRM_SCHED_INIT_ARGS
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_job_arm.h b/conftest/compile-tests/drm_sched_job_arm.h
+--- a/conftest/compile-tests/drm_sched_job_arm.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_job_arm.h	2026-11-01 23:10:20.051437232 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SCHED_JOB_ARM
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_job_cleanup.h b/conftest/compile-tests/drm_sched_job_cleanup.h
+--- a/conftest/compile-tests/drm_sched_job_cleanup.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_job_cleanup.h	2026-11-01 23:10:12.692378884 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SCHED_JOB_CLEANUP_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_job_has_id.h b/conftest/compile-tests/drm_sched_job_has_id.h
+--- a/conftest/compile-tests/drm_sched_job_has_id.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_job_has_id.h	2026-11-01 23:11:26.454963722 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_SCHED_JOB_HAS_ID
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_job_init_has_credits.h b/conftest/compile-tests/drm_sched_job_init_has_credits.h
+--- a/conftest/compile-tests/drm_sched_job_init_has_credits.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_job_init_has_credits.h	2026-11-01 23:11:08.955824977 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_SCHED_JOB_INIT_HAS_CREDITS
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_job_init_has_drm_client_id.h b/conftest/compile-tests/drm_sched_job_init_has_drm_client_id.h
+--- a/conftest/compile-tests/drm_sched_job_init_has_drm_client_id.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_job_init_has_drm_client_id.h	2026-11-01 23:11:25.952959742 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SCHED_JOB_INIT_HAS_DRM_CLIENT_ID
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_priority.h b/conftest/compile-tests/drm_sched_priority.h
+--- a/conftest/compile-tests/drm_sched_priority.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_priority.h	2026-11-01 23:10:36.717569372 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SCHED_PRIORITY_COUNT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_priority_has_min.h b/conftest/compile-tests/drm_sched_priority_has_min.h
+--- a/conftest/compile-tests/drm_sched_priority_has_min.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_priority_has_min.h	2026-11-01 23:10:37.142572741 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_SCHED_PRIORITY_MIN
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_priority_has_unset.h b/conftest/compile-tests/drm_sched_priority_has_unset.h
+--- a/conftest/compile-tests/drm_sched_priority_has_unset.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_priority_has_unset.h	2026-11-01 23:11:00.983761770 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_SCHED_PRIORITY_COUNT_HAS_UNSET
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_sched_stop.h b/conftest/compile-tests/drm_sched_stop.h
+--- a/conftest/compile-tests/drm_sched_stop.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_sched_stop.h	2026-11-01 23:10:12.209375055 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SCHED_STOP_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/drm_syncobj_find_fence.h b/conftest/compile-tests/drm_syncobj_find_fence.h
+--- a/conftest/compile-tests/drm_syncobj_find_fence.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/drm_syncobj_find_fence.h	2026-11-01 23:10:30.788522362 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_SYNCOBJ_FIND_FENCE_HAS_FLAGS_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/fb_info_has_apertures.h b/conftest/compile-tests/fb_info_has_apertures.h
+--- a/conftest/compile-tests/fb_info_has_apertures.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/fb_info_has_apertures.h	2026-11-01 23:10:48.777664992 +0800
+@@ -0,0 +1 @@
++#undef LG_FB_INFO_HAS_APERTURES
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/get_kernel_page_size_16k.h b/conftest/compile-tests/get_kernel_page_size_16k.h
+--- a/conftest/compile-tests/get_kernel_page_size_16k.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/get_kernel_page_size_16k.h	2026-11-01 23:11:28.838982624 +0800
+@@ -0,0 +1 @@
++#define LG_VM_PAGE_SIZE_16K
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/get_kernel_page_size_4k.h b/conftest/compile-tests/get_kernel_page_size_4k.h
+--- a/conftest/compile-tests/get_kernel_page_size_4k.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/get_kernel_page_size_4k.h	2026-11-01 23:11:28.660981213 +0800
+@@ -0,0 +1 @@
++#undef LG_VM_PAGE_SIZE_4K
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/get_user_pages_has_vmas.h b/conftest/compile-tests/get_user_pages_has_vmas.h
+--- a/conftest/compile-tests/get_user_pages_has_vmas.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/get_user_pages_has_vmas.h	2026-11-01 23:10:56.014722372 +0800
+@@ -0,0 +1 @@
++#undef LG_GET_USER_PAGES_HAS_VMAS
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/get_user_pages_remote_has_tsk.h b/conftest/compile-tests/get_user_pages_remote_has_tsk.h
+--- a/conftest/compile-tests/get_user_pages_remote_has_tsk.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/get_user_pages_remote_has_tsk.h	2026-11-01 23:10:42.015611378 +0800
+@@ -0,0 +1 @@
++#undef LG_GET_USER_PAGES_REMOTE_HAS_TSK
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/get_user_pages_remote_has_vmas.h b/conftest/compile-tests/get_user_pages_remote_has_vmas.h
+--- a/conftest/compile-tests/get_user_pages_remote_has_vmas.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/get_user_pages_remote_has_vmas.h	2026-11-01 23:10:55.213716021 +0800
+@@ -0,0 +1 @@
++#undef LG_GET_USER_PAGES_REMOTE_HAS_VMAS
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/hrtimer_init.h b/conftest/compile-tests/hrtimer_init.h
+--- a/conftest/compile-tests/hrtimer_init.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/hrtimer_init.h	2026-11-01 23:11:28.450979548 +0800
+@@ -0,0 +1 @@
++#undef LG_HRTIMER_INIT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/i2c_new_client_device.h b/conftest/compile-tests/i2c_new_client_device.h
+--- a/conftest/compile-tests/i2c_new_client_device.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/i2c_new_client_device.h	2026-11-01 23:10:16.828411677 +0800
+@@ -0,0 +1 @@
++#define LG_I2C_NEW_CLIENT_DEVICE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/kobj_type_has_attr_group.h b/conftest/compile-tests/kobj_type_has_attr_group.h
+--- a/conftest/compile-tests/kobj_type_has_attr_group.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/kobj_type_has_attr_group.h	2026-11-01 23:11:17.018888907 +0800
+@@ -0,0 +1 @@
++#define LG_KOBJ_TYPE_HAS_ATTR_GROUP
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/loongson_screen_state.h b/conftest/compile-tests/loongson_screen_state.h
+--- a/conftest/compile-tests/loongson_screen_state.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/loongson_screen_state.h	2026-11-01 23:10:34.454551429 +0800
+@@ -0,0 +1 @@
++#undef LG_LOONGSON_SCREEN_STATE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/loongson_system_configuration_has_vgabios_addr.h b/conftest/compile-tests/loongson_system_configuration_has_vgabios_addr.h
+--- a/conftest/compile-tests/loongson_system_configuration_has_vgabios_addr.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/loongson_system_configuration_has_vgabios_addr.h	2026-11-01 23:10:44.504631112 +0800
+@@ -0,0 +1 @@
++#undef LG_LOONGSON_SYS_CONF_HAS_VGABIOS_ADDR
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/mm_struct_has_mmap_lock.h b/conftest/compile-tests/mm_struct_has_mmap_lock.h
+--- a/conftest/compile-tests/mm_struct_has_mmap_lock.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/mm_struct_has_mmap_lock.h	2026-11-01 23:10:29.118509121 +0800
+@@ -0,0 +1 @@
++#define LG_MM_STRUCT_HAS_MMAP_LOCK
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/mmu_notifier_ops_has_free_notifier.h b/conftest/compile-tests/mmu_notifier_ops_has_free_notifier.h
+--- a/conftest/compile-tests/mmu_notifier_ops_has_free_notifier.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/mmu_notifier_ops_has_free_notifier.h	2026-11-01 23:11:20.249914524 +0800
+@@ -0,0 +1 @@
++#define LG_MMU_NOTIFIER_OPS_HAS_FREE_NOTIFIER
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/mmu_notifier_ops_invalidate_range_start_has_range_arg.h b/conftest/compile-tests/mmu_notifier_ops_invalidate_range_start_has_range_arg.h
+--- a/conftest/compile-tests/mmu_notifier_ops_invalidate_range_start_has_range_arg.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/mmu_notifier_ops_invalidate_range_start_has_range_arg.h	2026-11-01 23:10:31.301526430 +0800
+@@ -0,0 +1 @@
++#define LG_MMU_NOTIFIER_INVALIDATE_RANGE_START_HAS_RANGE_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/mmu_notifier_put.h b/conftest/compile-tests/mmu_notifier_put.h
+--- a/conftest/compile-tests/mmu_notifier_put.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/mmu_notifier_put.h	2026-11-01 23:10:14.898396375 +0800
+@@ -0,0 +1 @@
++#define LG_MMU_NOTIFIER_PUT_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/mmu_notifier_unregister.h b/conftest/compile-tests/mmu_notifier_unregister.h
+--- a/conftest/compile-tests/mmu_notifier_unregister.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/mmu_notifier_unregister.h	2026-11-01 23:10:28.733506069 +0800
+@@ -0,0 +1 @@
++#define LG_MMU_NOTIFIER_UNREGISTER
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/mmu_notifier_unregister_no_release.h b/conftest/compile-tests/mmu_notifier_unregister_no_release.h
+--- a/conftest/compile-tests/mmu_notifier_unregister_no_release.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/mmu_notifier_unregister_no_release.h	2026-11-01 23:10:28.332502889 +0800
+@@ -0,0 +1 @@
++#undef LG_MMU_NOTIFIER_UNREGISTER_NO_RELEASE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/mode_config_has_fb_modifiers.h b/conftest/compile-tests/mode_config_has_fb_modifiers.h
+--- a/conftest/compile-tests/mode_config_has_fb_modifiers.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/mode_config_has_fb_modifiers.h	2026-11-01 23:11:19.711910259 +0800
+@@ -0,0 +1 @@
++#define LG_MODE_CONFIG_HAS_FB_MODIFIERS
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/mode_valid_has_const_mode_arg.h b/conftest/compile-tests/mode_valid_has_const_mode_arg.h
+--- a/conftest/compile-tests/mode_valid_has_const_mode_arg.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/mode_valid_has_const_mode_arg.h	2026-11-01 23:11:24.481948079 +0800
+@@ -0,0 +1 @@
++#define LG_MODE_VALID_HAS_CONST_MODE_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/pci_map_page.h b/conftest/compile-tests/pci_map_page.h
+--- a/conftest/compile-tests/pci_map_page.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/pci_map_page.h	2026-11-01 23:10:22.739458544 +0800
+@@ -0,0 +1 @@
++#define LG_PCI_MAP_PAGE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/pci_set_dma_mask.h b/conftest/compile-tests/pci_set_dma_mask.h
+--- a/conftest/compile-tests/pci_set_dma_mask.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/pci_set_dma_mask.h	2026-11-01 23:10:50.422678035 +0800
+@@ -0,0 +1 @@
++#define LG_PCI_SET_DMA_MASK
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/prime_handle_to_fd.h b/conftest/compile-tests/prime_handle_to_fd.h
+--- a/conftest/compile-tests/prime_handle_to_fd.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/prime_handle_to_fd.h	2026-11-01 23:10:27.137493415 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_GEM_PRIME_HANDLE_TO_FD
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/pwm_add_table.h b/conftest/compile-tests/pwm_add_table.h
+--- a/conftest/compile-tests/pwm_add_table.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/pwm_add_table.h	2026-11-01 23:11:20.297914905 +0800
+@@ -0,0 +1 @@
++#define LG_IS_EXPORT_SYMBOL_GPL_pwm_add_table 0
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/pwm_apply_state.h b/conftest/compile-tests/pwm_apply_state.h
+--- a/conftest/compile-tests/pwm_apply_state.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/pwm_apply_state.h	2026-11-01 23:10:27.877499282 +0800
+@@ -0,0 +1 @@
++#undef LG_PWM_APPLY_STATE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/pwm_free.h b/conftest/compile-tests/pwm_free.h
+--- a/conftest/compile-tests/pwm_free.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/pwm_free.h	2026-11-01 23:10:21.796451067 +0800
+@@ -0,0 +1 @@
++#undef LG_PWM_FREE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/pwm_remove_table.h b/conftest/compile-tests/pwm_remove_table.h
+--- a/conftest/compile-tests/pwm_remove_table.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/pwm_remove_table.h	2026-11-01 23:11:20.340915246 +0800
+@@ -0,0 +1 @@
++#define LG_IS_EXPORT_SYMBOL_GPL_pwm_remove_table 0
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/pwm_request.h b/conftest/compile-tests/pwm_request.h
+--- a/conftest/compile-tests/pwm_request.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/pwm_request.h	2026-11-01 23:11:13.408860284 +0800
+@@ -0,0 +1 @@
++#undef LG_PWM_REQUEST
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/swiotlb_nr_tbl.h b/conftest/compile-tests/swiotlb_nr_tbl.h
+--- a/conftest/compile-tests/swiotlb_nr_tbl.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/swiotlb_nr_tbl.h	2026-11-01 23:10:25.997484376 +0800
+@@ -0,0 +1 @@
++#undef LG_SWIOTLB_NR_TBL
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/sysfs_emit.h b/conftest/compile-tests/sysfs_emit.h
+--- a/conftest/compile-tests/sysfs_emit.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/sysfs_emit.h	2026-11-01 23:11:16.496884768 +0800
+@@ -0,0 +1 @@
++#define LG_SYSFS_EMIT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_backend_func.h b/conftest/compile-tests/ttm_backend_func.h
+--- a/conftest/compile-tests/ttm_backend_func.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_backend_func.h	2026-11-01 23:10:42.979619021 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BACKEND_FUNC
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_clean_mm.h b/conftest/compile-tests/ttm_bo_clean_mm.h
+--- a/conftest/compile-tests/ttm_bo_clean_mm.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_clean_mm.h	2026-11-01 23:10:17.051413445 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_BO_CLEAN_MM
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_device_has_glob.h b/conftest/compile-tests/ttm_bo_device_has_glob.h
+--- a/conftest/compile-tests/ttm_bo_device_has_glob.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_device_has_glob.h	2026-11-01 23:10:43.967626855 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BO_DEVICE_HAS_GLOB
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_device_init.h b/conftest/compile-tests/ttm_bo_device_init.h
+--- a/conftest/compile-tests/ttm_bo_device_init.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_device_init.h	2026-11-01 23:10:30.131517153 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BO_DEVICE_INIT_HAS_GLOB_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_device_init_has_man.h b/conftest/compile-tests/ttm_bo_device_init_has_man.h
+--- a/conftest/compile-tests/ttm_bo_device_init_has_man.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_device_init_has_man.h	2026-11-01 23:10:44.031627362 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BO_DEVICE_INIT_HAS_MAN
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_dma_acc_size.h b/conftest/compile-tests/ttm_bo_dma_acc_size.h
+--- a/conftest/compile-tests/ttm_bo_dma_acc_size.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_dma_acc_size.h	2026-11-01 23:10:22.815459147 +0800
+@@ -0,0 +1 @@
++#define LG_HAS_TTM_BO_DMA_ACC_SIZE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_driver_has_invalidate.h b/conftest/compile-tests/ttm_bo_driver_has_invalidate.h
+--- a/conftest/compile-tests/ttm_bo_driver_has_invalidate.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_driver_has_invalidate.h	2026-11-01 23:10:43.838625832 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BO_DRIVER_HAS_INVALIDATE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_driver_has_ttm_tt_bind.h b/conftest/compile-tests/ttm_bo_driver_has_ttm_tt_bind.h
+--- a/conftest/compile-tests/ttm_bo_driver_has_ttm_tt_bind.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_driver_has_ttm_tt_bind.h	2026-11-01 23:10:43.913626427 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BO_DRIVER_HAS_TTM_TT_BIND
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_evict_mm.h b/conftest/compile-tests/ttm_bo_evict_mm.h
+--- a/conftest/compile-tests/ttm_bo_evict_mm.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_evict_mm.h	2026-11-01 23:10:23.694466116 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_BO_EVICT_MM
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_init_mm.h b/conftest/compile-tests/ttm_bo_init_mm.h
+--- a/conftest/compile-tests/ttm_bo_init_mm.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_init_mm.h	2026-11-01 23:10:16.978412867 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_BO_INIT_MM
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_init_reserved_has_size.h b/conftest/compile-tests/ttm_bo_init_reserved_has_size.h
+--- a/conftest/compile-tests/ttm_bo_init_reserved_has_size.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_init_reserved_has_size.h	2026-11-01 23:10:58.409741361 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BO_INIT_RESERVED_HAS_SIZE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_lock_delayed_workqueue.h b/conftest/compile-tests/ttm_bo_lock_delayed_workqueue.h
+--- a/conftest/compile-tests/ttm_bo_lock_delayed_workqueue.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_lock_delayed_workqueue.h	2026-11-01 23:10:20.125437818 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_BO_DELAYED_WORKQUEUE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_mem_put.h b/conftest/compile-tests/ttm_bo_mem_put.h
+--- a/conftest/compile-tests/ttm_bo_mem_put.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_mem_put.h	2026-11-01 23:10:17.665418314 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_BO_MEM_PUT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_mem_space.h b/conftest/compile-tests/ttm_bo_mem_space.h
+--- a/conftest/compile-tests/ttm_bo_mem_space.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_mem_space.h	2026-11-01 23:11:03.683783177 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_BO_MEM_SPACE_MEM_ARG_DOUBLE_PTR
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_mmap.h b/conftest/compile-tests/ttm_bo_mmap.h
+--- a/conftest/compile-tests/ttm_bo_mmap.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_mmap.h	2026-11-01 23:10:21.858451559 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_BO_MMAP
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_move_to_lru_tail_has_bulk_arg.h b/conftest/compile-tests/ttm_bo_move_to_lru_tail_has_bulk_arg.h
+--- a/conftest/compile-tests/ttm_bo_move_to_lru_tail_has_bulk_arg.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_move_to_lru_tail_has_bulk_arg.h	2026-11-01 23:10:30.863522957 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BO_MOVE_TO_LRU_TAIL_HAS_BULK_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_pipeline_move.h b/conftest/compile-tests/ttm_bo_pipeline_move.h
+--- a/conftest/compile-tests/ttm_bo_pipeline_move.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_pipeline_move.h	2026-11-01 23:10:17.595417759 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_BO_PIPELINE_MOVE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bo_populate.h b/conftest/compile-tests/ttm_bo_populate.h
+--- a/conftest/compile-tests/ttm_bo_populate.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bo_populate.h	2026-11-01 23:11:15.455876514 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_BO_POPULATE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_buffer_object_has_base.h b/conftest/compile-tests/ttm_buffer_object_has_base.h
+--- a/conftest/compile-tests/ttm_buffer_object_has_base.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_buffer_object_has_base.h	2026-11-01 23:10:31.520528166 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BUFFER_OBJECT_HAS_BASE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_buffer_object_has_mem.h b/conftest/compile-tests/ttm_buffer_object_has_mem.h
+--- a/conftest/compile-tests/ttm_buffer_object_has_mem.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_buffer_object_has_mem.h	2026-11-01 23:11:04.381788712 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BUFFER_OBJECT_HAS_MEM
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_buffer_object_has_resv.h b/conftest/compile-tests/ttm_buffer_object_has_resv.h
+--- a/conftest/compile-tests/ttm_buffer_object_has_resv.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_buffer_object_has_resv.h	2026-11-01 23:11:03.773783891 +0800
+@@ -0,0 +1 @@
++#undef LG_TBO_HAS_RESV
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_buffer_obj_has_offset.h b/conftest/compile-tests/ttm_buffer_obj_has_offset.h
+--- a/conftest/compile-tests/ttm_buffer_obj_has_offset.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_buffer_obj_has_offset.h	2026-11-01 23:10:42.088611957 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BUFFER_OBJ_HAS_OFFSET
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_bus_placement_has_size.h b/conftest/compile-tests/ttm_bus_placement_has_size.h
+--- a/conftest/compile-tests/ttm_bus_placement_has_size.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_bus_placement_has_size.h	2026-11-01 23:10:41.344606058 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_BUS_PLACEMENT_HAS_SIZE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_device_has_lru_lock.h b/conftest/compile-tests/ttm_device_has_lru_lock.h
+--- a/conftest/compile-tests/ttm_device_has_lru_lock.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_device_has_lru_lock.h	2026-11-01 23:10:50.989682530 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_DEVICE_HAS_LRU_LOCK
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_dma_tt_fini.h b/conftest/compile-tests/ttm_dma_tt_fini.h
+--- a/conftest/compile-tests/ttm_dma_tt_fini.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_dma_tt_fini.h	2026-11-01 23:10:25.234478326 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_DMA_TT_FINI
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_dma_tt.h b/conftest/compile-tests/ttm_dma_tt.h
+--- a/conftest/compile-tests/ttm_dma_tt.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_dma_tt.h	2026-11-01 23:11:00.410757227 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_DMA_TT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_eu_reserve_buffers.h b/conftest/compile-tests/ttm_eu_reserve_buffers.h
+--- a/conftest/compile-tests/ttm_eu_reserve_buffers.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_eu_reserve_buffers.h	2026-11-01 23:10:30.202517716 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_EU_RESERVE_BUFFERS_HAS_DEL_LRU_ARG
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_fbdev_mmap.h b/conftest/compile-tests/ttm_fbdev_mmap.h
+--- a/conftest/compile-tests/ttm_fbdev_mmap.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_fbdev_mmap.h	2026-11-01 23:10:16.903412272 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_FBDEV_MMAP
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_global.h b/conftest/compile-tests/ttm_global.h
+--- a/conftest/compile-tests/ttm_global.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_global.h	2026-11-01 23:10:58.978745873 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_GLOBAL
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_placement_has_busy_placement.h b/conftest/compile-tests/ttm_placement_has_busy_placement.h
+--- a/conftest/compile-tests/ttm_placement_has_busy_placement.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_placement_has_busy_placement.h	2026-11-01 23:11:14.492868879 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_PLACEMENT_HAS_BUSY_PLACEMENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_range_mgr_node.h b/conftest/compile-tests/ttm_range_mgr_node.h
+--- a/conftest/compile-tests/ttm_range_mgr_node.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_range_mgr_node.h	2026-11-01 23:10:52.896697650 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_RANGE_MGR_NODE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_resource_alloc.h b/conftest/compile-tests/ttm_resource_alloc.h
+--- a/conftest/compile-tests/ttm_resource_alloc.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_resource_alloc.h	2026-11-01 23:10:17.519417156 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_RESOURCE_ALLOC
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_resource_free_double_ptr.h b/conftest/compile-tests/ttm_resource_free_double_ptr.h
+--- a/conftest/compile-tests/ttm_resource_free_double_ptr.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_resource_free_double_ptr.h	2026-11-01 23:10:59.483749877 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_RESOURCE_FREE_DOUBLE_PTR
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_resource_has_num_pages.h b/conftest/compile-tests/ttm_resource_has_num_pages.h
+--- a/conftest/compile-tests/ttm_resource_has_num_pages.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_resource_has_num_pages.h	2026-11-01 23:11:02.683775249 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_RES_HAS_NUM_PAGES
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_resource_manager_evict_all.h b/conftest/compile-tests/ttm_resource_manager_evict_all.h
+--- a/conftest/compile-tests/ttm_resource_manager_evict_all.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_resource_manager_evict_all.h	2026-11-01 23:10:19.075429493 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_RESOURCE_MANAGER_EVICT_ALL
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_resource_manager_func_alloc_has_res_arg.h b/conftest/compile-tests/ttm_resource_manager_func_alloc_has_res_arg.h
+--- a/conftest/compile-tests/ttm_resource_manager_func_alloc_has_res_arg.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_resource_manager_func_alloc_has_res_arg.h	2026-11-01 23:10:53.446702011 +0800
+@@ -0,0 +1 @@
++#define LG_MAN_FUNC_ALLOC_HAS_RES
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_resource_manager.h b/conftest/compile-tests/ttm_resource_manager.h
+--- a/conftest/compile-tests/ttm_resource_manager.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_resource_manager.h	2026-11-01 23:10:41.268605455 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_RESOURCE_MANAGER
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_resource_manager_init_has_bdev.h b/conftest/compile-tests/ttm_resource_manager_init_has_bdev.h
+--- a/conftest/compile-tests/ttm_resource_manager_init_has_bdev.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_resource_manager_init_has_bdev.h	2026-11-01 23:10:44.922634427 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_RESOURCE_MANAGER_INIT_HAS_BDEV
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_sg_tt_init_has_caching.h b/conftest/compile-tests/ttm_sg_tt_init_has_caching.h
+--- a/conftest/compile-tests/ttm_sg_tt_init_has_caching.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_sg_tt_init_has_caching.h	2026-11-01 23:10:56.930729635 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_SG_TT_INIT_HAS_CACHING
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_tt_destroy_common.h b/conftest/compile-tests/ttm_tt_destroy_common.h
+--- a/conftest/compile-tests/ttm_tt_destroy_common.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_tt_destroy_common.h	2026-11-01 23:10:24.519472657 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_TT_DESTROY_COMMON
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_tt_has_state.h b/conftest/compile-tests/ttm_tt_has_state.h
+--- a/conftest/compile-tests/ttm_tt_has_state.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_tt_has_state.h	2026-11-01 23:10:43.768625277 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_TT_HAS_STATE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_tt_populate_has_bdev.h b/conftest/compile-tests/ttm_tt_populate_has_bdev.h
+--- a/conftest/compile-tests/ttm_tt_populate_has_bdev.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_tt_populate_has_bdev.h	2026-11-01 23:10:43.051619592 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_TT_POPULATE_HAS_BDEV
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_tt_set_populated.h b/conftest/compile-tests/ttm_tt_set_populated.h
+--- a/conftest/compile-tests/ttm_tt_set_populated.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_tt_set_populated.h	2026-11-01 23:10:18.574425521 +0800
+@@ -0,0 +1 @@
++#undef LG_TTM_TT_SET_POPULATED
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/ttm_validate_buffer_has_num_shared.h b/conftest/compile-tests/ttm_validate_buffer_has_num_shared.h
+--- a/conftest/compile-tests/ttm_validate_buffer_has_num_shared.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/ttm_validate_buffer_has_num_shared.h	2026-11-01 23:10:32.074532559 +0800
+@@ -0,0 +1 @@
++#define LG_TTM_VALIDATE_BUFFER_HAS_NUM_SHARED
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/turn_off_lvds.h b/conftest/compile-tests/turn_off_lvds.h
+--- a/conftest/compile-tests/turn_off_lvds.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/turn_off_lvds.h	2026-11-01 23:11:28.925983314 +0800
+@@ -0,0 +1 @@
++#define LG_IS_EXPORT_SYMBOL_turn_off_lvds 0
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/turn_on_lvds.h b/conftest/compile-tests/turn_on_lvds.h
+--- a/conftest/compile-tests/turn_on_lvds.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/turn_on_lvds.h	2026-11-01 23:11:28.881982965 +0800
+@@ -0,0 +1 @@
++#define LG_IS_EXPORT_SYMBOL_turn_on_lvds 0
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/use_mm.h b/conftest/compile-tests/use_mm.h
+--- a/conftest/compile-tests/use_mm.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/use_mm.h	2026-11-01 23:11:17.848895488 +0800
+@@ -0,0 +1 @@
++#undef LG_USE_MM
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/vga_client_register.h b/conftest/compile-tests/vga_client_register.h
+--- a/conftest/compile-tests/vga_client_register.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/vga_client_register.h	2026-11-01 23:10:47.973658617 +0800
+@@ -0,0 +1 @@
++#undef LG_VGA_CLIENT_REGISTER_HAS_COOKIE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/vgacon_text_force.h b/conftest/compile-tests/vgacon_text_force.h
+--- a/conftest/compile-tests/vgacon_text_force.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/vgacon_text_force.h	2026-11-01 23:11:02.157771078 +0800
+@@ -0,0 +1 @@
++#undef LG_VGACON_TEXT_FORCE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/vm_flags_set.h b/conftest/compile-tests/vm_flags_set.h
+--- a/conftest/compile-tests/vm_flags_set.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/vm_flags_set.h	2026-11-01 23:11:18.657901902 +0800
+@@ -0,0 +1 @@
++#define LG_VM_FLAGS_SET
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/zone_managed_pages.h b/conftest/compile-tests/zone_managed_pages.h
+--- a/conftest/compile-tests/zone_managed_pages.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/zone_managed_pages.h	2026-11-01 23:11:15.916880169 +0800
+@@ -0,0 +1 @@
++#undef LG_ZONE_MANAGED_PAGES
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/compile-tests/zone_managed_pages_has_const_zone.h b/conftest/compile-tests/zone_managed_pages_has_const_zone.h
+--- a/conftest/compile-tests/zone_managed_pages_has_const_zone.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/compile-tests/zone_managed_pages_has_const_zone.h	2026-11-01 23:11:28.105976812 +0800
+@@ -0,0 +1 @@
++#define LG_ZONE_MANAGED_PAGES_HAS_CONST_ZONE
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/functions.h b/conftest/functions.h
+--- a/conftest/functions.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/functions.h	2026-11-01 23:10:28.748506188 +0800
+@@ -0,0 +1,36 @@
++#define LG_DRM_SCHED_STOP_PRESENT
++#define LG_DRM_SCHED_JOB_CLEANUP_PRESENT
++#define LG_DRM_FB_HELPER_FILL_INFO_PRESENT
++#define LG_DRM_NEED_SWIOTLB_PRESENT
++#define LG_MMU_NOTIFIER_PUT_PRESENT
++#undef LG_DRM_GEM_OBJECT_PUT_UNLOCKED
++#define LG_I2C_NEW_CLIENT_DEVICE
++#define LG_TTM_FBDEV_MMAP
++#define LG_TTM_BO_INIT_MM
++#define LG_TTM_BO_CLEAN_MM
++#define LG_TTM_RESOURCE_ALLOC
++#define LG_TTM_BO_PIPELINE_MOVE
++#define LG_TTM_BO_MEM_PUT
++#undef LG_TTM_TT_SET_POPULATED
++#define LG_TTM_RESOURCE_MANAGER_EVICT_ALL
++#define LG_DMA_RESV_WAIT_TIMEOUT
++#define LG_DRM_SCHED_JOB_ARM
++#define LG_TTM_BO_DELAYED_WORKQUEUE
++#define LG_DRM_FB_HELPER_ALLOC_INFO
++#undef LG_PWM_FREE
++#define LG_TTM_BO_MMAP
++#define LG_DRM_PRIME_SG_TO_DMA_ADDR_ARRAY
++#define LG_PCI_MAP_PAGE
++#define LG_HAS_TTM_BO_DMA_ACC_SIZE
++#define LG_HAS_DMA_RESV_RESERVE_FENCES
++#define LG_DMA_RESV_ADD_FENCE
++#define LG_TTM_BO_EVICT_MM
++#undef LG_TTM_TT_DESTROY_COMMON
++#undef LG_TTM_DMA_TT_FINI
++#undef LG_SWIOTLB_NR_TBL
++#undef LG_DRM_SCHED_DEPENDENCY_OPTIMIZED
++#define LG_DRM_GEM_PRIME_HANDLE_TO_FD
++#undef LG_PWM_APPLY_STATE
++#undef LG_MMU_NOTIFIER_UNREGISTER_NO_RELEASE
++#define LG_MMU_NOTIFIER_UNREGISTER
++// Kernel version:             "7.3.1-aosc-main-16k"
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/generic.h b/conftest/generic.h
+--- a/conftest/generic.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/generic.h	2026-11-01 23:11:28.964995773 +0800
+@@ -0,0 +1 @@
++// Kernel version:             "7.3.1-aosc-main-16k"
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/barrier.h.part b/conftest/header_presence/asm/barrier.h.part
+--- a/conftest/header_presence/asm/barrier.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/barrier.h.part	2026-11-01 23:10:07.071334317 +0800
+@@ -0,0 +1 @@
++#define LG_ASM_BARRIER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/book3s/64/hash-64k.h.part b/conftest/header_presence/asm/book3s/64/hash-64k.h.part
+--- a/conftest/header_presence/asm/book3s/64/hash-64k.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/book3s/64/hash-64k.h.part	2026-11-01 23:10:06.433329258 +0800
+@@ -0,0 +1 @@
++#undef LG_ASM_BOOK3S_64_HASH_64K_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/coco.h.part b/conftest/header_presence/asm/coco.h.part
+--- a/conftest/header_presence/asm/coco.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/coco.h.part	2026-11-01 23:10:10.289359832 +0800
+@@ -0,0 +1 @@
++#undef LG_ASM_COCO_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/cpufeature.h.part b/conftest/header_presence/asm/cpufeature.h.part
+--- a/conftest/header_presence/asm/cpufeature.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/cpufeature.h.part	2026-11-01 23:10:11.714371130 +0800
+@@ -0,0 +1 @@
++#define LG_ASM_CPUFEATURE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/loongson.h.part b/conftest/header_presence/asm/loongson.h.part
+--- a/conftest/header_presence/asm/loongson.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/loongson.h.part	2026-11-01 23:10:06.947333334 +0800
+@@ -0,0 +1 @@
++#define LG_ASM_LOONGSON_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/opal-api.h.part b/conftest/header_presence/asm/opal-api.h.part
+--- a/conftest/header_presence/asm/opal-api.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/opal-api.h.part	2026-11-01 23:10:07.127334761 +0800
+@@ -0,0 +1 @@
++#undef LG_ASM_OPAL_API_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/page.h.part b/conftest/header_presence/asm/page.h.part
+--- a/conftest/header_presence/asm/page.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/page.h.part	2026-11-01 23:10:07.544338067 +0800
+@@ -0,0 +1 @@
++#define LG_ASM_PAGE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/pgtable_types.h.part b/conftest/header_presence/asm/pgtable_types.h.part
+--- a/conftest/header_presence/asm/pgtable_types.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/pgtable_types.h.part	2026-11-01 23:10:07.474337512 +0800
+@@ -0,0 +1 @@
++#undef LG_ASM_PGTABLE_TYPES_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/powernv.h.part b/conftest/header_presence/asm/powernv.h.part
+--- a/conftest/header_presence/asm/powernv.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/powernv.h.part	2026-11-01 23:10:06.641330908 +0800
+@@ -0,0 +1 @@
++#undef LG_ASM_POWERNV_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/prom.h.part b/conftest/header_presence/asm/prom.h.part
+--- a/conftest/header_presence/asm/prom.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/prom.h.part	2026-11-01 23:10:06.564330297 +0800
+@@ -0,0 +1 @@
++#undef LG_ASM_PROM_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/set_memory.h.part b/conftest/header_presence/asm/set_memory.h.part
+--- a/conftest/header_presence/asm/set_memory.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/set_memory.h.part	2026-11-01 23:10:06.487329687 +0800
+@@ -0,0 +1 @@
++#define LG_ASM_SET_MEMORY_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/asm/system.h.part b/conftest/header_presence/asm/system.h.part
+--- a/conftest/header_presence/asm/system.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/asm/system.h.part	2026-11-01 23:09:56.117247466 +0800
+@@ -0,0 +1 @@
++#undef LG_ASM_SYSTEM_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/display/drm_dp_mst_helper.h.part b/conftest/header_presence/drm/display/drm_dp_mst_helper.h.part
+--- a/conftest/header_presence/drm/display/drm_dp_mst_helper.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/display/drm_dp_mst_helper.h.part	2026-11-01 23:10:01.489290059 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DISPLAY_DRM_DP_MST_HELPER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_aperture.h.part b/conftest/header_presence/drm/drm_aperture.h.part
+--- a/conftest/header_presence/drm/drm_aperture.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_aperture.h.part	2026-11-01 23:09:56.268248663 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRM_APERTURE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_atomic_helper.h.part b/conftest/header_presence/drm/drm_atomic_helper.h.part
+--- a/conftest/header_presence/drm/drm_atomic_helper.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_atomic_helper.h.part	2026-11-01 23:09:57.523258614 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_ATOMIC_HELPER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_atomic.h.part b/conftest/header_presence/drm/drm_atomic.h.part
+--- a/conftest/header_presence/drm/drm_atomic.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_atomic.h.part	2026-11-01 23:09:57.300256845 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_ATOMIC_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_atomic_state_helper.h.part b/conftest/header_presence/drm/drm_atomic_state_helper.h.part
+--- a/conftest/header_presence/drm/drm_atomic_state_helper.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_atomic_state_helper.h.part	2026-11-01 23:09:57.577259042 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_ATOMIC_STATE_HELPER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_atomic_uapi.h.part b/conftest/header_presence/drm/drm_atomic_uapi.h.part
+--- a/conftest/header_presence/drm/drm_atomic_uapi.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_atomic_uapi.h.part	2026-11-01 23:09:57.910261682 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_ATOMIC_UAPI_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_auth.h.part b/conftest/header_presence/drm/drm_auth.h.part
+--- a/conftest/header_presence/drm/drm_auth.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_auth.h.part	2026-11-01 23:09:56.471250273 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_AUTH_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_blend.h.part b/conftest/header_presence/drm/drm_blend.h.part
+--- a/conftest/header_presence/drm/drm_blend.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_blend.h.part	2026-11-01 23:09:59.360273179 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_BLEND_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_buddy.h.part b/conftest/header_presence/drm/drm_buddy.h.part
+--- a/conftest/header_presence/drm/drm_buddy.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_buddy.h.part	2026-11-01 23:10:02.823300636 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_BUDDY_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_color_mgmt.h.part b/conftest/header_presence/drm/drm_color_mgmt.h.part
+--- a/conftest/header_presence/drm/drm_color_mgmt.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_color_mgmt.h.part	2026-11-01 23:09:57.052254879 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_COLOR_MGMT_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_connector.h.part b/conftest/header_presence/drm/drm_connector.h.part
+--- a/conftest/header_presence/drm/drm_connector.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_connector.h.part	2026-11-01 23:09:59.020270483 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_CONNECTOR_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_crtc.h.part b/conftest/header_presence/drm/drm_crtc.h.part
+--- a/conftest/header_presence/drm/drm_crtc.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_crtc.h.part	2026-11-01 23:09:56.958254134 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_CRTC_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_damage_helper.h.part b/conftest/header_presence/drm/drm_damage_helper.h.part
+--- a/conftest/header_presence/drm/drm_damage_helper.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_damage_helper.h.part	2026-11-01 23:10:02.110294983 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_DAMAGE_HELPER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_device.h.part b/conftest/header_presence/drm/drm_device.h.part
+--- a/conftest/header_presence/drm/drm_device.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_device.h.part	2026-11-01 23:10:00.735284081 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_DEVICE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_drv.h.part b/conftest/header_presence/drm/drm_drv.h.part
+--- a/conftest/header_presence/drm/drm_drv.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_drv.h.part	2026-11-01 23:09:58.124263379 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_DRV_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_encoder.h.part b/conftest/header_presence/drm/drm_encoder.h.part
+--- a/conftest/header_presence/drm/drm_encoder.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_encoder.h.part	2026-11-01 23:09:57.855261246 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_ENCODER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_fbdev_generic.h.part b/conftest/header_presence/drm/drm_fbdev_generic.h.part
+--- a/conftest/header_presence/drm/drm_fbdev_generic.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_fbdev_generic.h.part	2026-11-01 23:09:58.200263981 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRM_FBDEV_GENERIC_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_fb_helper.h.part b/conftest/header_presence/drm/drm_fb_helper.h.part
+--- a/conftest/header_presence/drm/drm_fb_helper.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_fb_helper.h.part	2026-11-01 23:09:58.716268073 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_FB_HELPER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_file.h.part b/conftest/header_presence/drm/drm_file.h.part
+--- a/conftest/header_presence/drm/drm_file.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_file.h.part	2026-11-01 23:10:00.464281932 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_FILE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_fourcc.h.part b/conftest/header_presence/drm/drm_fourcc.h.part
+--- a/conftest/header_presence/drm/drm_fourcc.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_fourcc.h.part	2026-11-01 23:09:59.414273607 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_FOURCC_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_framebuffer.h.part b/conftest/header_presence/drm/drm_framebuffer.h.part
+--- a/conftest/header_presence/drm/drm_framebuffer.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_framebuffer.h.part	2026-11-01 23:09:58.360265250 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_FRAMEBUFFER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_gem.h.part b/conftest/header_presence/drm/drm_gem.h.part
+--- a/conftest/header_presence/drm/drm_gem.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_gem.h.part	2026-11-01 23:09:56.687251985 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_GEM_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_gem_ttm_helper.h.part b/conftest/header_presence/drm/drm_gem_ttm_helper.h.part
+--- a/conftest/header_presence/drm/drm_gem_ttm_helper.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_gem_ttm_helper.h.part	2026-11-01 23:10:11.461369124 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_GEM_TTM_HELPER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_ioctl.h.part b/conftest/header_presence/drm/drm_ioctl.h.part
+--- a/conftest/header_presence/drm/drm_ioctl.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_ioctl.h.part	2026-11-01 23:10:00.535282495 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_IOCTL_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_irq.h.part b/conftest/header_presence/drm/drm_irq.h.part
+--- a/conftest/header_presence/drm/drm_irq.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_irq.h.part	2026-11-01 23:10:03.198303609 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRM_IRQ_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_mode_config.h.part b/conftest/header_presence/drm/drm_mode_config.h.part
+--- a/conftest/header_presence/drm/drm_mode_config.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_mode_config.h.part	2026-11-01 23:10:00.936285674 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_MODE_CONFIG_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_modeset_lock.h.part b/conftest/header_presence/drm/drm_modeset_lock.h.part
+--- a/conftest/header_presence/drm/drm_modeset_lock.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_modeset_lock.h.part	2026-11-01 23:10:01.121287141 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_MODESET_LOCK_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drmP.h.part b/conftest/header_presence/drm/drmP.h.part
+--- a/conftest/header_presence/drm/drmP.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drmP.h.part	2026-11-01 23:09:56.191248053 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_DRMP_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_plane.h.part b/conftest/header_presence/drm/drm_plane.h.part
+--- a/conftest/header_presence/drm/drm_plane.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_plane.h.part	2026-11-01 23:09:59.883277325 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_PLANE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_prime.h.part b/conftest/header_presence/drm/drm_prime.h.part
+--- a/conftest/header_presence/drm/drm_prime.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_prime.h.part	2026-11-01 23:09:59.590275002 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_PRIME_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_probe_helper.h.part b/conftest/header_presence/drm/drm_probe_helper.h.part
+--- a/conftest/header_presence/drm/drm_probe_helper.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_probe_helper.h.part	2026-11-01 23:09:59.316272830 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_PROBE_HELPER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/drm_vblank.h.part b/conftest/header_presence/drm/drm_vblank.h.part
+--- a/conftest/header_presence/drm/drm_vblank.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/drm_vblank.h.part	2026-11-01 23:10:00.200279839 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_DRM_VBLANK_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/ttm/ttm_bo_api.h.part b/conftest/header_presence/drm/ttm/ttm_bo_api.h.part
+--- a/conftest/header_presence/drm/ttm/ttm_bo_api.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/ttm/ttm_bo_api.h.part	2026-11-01 23:10:02.403297306 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_TTM_TTM_BO_API_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/ttm/ttm_bo_driver.h.part b/conftest/header_presence/drm/ttm/ttm_bo_driver.h.part
+--- a/conftest/header_presence/drm/ttm/ttm_bo_driver.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/ttm/ttm_bo_driver.h.part	2026-11-01 23:10:02.666299391 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_TTM_TTM_BO_DRIVER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/ttm/ttm_bo.h.part b/conftest/header_presence/drm/ttm/ttm_bo.h.part
+--- a/conftest/header_presence/drm/ttm/ttm_bo.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/ttm/ttm_bo.h.part	2026-11-01 23:10:01.799292517 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_TTM_TTM_BO_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/ttm/ttm_caching.h.part b/conftest/header_presence/drm/ttm/ttm_caching.h.part
+--- a/conftest/header_presence/drm/ttm/ttm_caching.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/ttm/ttm_caching.h.part	2026-11-01 23:10:02.589298780 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_TTM_TTM_CACHING_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/ttm/ttm_device.h.part b/conftest/header_presence/drm/ttm/ttm_device.h.part
+--- a/conftest/header_presence/drm/ttm/ttm_device.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/ttm/ttm_device.h.part	2026-11-01 23:10:02.324296679 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_TTM_TTM_DEVICE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/ttm/ttm_module.h.part b/conftest/header_presence/drm/ttm/ttm_module.h.part
+--- a/conftest/header_presence/drm/ttm/ttm_module.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/ttm/ttm_module.h.part	2026-11-01 23:10:03.305304457 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_TTM_TTM_MODULE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/ttm/ttm_page_alloc.h.part b/conftest/header_presence/drm/ttm/ttm_page_alloc.h.part
+--- a/conftest/header_presence/drm/ttm/ttm_page_alloc.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/ttm/ttm_page_alloc.h.part	2026-11-01 23:10:03.247303998 +0800
+@@ -0,0 +1 @@
++#undef LG_DRM_TTM_TTM_PAGE_ALLOC_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/ttm/ttm_range_manager.h.part b/conftest/header_presence/drm/ttm/ttm_range_manager.h.part
+--- a/conftest/header_presence/drm/ttm/ttm_range_manager.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/ttm/ttm_range_manager.h.part	2026-11-01 23:10:02.997302015 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_TTM_TTM_RANGE_MANAGER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/drm/ttm/ttm_resource.h.part b/conftest/header_presence/drm/ttm/ttm_resource.h.part
+--- a/conftest/header_presence/drm/ttm/ttm_resource.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/drm/ttm/ttm_resource.h.part	2026-11-01 23:10:03.147303205 +0800
+@@ -0,0 +1 @@
++#define LG_DRM_TTM_TTM_RESOURCE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/dt-bindings/interconnect/tegra_icc_id.h.part b/conftest/header_presence/dt-bindings/interconnect/tegra_icc_id.h.part
+--- a/conftest/header_presence/dt-bindings/interconnect/tegra_icc_id.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/dt-bindings/interconnect/tegra_icc_id.h.part	2026-11-01 23:10:03.373304997 +0800
+@@ -0,0 +1 @@
++#undef LG_DT_BINDINGS_INTERCONNECT_TEGRA_ICC_ID_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/generated/autoconf.h.part b/conftest/header_presence/generated/autoconf.h.part
+--- a/conftest/header_presence/generated/autoconf.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/generated/autoconf.h.part	2026-11-01 23:10:03.425305409 +0800
+@@ -0,0 +1 @@
++#define LG_GENERATED_AUTOCONF_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/generated/compile.h.part b/conftest/header_presence/generated/compile.h.part
+--- a/conftest/header_presence/generated/compile.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/generated/compile.h.part	2026-11-01 23:10:03.475305805 +0800
+@@ -0,0 +1 @@
++#define LG_GENERATED_COMPILE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/generated/utsrelease.h.part b/conftest/header_presence/generated/utsrelease.h.part
+--- a/conftest/header_presence/generated/utsrelease.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/generated/utsrelease.h.part	2026-11-01 23:10:03.517306138 +0800
+@@ -0,0 +1 @@
++#define LG_GENERATED_UTSRELEASE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/aperture.h.part b/conftest/header_presence/linux/aperture.h.part
+--- a/conftest/header_presence/linux/aperture.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/aperture.h.part	2026-11-01 23:10:03.565306519 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_APERTURE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/atomic.h.part b/conftest/header_presence/linux/atomic.h.part
+--- a/conftest/header_presence/linux/atomic.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/atomic.h.part	2026-11-01 23:10:07.017333889 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_ATOMIC_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/bug.h.part b/conftest/header_presence/linux/bug.h.part
+--- a/conftest/header_presence/linux/bug.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/bug.h.part	2026-11-01 23:10:04.365312862 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_BUG_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/cc_platform.h.part b/conftest/header_presence/linux/cc_platform.h.part
+--- a/conftest/header_presence/linux/cc_platform.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/cc_platform.h.part	2026-11-01 23:10:11.155366698 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_CC_PLATFORM_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/clk.h.part b/conftest/header_presence/linux/clk.h.part
+--- a/conftest/header_presence/linux/clk.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/clk.h.part	2026-11-01 23:10:09.874356541 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_CLK_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/clk-provider.h.part b/conftest/header_presence/linux/clk-provider.h.part
+--- a/conftest/header_presence/linux/clk-provider.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/clk-provider.h.part	2026-11-01 23:10:10.012357635 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_CLK_PROVIDER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/device/class.h.part b/conftest/header_presence/linux/device/class.h.part
+--- a/conftest/header_presence/linux/device/class.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/device/class.h.part	2026-11-01 23:10:05.319320426 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_DEVICE_CLASS_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/dma-buf.h.part b/conftest/header_presence/linux/dma-buf.h.part
+--- a/conftest/header_presence/linux/dma-buf.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/dma-buf.h.part	2026-11-01 23:10:08.374344648 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_DMA_BUF_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/dma-fence.h.part b/conftest/header_presence/linux/dma-fence.h.part
+--- a/conftest/header_presence/linux/dma-fence.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/dma-fence.h.part	2026-11-01 23:10:05.588322559 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_DMA_FENCE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/dma-map-ops.h.part b/conftest/header_presence/linux/dma-map-ops.h.part
+--- a/conftest/header_presence/linux/dma-map-ops.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/dma-map-ops.h.part	2026-11-01 23:10:07.783339962 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_DMA_MAP_OPS_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/dma-resv.h.part b/conftest/header_presence/linux/dma-resv.h.part
+--- a/conftest/header_presence/linux/dma-resv.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/dma-resv.h.part	2026-11-01 23:10:05.774324033 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_DMA_RESV_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/efi.h.part b/conftest/header_presence/linux/efi.h.part
+--- a/conftest/header_presence/linux/efi.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/efi.h.part	2026-11-01 23:10:03.807308438 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_EFI_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/fence.h.part b/conftest/header_presence/linux/fence.h.part
+--- a/conftest/header_presence/linux/fence.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/fence.h.part	2026-11-01 23:10:05.461321552 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_FENCE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/gpio/consumer.h.part b/conftest/header_presence/linux/gpio/consumer.h.part
+--- a/conftest/header_presence/linux/gpio/consumer.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/gpio/consumer.h.part	2026-11-01 23:10:09.428353005 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_GPIO_CONSUMER_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/gpio.h.part b/conftest/header_presence/linux/gpio.h.part
+--- a/conftest/header_presence/linux/gpio.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/gpio.h.part	2026-11-01 23:10:09.367352521 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_GPIO_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/host1x-next.h.part b/conftest/header_presence/linux/host1x-next.h.part
+--- a/conftest/header_presence/linux/host1x-next.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/host1x-next.h.part	2026-11-01 23:10:06.357328656 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_HOST1X_NEXT_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/interconnect.h.part b/conftest/header_presence/linux/interconnect.h.part
+--- a/conftest/header_presence/linux/interconnect.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/interconnect.h.part	2026-11-01 23:10:09.523353758 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_INTERCONNECT_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/ioasid.h.part b/conftest/header_presence/linux/ioasid.h.part
+--- a/conftest/header_presence/linux/ioasid.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/ioasid.h.part	2026-11-01 23:10:10.079358167 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_IOASID_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/iosys-map.h.part b/conftest/header_presence/linux/iosys-map.h.part
+--- a/conftest/header_presence/linux/iosys-map.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/iosys-map.h.part	2026-11-01 23:10:10.222359300 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_IOSYS_MAP_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/kconfig.h.part b/conftest/header_presence/linux/kconfig.h.part
+--- a/conftest/header_presence/linux/kconfig.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/kconfig.h.part	2026-11-01 23:10:03.845308739 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_KCONFIG_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/log2.h.part b/conftest/header_presence/linux/log2.h.part
+--- a/conftest/header_presence/linux/log2.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/log2.h.part	2026-11-01 23:10:04.141311086 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_LOG2_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/mdev.h.part b/conftest/header_presence/linux/mdev.h.part
+--- a/conftest/header_presence/linux/mdev.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/mdev.h.part	2026-11-01 23:10:10.714363201 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_MDEV_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/mutex.h.part b/conftest/header_presence/linux/mutex.h.part
+--- a/conftest/header_presence/linux/mutex.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/mutex.h.part	2026-11-01 23:10:08.838348327 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_MUTEX_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/nvhost.h.part b/conftest/header_presence/linux/nvhost.h.part
+--- a/conftest/header_presence/linux/nvhost.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/nvhost.h.part	2026-11-01 23:10:06.206327459 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_NVHOST_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/nvhost_t194.h.part b/conftest/header_presence/linux/nvhost_t194.h.part
+--- a/conftest/header_presence/linux/nvhost_t194.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/nvhost_t194.h.part	2026-11-01 23:10:06.281328053 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_NVHOST_T194_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/of_device.h.part b/conftest/header_presence/linux/of_device.h.part
+--- a/conftest/header_presence/linux/of_device.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/of_device.h.part	2026-11-01 23:10:09.250351594 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_OF_DEVICE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/of_gpio.h.part b/conftest/header_presence/linux/of_gpio.h.part
+--- a/conftest/header_presence/linux/of_gpio.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/of_gpio.h.part	2026-11-01 23:10:09.301351998 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_OF_GPIO_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/of.h.part b/conftest/header_presence/linux/of.h.part
+--- a/conftest/header_presence/linux/of.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/of.h.part	2026-11-01 23:10:04.307312402 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_OF_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/of_platform.h.part b/conftest/header_presence/linux/of_platform.h.part
+--- a/conftest/header_presence/linux/of_platform.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/of_platform.h.part	2026-11-01 23:10:09.082350262 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_OF_PLATFORM_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/pci-dma-compat.h.part b/conftest/header_presence/linux/pci-dma-compat.h.part
+--- a/conftest/header_presence/linux/pci-dma-compat.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/pci-dma-compat.h.part	2026-11-01 23:10:05.850324636 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_PCI_DMA_COMPAT_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/platform/tegra/dce/dce-client-ipc.h.part b/conftest/header_presence/linux/platform/tegra/dce/dce-client-ipc.h.part
+--- a/conftest/header_presence/linux/platform/tegra/dce/dce-client-ipc.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/platform/tegra/dce/dce-client-ipc.h.part	2026-11-01 23:10:06.129326848 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_PLATFORM_TEGRA_DCE_DCE_CLIENT_IPC_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/platform/tegra/mc_utils.h.part b/conftest/header_presence/linux/platform/tegra/mc_utils.h.part
+--- a/conftest/header_presence/linux/platform/tegra/mc_utils.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/platform/tegra/mc_utils.h.part	2026-11-01 23:10:03.896309143 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_PLATFORM_TEGRA_MC_UTILS_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/platform_device.h.part b/conftest/header_presence/linux/platform_device.h.part
+--- a/conftest/header_presence/linux/platform_device.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/platform_device.h.part	2026-11-01 23:10:08.699347225 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_PLATFORM_DEVICE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/pm_runtime.h.part b/conftest/header_presence/linux/pm_runtime.h.part
+--- a/conftest/header_presence/linux/pm_runtime.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/pm_runtime.h.part	2026-11-01 23:10:09.736355447 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_PM_RUNTIME_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/printk.h.part b/conftest/header_presence/linux/printk.h.part
+--- a/conftest/header_presence/linux/printk.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/printk.h.part	2026-11-01 23:10:03.933309437 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_PRINTK_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/prio_tree.h.part b/conftest/header_presence/linux/prio_tree.h.part
+--- a/conftest/header_presence/linux/prio_tree.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/prio_tree.h.part	2026-11-01 23:10:04.097310737 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_PRIO_TREE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/ratelimit.h.part b/conftest/header_presence/linux/ratelimit.h.part
+--- a/conftest/header_presence/linux/ratelimit.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/ratelimit.h.part	2026-11-01 23:10:04.045310325 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_RATELIMIT_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/reservation.h.part b/conftest/header_presence/linux/reservation.h.part
+--- a/conftest/header_presence/linux/reservation.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/reservation.h.part	2026-11-01 23:10:05.128318911 +0800
+@@ -0,0 +1 @@
++#undef LG_LINUX_RESERVATION_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/reset.h.part b/conftest/header_presence/linux/reset.h.part
+--- a/conftest/header_presence/linux/reset.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/reset.h.part	2026-11-01 23:10:09.042349944 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_RESET_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/sched/mm.h.part b/conftest/header_presence/linux/sched/mm.h.part
+--- a/conftest/header_presence/linux/sched/mm.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/sched/mm.h.part	2026-11-01 23:10:04.685315399 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_SCHED_MM_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/sched/signal.h.part b/conftest/header_presence/linux/sched/signal.h.part
+--- a/conftest/header_presence/linux/sched/signal.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/sched/signal.h.part	2026-11-01 23:10:04.814316422 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_SCHED_SIGNAL_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/sched/task.h.part b/conftest/header_presence/linux/sched/task.h.part
+--- a/conftest/header_presence/linux/sched/task.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/sched/task.h.part	2026-11-01 23:10:04.929317334 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_SCHED_TASK_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/sched/task_stack.h.part b/conftest/header_presence/linux/sched/task_stack.h.part
+--- a/conftest/header_presence/linux/sched/task_stack.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/sched/task_stack.h.part	2026-11-01 23:10:05.051318301 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_SCHED_TASK_STACK_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/sched.h.part b/conftest/header_presence/linux/sched.h.part
+--- a/conftest/header_presence/linux/sched.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/sched.h.part	2026-11-01 23:10:04.505313972 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_SCHED_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/stdarg.h.part b/conftest/header_presence/linux/stdarg.h.part
+--- a/conftest/header_presence/linux/stdarg.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/stdarg.h.part	2026-11-01 23:10:10.131358579 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_STDARG_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/stringhash.h.part b/conftest/header_presence/linux/stringhash.h.part
+--- a/conftest/header_presence/linux/stringhash.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/stringhash.h.part	2026-11-01 23:10:07.589338424 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_STRINGHASH_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/sync_file.h.part b/conftest/header_presence/linux/sync_file.h.part
+--- a/conftest/header_presence/linux/sync_file.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/sync_file.h.part	2026-11-01 23:10:11.114366373 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_SYNC_FILE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/time.h.part b/conftest/header_presence/linux/time.h.part
+--- a/conftest/header_presence/linux/time.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/time.h.part	2026-11-01 23:10:08.417344989 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_TIME_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/linux/vfio_pci_core.h.part b/conftest/header_presence/linux/vfio_pci_core.h.part
+--- a/conftest/header_presence/linux/vfio_pci_core.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/linux/vfio_pci_core.h.part	2026-11-01 23:10:10.540361822 +0800
+@@ -0,0 +1 @@
++#define LG_LINUX_VFIO_PCI_CORE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/rdma/peer_mem.h.part b/conftest/header_presence/rdma/peer_mem.h.part
+--- a/conftest/header_presence/rdma/peer_mem.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/rdma/peer_mem.h.part	2026-11-01 23:10:07.850340493 +0800
+@@ -0,0 +1 @@
++#undef LG_RDMA_PEER_MEM_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/soc/tegra/bpmp-abi.h.part b/conftest/header_presence/soc/tegra/bpmp-abi.h.part
+--- a/conftest/header_presence/soc/tegra/bpmp-abi.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/soc/tegra/bpmp-abi.h.part	2026-11-01 23:10:10.752363503 +0800
+@@ -0,0 +1 @@
++#define LG_SOC_TEGRA_BPMP_ABI_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/soc/tegra/bpmp.h.part b/conftest/header_presence/soc/tegra/bpmp.h.part
+--- a/conftest/header_presence/soc/tegra/bpmp.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/soc/tegra/bpmp.h.part	2026-11-01 23:10:10.962365168 +0800
+@@ -0,0 +1 @@
++#define LG_SOC_TEGRA_BPMP_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/soc/tegra/chip-id.h.part b/conftest/header_presence/soc/tegra/chip-id.h.part
+--- a/conftest/header_presence/soc/tegra/chip-id.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/soc/tegra/chip-id.h.part	2026-11-01 23:10:05.925325231 +0800
+@@ -0,0 +1 @@
++#undef LG_SOC_TEGRA_CHIP_ID_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/soc/tegra/fuse.h.part b/conftest/header_presence/soc/tegra/fuse.h.part
+--- a/conftest/header_presence/soc/tegra/fuse.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/soc/tegra/fuse.h.part	2026-11-01 23:10:05.980325667 +0800
+@@ -0,0 +1 @@
++#define LG_SOC_TEGRA_FUSE_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/soc/tegra/tegra_bpmp.h.part b/conftest/header_presence/soc/tegra/tegra_bpmp.h.part
+--- a/conftest/header_presence/soc/tegra/tegra_bpmp.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/soc/tegra/tegra_bpmp.h.part	2026-11-01 23:10:06.055326261 +0800
+@@ -0,0 +1 @@
++#undef LG_SOC_TEGRA_TEGRA_BPMP_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/sound/hda_codec.h.part b/conftest/header_presence/sound/hda_codec.h.part
+--- a/conftest/header_presence/sound/hda_codec.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/sound/hda_codec.h.part	2026-11-01 23:10:08.130342713 +0800
+@@ -0,0 +1 @@
++#define LG_SOUND_HDA_CODEC_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/sound/hdaudio.h.part b/conftest/header_presence/sound/hdaudio.h.part
+--- a/conftest/header_presence/sound/hdaudio.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/sound/hdaudio.h.part	2026-11-01 23:10:07.399336918 +0800
+@@ -0,0 +1 @@
++#define LG_SOUND_HDAUDIO_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/header_presence/xen/ioemu.h.part b/conftest/header_presence/xen/ioemu.h.part
+--- a/conftest/header_presence/xen/ioemu.h.part	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/header_presence/xen/ioemu.h.part	2026-11-01 23:10:05.388320973 +0800
+@@ -0,0 +1 @@
++#undef LG_XEN_IOEMU_H_PRESENT
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/headers.h b/conftest/headers.h
+--- a/conftest/headers.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/headers.h	2026-11-01 23:10:11.725371217 +0800
+@@ -0,0 +1,116 @@
++#undef LG_ASM_SYSTEM_H_PRESENT
++#undef LG_DRM_DRMP_H_PRESENT
++#undef LG_DRM_DRM_APERTURE_H_PRESENT
++#define LG_DRM_DRM_AUTH_H_PRESENT
++#define LG_DRM_DRM_GEM_H_PRESENT
++#define LG_DRM_DRM_CRTC_H_PRESENT
++#define LG_DRM_DRM_COLOR_MGMT_H_PRESENT
++#define LG_DRM_DRM_ATOMIC_H_PRESENT
++#define LG_DRM_DRM_ATOMIC_HELPER_H_PRESENT
++#define LG_DRM_DRM_ATOMIC_STATE_HELPER_H_PRESENT
++#define LG_DRM_DRM_ENCODER_H_PRESENT
++#define LG_DRM_DRM_ATOMIC_UAPI_H_PRESENT
++#define LG_DRM_DRM_DRV_H_PRESENT
++#undef LG_DRM_DRM_FBDEV_GENERIC_H_PRESENT
++#define LG_DRM_DRM_FRAMEBUFFER_H_PRESENT
++#define LG_DRM_DRM_FB_HELPER_H_PRESENT
++#define LG_DRM_DRM_CONNECTOR_H_PRESENT
++#define LG_DRM_DRM_PROBE_HELPER_H_PRESENT
++#define LG_DRM_DRM_BLEND_H_PRESENT
++#define LG_DRM_DRM_FOURCC_H_PRESENT
++#define LG_DRM_DRM_PRIME_H_PRESENT
++#define LG_DRM_DRM_PLANE_H_PRESENT
++#define LG_DRM_DRM_VBLANK_H_PRESENT
++#define LG_DRM_DRM_FILE_H_PRESENT
++#define LG_DRM_DRM_IOCTL_H_PRESENT
++#define LG_DRM_DRM_DEVICE_H_PRESENT
++#define LG_DRM_DRM_MODE_CONFIG_H_PRESENT
++#define LG_DRM_DRM_MODESET_LOCK_H_PRESENT
++#define LG_DRM_DISPLAY_DRM_DP_MST_HELPER_H_PRESENT
++#define LG_DRM_TTM_TTM_BO_H_PRESENT
++#define LG_DRM_DRM_DAMAGE_HELPER_H_PRESENT
++#define LG_DRM_TTM_TTM_DEVICE_H_PRESENT
++#undef LG_DRM_TTM_TTM_BO_API_H_PRESENT
++#define LG_DRM_TTM_TTM_CACHING_H_PRESENT
++#undef LG_DRM_TTM_TTM_BO_DRIVER_H_PRESENT
++#define LG_DRM_DRM_BUDDY_H_PRESENT
++#define LG_DRM_TTM_TTM_RANGE_MANAGER_H_PRESENT
++#define LG_DRM_TTM_TTM_RESOURCE_H_PRESENT
++#undef LG_DRM_DRM_IRQ_H_PRESENT
++#undef LG_DRM_TTM_TTM_PAGE_ALLOC_H_PRESENT
++#undef LG_DRM_TTM_TTM_MODULE_H_PRESENT
++#undef LG_DT_BINDINGS_INTERCONNECT_TEGRA_ICC_ID_H_PRESENT
++#define LG_GENERATED_AUTOCONF_H_PRESENT
++#define LG_GENERATED_COMPILE_H_PRESENT
++#define LG_GENERATED_UTSRELEASE_H_PRESENT
++#define LG_LINUX_APERTURE_H_PRESENT
++#define LG_LINUX_EFI_H_PRESENT
++#define LG_LINUX_KCONFIG_H_PRESENT
++#undef LG_LINUX_PLATFORM_TEGRA_MC_UTILS_H_PRESENT
++#define LG_LINUX_PRINTK_H_PRESENT
++#define LG_LINUX_RATELIMIT_H_PRESENT
++#undef LG_LINUX_PRIO_TREE_H_PRESENT
++#define LG_LINUX_LOG2_H_PRESENT
++#define LG_LINUX_OF_H_PRESENT
++#define LG_LINUX_BUG_H_PRESENT
++#define LG_LINUX_SCHED_H_PRESENT
++#define LG_LINUX_SCHED_MM_H_PRESENT
++#define LG_LINUX_SCHED_SIGNAL_H_PRESENT
++#define LG_LINUX_SCHED_TASK_H_PRESENT
++#define LG_LINUX_SCHED_TASK_STACK_H_PRESENT
++#undef LG_LINUX_RESERVATION_H_PRESENT
++#define LG_LINUX_DEVICE_CLASS_H_PRESENT
++#undef LG_XEN_IOEMU_H_PRESENT
++#undef LG_LINUX_FENCE_H_PRESENT
++#define LG_LINUX_DMA_FENCE_H_PRESENT
++#define LG_LINUX_DMA_RESV_H_PRESENT
++#undef LG_LINUX_PCI_DMA_COMPAT_H_PRESENT
++#undef LG_SOC_TEGRA_CHIP_ID_H_PRESENT
++#define LG_SOC_TEGRA_FUSE_H_PRESENT
++#undef LG_SOC_TEGRA_TEGRA_BPMP_H_PRESENT
++#undef LG_LINUX_PLATFORM_TEGRA_DCE_DCE_CLIENT_IPC_H_PRESENT
++#undef LG_LINUX_NVHOST_H_PRESENT
++#undef LG_LINUX_NVHOST_T194_H_PRESENT
++#undef LG_LINUX_HOST1X_NEXT_H_PRESENT
++#undef LG_ASM_BOOK3S_64_HASH_64K_H_PRESENT
++#define LG_ASM_SET_MEMORY_H_PRESENT
++#undef LG_ASM_PROM_H_PRESENT
++#undef LG_ASM_POWERNV_H_PRESENT
++#define LG_ASM_LOONGSON_H_PRESENT
++#define LG_LINUX_ATOMIC_H_PRESENT
++#define LG_ASM_BARRIER_H_PRESENT
++#undef LG_ASM_OPAL_API_H_PRESENT
++#define LG_SOUND_HDAUDIO_H_PRESENT
++#undef LG_ASM_PGTABLE_TYPES_H_PRESENT
++#define LG_ASM_PAGE_H_PRESENT
++#define LG_LINUX_STRINGHASH_H_PRESENT
++#define LG_LINUX_DMA_MAP_OPS_H_PRESENT
++#undef LG_RDMA_PEER_MEM_H_PRESENT
++#define LG_SOUND_HDA_CODEC_H_PRESENT
++#define LG_LINUX_DMA_BUF_H_PRESENT
++#define LG_LINUX_TIME_H_PRESENT
++#define LG_LINUX_PLATFORM_DEVICE_H_PRESENT
++#define LG_LINUX_MUTEX_H_PRESENT
++#define LG_LINUX_RESET_H_PRESENT
++#define LG_LINUX_OF_PLATFORM_H_PRESENT
++#define LG_LINUX_OF_DEVICE_H_PRESENT
++#undef LG_LINUX_OF_GPIO_H_PRESENT
++#define LG_LINUX_GPIO_H_PRESENT
++#define LG_LINUX_GPIO_CONSUMER_H_PRESENT
++#define LG_LINUX_INTERCONNECT_H_PRESENT
++#define LG_LINUX_PM_RUNTIME_H_PRESENT
++#define LG_LINUX_CLK_H_PRESENT
++#define LG_LINUX_CLK_PROVIDER_H_PRESENT
++#undef LG_LINUX_IOASID_H_PRESENT
++#define LG_LINUX_STDARG_H_PRESENT
++#define LG_LINUX_IOSYS_MAP_H_PRESENT
++#undef LG_ASM_COCO_H_PRESENT
++#define LG_LINUX_VFIO_PCI_CORE_H_PRESENT
++#define LG_LINUX_MDEV_H_PRESENT
++#define LG_SOC_TEGRA_BPMP_ABI_H_PRESENT
++#define LG_SOC_TEGRA_BPMP_H_PRESENT
++#define LG_LINUX_SYNC_FILE_H_PRESENT
++#define LG_LINUX_CC_PLATFORM_H_PRESENT
++#define LG_DRM_DRM_GEM_TTM_HELPER_H_PRESENT
++#define LG_ASM_CPUFEATURE_H_PRESENT
++// Kernel version:             "7.3.1-aosc-main-16k"
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/macros.h b/conftest/macros.h
+--- a/conftest/macros.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/macros.h	2026-11-01 23:10:11.739371328 +0800
+@@ -0,0 +1 @@
++// Kernel version:             "7.3.1-aosc-main-16k"
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/patches.h b/conftest/patches.h
+--- a/conftest/patches.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/patches.h	2026-11-01 23:09:56.038246839 +0800
+@@ -0,0 +1,5 @@
++static struct {
++                const char *short_description;
++                const char *description;
++              } __nv_patches[] = {
++{ NULL, NULL } };
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/symbols.h b/conftest/symbols.h
+--- a/conftest/symbols.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/symbols.h	2026-11-01 23:10:28.762506299 +0800
+@@ -0,0 +1 @@
++// Kernel version:             "7.3.1-aosc-main-16k"
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/types.h b/conftest/types.h
+--- a/conftest/types.h	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/types.h	2026-11-01 23:11:28.947983488 +0800
+@@ -0,0 +1,118 @@
++#define LG_MM_STRUCT_HAS_MMAP_LOCK
++#undef LG_DRM_DRIVER_PRIME_FLAG_PRESENT
++#undef LG_DRM_DRIVER_IRQ_SHARED_FLAG_PRESENT
++#undef LG_TTM_BO_DEVICE_INIT_HAS_GLOB_ARG
++#undef LG_TTM_EU_RESERVE_BUFFERS_HAS_DEL_LRU_ARG
++#define LG_DRM_SYNCOBJ_FIND_FENCE_HAS_FLAGS_ARG
++#undef LG_TTM_BO_MOVE_TO_LRU_TAIL_HAS_BULK_ARG
++#define LG_MMU_NOTIFIER_INVALIDATE_RANGE_START_HAS_RANGE_ARG
++#undef LG_DRM_HDMI_AVI_INFOFRAME_FROM_DISPLAY_MODE_HAS_CONNECTOR_ARG
++#define LG_DRM_HDMI_AVI_INFOFRAME_FROM_DISPLAY_MODE_HAS_CONST_CONNECTOR_ARG
++#undef LG_TTM_BUFFER_OBJECT_HAS_BASE
++#undef LG_DRM_DRIVER_HAS_GEM_PRIME_RES_OBJ
++#define LG_TTM_VALIDATE_BUFFER_HAS_NUM_SHARED
++#define LG_DRM_CRTC_STATE_HAS_ASYNC_FLIP
++#undef LG_DRM_DRIVER_GEM_PRIME_EXPORT_HAS_DEV_ARG
++#undef LG_LOONGSON_SCREEN_STATE
++#undef LG_DRM_CONNECTOR_FOR_EACH_POSSIBLE_ENCODER_HAS_I
++#define LG_DRM_BRIDGE_ATTACH_HAS_FLAGS_ARG
++#define LG_DRM_SCHED_PRIORITY_COUNT
++#undef LG_DRM_SCHED_PRIORITY_MIN
++#define LG_DRM_SCHED_ENTITY_INIT_HAS_PRIORITY_ARG
++#define LG_DRM_CRTC_HELPER_FUNCS_HAS_GET_SCANOUT_POSITION
++#undef LG_DRM_DRIVER_HAS_GET_VBLANK_TIMESTAMP
++#undef LG_DRM_FB_HELP_INIT_HAS_MAX_CONN_COUNT
++#define LG_DRM_PRIME_PAGES_TO_SG_HAS_DRM_DEVICE
++#define LG_TTM_RESOURCE_MANAGER
++#undef LG_TTM_BUS_PLACEMENT_HAS_SIZE
++#undef LG_GET_USER_PAGES_REMOTE_HAS_TSK
++#undef LG_TTM_BUFFER_OBJ_HAS_OFFSET
++#undef LG_TTM_BACKEND_FUNC
++#undef LG_TTM_TT_POPULATE_HAS_BDEV
++#undef LG_TTM_TT_HAS_STATE
++#undef LG_TTM_BO_DRIVER_HAS_INVALIDATE
++#undef LG_TTM_BO_DRIVER_HAS_TTM_TT_BIND
++#undef LG_TTM_BO_DEVICE_HAS_GLOB
++#undef LG_TTM_BO_DEVICE_INIT_HAS_MAN
++#define LG_DRM_DEVICE_HAS_ATOMIC_OPEN_COUNT
++#undef LG_LOONGSON_SYS_CONF_HAS_VGABIOS_ADDR
++#define LG_TTM_RESOURCE_MANAGER_INIT_HAS_BDEV
++#define LG_DRM_SCHED_BACKEND_OPS_TIMEDOUT_JOB_RET_SCHED_STAT
++#define LG_DRM_SCHED_ENTITY_PUSH_JOB_REMOVES_ENTITY
++#define LG_DRM_SCHED_BACKEDN_OPS_HAS_PREPARE
++#define LG_DMA_RESV_USAGE_BOOKKEEP_PRESENT
++#undef LG_ATOMIC_CHECK_HAS_DRM_ATOMIC_STATE
++#undef LG_VGA_CLIENT_REGISTER_HAS_COOKIE
++#undef LG_FB_INFO_HAS_APERTURES
++#define LG_DRM_FB_HELPER_PREPARE_HAS_BPP
++#undef LG_DRM_MODE_CONFIG_HAS_FB_BASE
++#define LG_PCI_SET_DMA_MASK
++#define LG_TTM_DEVICE_HAS_LRU_LOCK
++#undef LG_DMA_RESV_GET_EXCL_PRESENT
++#define LG_DRM_PLANE_HELPER_DESTROY
++#define LG_TTM_RANGE_MGR_NODE
++#define LG_MAN_FUNC_ALLOC_HAS_RES
++#define LG_DRM_TBO_PIN_COUNT
++#undef LG_GET_USER_PAGES_REMOTE_HAS_VMAS
++#undef LG_GET_USER_PAGES_HAS_VMAS
++#define LG_TTM_SG_TT_INIT_HAS_CACHING
++#undef LG_DRM_SCHED_INIT_HAS_DEVICE
++#undef LG_TTM_BO_INIT_RESERVED_HAS_SIZE
++#define LG_TTM_GLOBAL
++#define LG_TTM_RESOURCE_FREE_DOUBLE_PTR
++#undef LG_TTM_DMA_TT
++#undef LG_DRM_SCHED_PRIORITY_COUNT_HAS_UNSET
++#undef LG_DRM_DRIVER_HAS_GEM_FREE
++#undef LG_VGACON_TEXT_FORCE
++#undef LG_TTM_RES_HAS_NUM_PAGES
++#define LG_TTM_BO_MEM_SPACE_MEM_ARG_DOUBLE_PTR
++#undef LG_TBO_HAS_RESV
++#undef LG_DDEV_HAS_PDEV
++#undef LG_TTM_BUFFER_OBJECT_HAS_MEM
++#undef LG_DRM_DRIVER_HAS_GEM_PRIME_EXPORT
++#undef LG_DMA_BUF_OPS_HAS_MAP
++#undef LG_DMA_RESV_GET_LIST
++#undef LG_DRM_GEM_DMABUF_KMAP_PRESENT
++#define LG_DRM_DRIVER_SYNCOBJ_TIMELINE_PRESENT
++#undef LG_DRM_SCHED_INIT_HAS_DEVICE_RQ
++#undef LG_DRM_SCHED_INIT_HAS_SUBMIT_WQ
++#undef LG_DRM_SCHED_JOB_INIT_HAS_CREDITS
++#undef LG_DRM_BUDDY_FREE_LIST_HAS_FLAGS
++#undef LG_DRM_BUDDY_BLOCK_TRIM_HAS_START
++#undef LG_DRM_MODE_CFG_FUNC_HAS_OUTPUT_POLL_CHANGED
++#undef LG_DRM_DRIVER_HAS_LASTCLOSE
++#undef LG_DRM_FB_HELPER_SINGLE_ADD_ALL_CONNECTORS
++#undef LG_PWM_REQUEST
++#undef LG_ATOMIC_CHECK_HAS_CRTC_STATE_ARG
++#undef LG_TTM_PLACEMENT_HAS_BUSY_PLACEMENT
++#define LG_TTM_BO_POPULATE
++#undef LG_ZONE_MANAGED_PAGES
++#define LG_SYSFS_EMIT
++#define LG_KOBJ_TYPE_HAS_ATTR_GROUP
++#undef LG_USE_MM
++#define LG_VM_FLAGS_SET
++#define LG_DMA_RESV_REPLACE_FENCES
++#define LG_MODE_CONFIG_HAS_FB_MODIFIERS
++#define LG_MMU_NOTIFIER_OPS_HAS_FREE_NOTIFIER
++#define LG_IS_EXPORT_SYMBOL_GPL_pwm_add_table 0
++#define LG_IS_EXPORT_SYMBOL_GPL_pwm_remove_table 0
++#undef LG_DRM_DO_GET_EDID
++#undef LG_DRM_DRIVER_HAS_DATE
++#define LG_DRM_GPU_SCHEDULER_HAS_NUM_RQS
++#define LG_DRM_SCHED_INIT_HAS_DRM_SCHED_INIT_ARGS
++#undef LG_DRM_FB_HELPER_FUNCS_HAS_FB_PROBE
++#undef LG_DEL_TIMER
++#define LG_MODE_VALID_HAS_CONST_MODE_ARG
++#define LG_DRM_BRIDGE_FUNCS_ATTACH_HAS_DRM_ENCODER
++#define LG_DRM_SCHED_JOB_INIT_HAS_DRM_CLIENT_ID
++#undef LG_DRM_SCHED_JOB_HAS_ID
++#define LG_DRM_GET_FORMAT_INFO_HAS_PIXEL_FORMAT
++#define LG_DRM_MODE_CONFIG_FUNCS_FB_CREATE_HAS_INFO
++#define LG_DRM_GPU_SCHED_STAT_HAS_STAT_RESET
++#define LG_ZONE_MANAGED_PAGES_HAS_CONST_ZONE
++#undef LG_HRTIMER_INIT
++#undef LG_VM_PAGE_SIZE_4K
++#define LG_VM_PAGE_SIZE_16K
++#define LG_IS_EXPORT_SYMBOL_turn_on_lvds 0
++#define LG_IS_EXPORT_SYMBOL_turn_off_lvds 0
++// Kernel version:             "7.3.1-aosc-main-16k"
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/conftest/uts_release b/conftest/uts_release
+--- a/conftest/uts_release	1970-01-01 08:00:00.000000000 +0800
++++ b/conftest/uts_release	2026-11-01 23:09:56.016154414 +0800
+@@ -0,0 +1 @@
++// Kernel version:             "7.3.1-aosc-main-16k"
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/include/loonggpu_dc.h b/include/loonggpu_dc.h
+--- a/include/loonggpu_dc.h	2026-05-18 10:52:15.000000000 +0800
++++ b/include/loonggpu_dc.h	2026-11-01 23:13:43.255710167 +0800
+@@ -1,6 +1,7 @@
+ #ifndef __DC_INTERFACE_H__
+ #define __DC_INTERFACE_H__
+ 
++#include <linux/version.h>
+ #include "loonggpu_dc_irq.h"
+ #include "loonggpu_dc_i2c.h"
+ #include "loonggpu_ih.h"
+@@ -174,7 +175,11 @@
+ 	/**
+ 	 * Caches device atomic state for suspend/resume
+ 	 */
++	#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0)
++	struct drm_atomic_commit *cached_state;
++#else
+ 	struct drm_atomic_state *cached_state;
++#endif
+ 
+ 	spinlock_t irq_handler_list_table_lock;
+ 	struct irq_list_head irq_handler_list_low_tab[DC_IRQ_SOURCES_NUMBER];
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/include/loonggpu_helper.h b/include/loonggpu_helper.h
+--- a/include/loonggpu_helper.h	2026-10-17 00:56:09.000000000 +0800
++++ b/include/loonggpu_helper.h	2026-11-01 23:16:37.096857343 +0800
+@@ -495,7 +495,10 @@
+ #define LG_DMA_RESV_USAGE_READ		0
+ #endif
+ 
+-#if defined(LG_ATOMIC_CHECK_HAS_DRM_ATOMIC_STATE)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0)
++/* 7.2+：plane atomic_check 也改为收 drm_atomic_commit */
++#define lg_dc_plane_atomic_check_args	struct drm_plane *plane, struct drm_atomic_commit *state
++#elif defined(LG_ATOMIC_CHECK_HAS_DRM_ATOMIC_STATE)
+ #define lg_dc_plane_atomic_check_args	struct drm_plane *plane, struct drm_atomic_state *state
+ #else
+ #define lg_dc_plane_atomic_check_args	struct drm_plane *plane, struct drm_plane_state *state
+@@ -669,10 +672,17 @@
+ typedef struct ttm_bo_global lg_ttm_global_t;
+ #endif
+ 
+-#if defined(LG_ATOMIC_CHECK_HAS_CRTC_STATE_ARG)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0)
++/* Linux 7.2+ 把 atomic_check 的第二个参数从 drm_atomic_state 换成 drm_atomic_commit */
++typedef struct drm_atomic_commit lg_atomic_check_state_arg;
++/* 整个 atomic commit 路径在 7.2+ 用 drm_atomic_commit 取代 drm_atomic_state */
++typedef struct drm_atomic_commit lg_atomic_commit_t;
++#elif defined(LG_ATOMIC_CHECK_HAS_CRTC_STATE_ARG)
+ typedef struct drm_crtc_state lg_atomic_check_state_arg;
++typedef struct drm_atomic_state lg_atomic_commit_t;
+ #else
+ typedef struct drm_atomic_state lg_atomic_check_state_arg;
++typedef struct drm_atomic_state lg_atomic_commit_t;
+ #endif
+ 
+ static inline lg_ttm_global_t *lg_get_ttm_bo_glob(lg_ttm_device_t *bdev)
+@@ -1459,3 +1469,19 @@
+ }
+ 
+ #endif /* __LOONGGPU_HELPER_H__ */
++
++
++/* Linux 7.x 把 is_cow_mapping(vm_flags) 换成了 vma_is_cow_mapping(vma) */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++#define lg_is_cow_mapping(flags, vma) vma_is_cow_mapping(vma)
++#else
++#define lg_is_cow_mapping(flags, vma) is_cow_mapping(flags)
++#endif
++
++
++/* Linux 7.x 去掉了 dma_fence_array_create 的 signal_on_any 参数 */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++#define lg_dma_fence_array_create(n, f, c, seq, any) dma_fence_array_create(n, f, c, seq)
++#else
++#define lg_dma_fence_array_create(n, f, c, seq, any) dma_fence_array_create(n, f, c, seq, any)
++#endif
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/loonggpu/loonggpu_dc_drv.c b/loonggpu/loonggpu_dc_drv.c
+--- a/loonggpu/loonggpu_dc_drv.c	2026-06-09 19:38:55.000000000 +0800
++++ b/loonggpu/loonggpu_dc_drv.c	2026-11-01 23:13:20.470046038 +0800
+@@ -1358,7 +1358,7 @@
+ }
+ 
+ static int loonggpu_dc_atomic_commit(struct drm_device *dev,
+-				  struct drm_atomic_state *state,
++				  lg_atomic_commit_t *state,
+ 				  bool nonblock)
+ {
+ 	return drm_atomic_helper_commit(dev, state, nonblock);
+@@ -1618,7 +1618,7 @@
+ 			 lower_32_bits(afb->address));
+ }
+ 
+-static void loonggpu_dc_commit_planes(struct drm_atomic_state *state,
++static void loonggpu_dc_commit_planes(lg_atomic_commit_t *state,
+ 				   struct drm_device *dev,
+ 				   struct drm_crtc *pcrtc,
+ 				   bool *wait_for_vblank)
+@@ -1856,7 +1856,7 @@
+ 	}
+ }
+ 
+-static void loonggpu_dc_atomic_commit_tail(struct drm_atomic_state *state)
++static void loonggpu_dc_atomic_commit_tail(lg_atomic_commit_t *state)
+ {
+ 	struct drm_device *dev = state->dev;
+ 	struct loonggpu_device *adev = dev->dev_private;
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/loonggpu/loonggpu_gem.c b/loonggpu/loonggpu_gem.c
+--- a/loonggpu/loonggpu_gem.c	2025-11-29 15:45:25.000000000 +0800
++++ b/loonggpu/loonggpu_gem.c	2026-11-01 23:15:26.022399729 +0800
+@@ -67,7 +67,7 @@
+          * instead. Clearing VM_MAYWRITE prevents the mapping from ever
+          * becoming writable and makes is_cow_mapping(vm_flags) false.
+          */
+-        if (is_cow_mapping(vma->vm_flags) &&
++        if (lg_is_cow_mapping(vma->vm_flags, vma) &&
+             !(vma->vm_flags & VM_ACCESS_FLAGS))
+                 vm_flags_clear(vma, VM_MAYWRITE);
+ 
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/loonggpu/loonggpu_ids.c b/loonggpu/loonggpu_ids.c
+--- a/loonggpu/loonggpu_ids.c	2026-10-17 00:56:09.000000000 +0800
++++ b/loonggpu/loonggpu_ids.c	2026-11-01 23:17:53.991783056 +0800
+@@ -103,8 +103,7 @@
+ 		uint64_t context = dma_fence_context_alloc(1);
+ 		struct dma_fence_array *array;
+ 
+-		array = dma_fence_array_create(count, fences, context,
+-					       1, false);
++		array = lg_dma_fence_array_create(count, fences, context, 1, false);
+ 		if (!array) {
+ 			kfree(fences);
+ 			goto fallback;
+@@ -205,8 +204,7 @@
+ 		for (j = 0; j < i; ++j)
+ 			dma_fence_get(fences[j]);
+ 
+-		array = dma_fence_array_create(i, fences, fence_context,
+-					       seqno, true);
++		array = lg_dma_fence_array_create(i, fences, fence_context, seqno, true);
+ 		if (!array) {
+ 			for (j = 0; j < i; ++j)
+ 				dma_fence_put(fences[j]);
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/loonggpu/loonggpu_prime.c b/loonggpu/loonggpu_prime.c
+--- a/loonggpu/loonggpu_prime.c	2025-11-26 11:29:08.000000000 +0800
++++ b/loonggpu/loonggpu_prime.c	2026-11-01 23:18:11.411912864 +0800
+@@ -177,7 +177,7 @@
+ 	} else {
+ 		struct dma_fence_array *array;
+ 
+-		array = dma_fence_array_create(count, fences,
++		array = lg_dma_fence_array_create(count, fences,
+ 					       dma_fence_context_alloc(1), 0,
+ 					       false);
+ 		if (!array)
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/loonggpu-bridge/bridge_phy.c b/loonggpu-bridge/bridge_phy.c
+--- a/loonggpu-bridge/bridge_phy.c	2026-10-17 00:56:09.000000000 +0800
++++ b/loonggpu-bridge/bridge_phy.c	2026-11-01 23:19:22.176075959 +0800
+@@ -1,3 +1,4 @@
++#include <linux/string.h>
+ #include <drm/drm_atomic_helper.h>
+ #include "loonggpu.h"
+ #include "loonggpu_dc.h"
+@@ -531,7 +532,7 @@
+ 	mode->hdisplay = hdisplay;
+ 	mode->vdisplay = vdisplay;
+ 	mode->type &= ~DRM_MODE_TYPE_PREFERRED;
+-	strncpy(mode->name, name, DRM_DISPLAY_MODE_LEN);
++	strscpy(mode->name, name, DRM_DISPLAY_MODE_LEN);
+ 
+ 	return mode;
+ 
+@@ -843,7 +844,11 @@
+ /**
+  * @section Bridge-phy core functions
+  */
+-static void bridge_phy_enable(struct drm_bridge *bridge)
++static void bridge_phy_enable(struct drm_bridge *bridge
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++			       , struct drm_atomic_commit *state
++#endif
++			       )
+ {
+ 	struct loonggpu_bridge_phy *phy = to_bridge_phy(bridge);
+ 
+@@ -856,7 +861,11 @@
+ 		phy->cfg_funcs->hdmi_audio(phy);
+ }
+ 
+-static void bridge_phy_disable(struct drm_bridge *bridge)
++static void bridge_phy_disable(struct drm_bridge *bridge
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++				, struct drm_atomic_commit *state
++#endif
++				)
+ {
+ 	struct loonggpu_bridge_phy *phy = to_bridge_phy(bridge);
+ 
+@@ -945,8 +954,14 @@
+ }
+ 
+ static const struct drm_bridge_funcs bridge_funcs = {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
++	/* 7.x 彻底移除 .enable/.disable，只剩 atomic 版本 */
++	.atomic_enable = bridge_phy_enable,
++	.atomic_disable = bridge_phy_disable,
++#else
+ 	.enable = bridge_phy_enable,
+ 	.disable = bridge_phy_disable,
++#endif
+ 	.attach = bridge_phy_attach,
+ };
+ 
+@@ -1206,7 +1221,7 @@
+ 		if (!ret)
+ 			DRM_ERROR("Failed to verify chip %s, return [%s]\n",
+ 				  phy->res->chip_name, str);
+-		strncpy(phy->res->vendor_str, str, NAME_SIZE_MAX - 1);
++		strscpy(phy->res->vendor_str, str, NAME_SIZE_MAX - 1);
+ 		return ret;
+ 	}
+ 
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/loonggpu-bridge/it66121_drv.c b/loonggpu-bridge/it66121_drv.c
+--- a/loonggpu-bridge/it66121_drv.c	2026-10-17 00:56:09.000000000 +0800
++++ b/loonggpu-bridge/it66121_drv.c	2026-11-01 23:19:22.175788376 +0800
+@@ -100,7 +100,7 @@
+ 	}
+ 
+ 	DRM_DEV_DEBUG(to_dev(phy), "PHY vendor: %c%c\n", buf[1], buf[0]);
+-	strncpy(buf, str, ARRAY_SIZE(buf));
++	strscpy(buf, str, ARRAY_SIZE(buf));
+ 
+ 	return true;
+ }
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/loonggpu-bridge/lt8618_drv.c b/loonggpu-bridge/lt8618_drv.c
+--- a/loonggpu-bridge/lt8618_drv.c	2026-02-10 17:16:48.000000000 +0800
++++ b/loonggpu-bridge/lt8618_drv.c	2026-11-01 23:19:22.175407273 +0800
+@@ -779,7 +779,7 @@
+ 	}
+ 
+ 	phy->chip_version = version_val[2];
+-	strncpy(str, version_val, ARRAY_SIZE(version_val));
++	strscpy(str, version_val, ARRAY_SIZE(version_val));
+ 
+ 	lt8618_dev = phy->priv;
+ 	if (version_val[2] == 0xE1)
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/loonggpu-bridge/lt8718_drv.c b/loonggpu-bridge/lt8718_drv.c
+--- a/loonggpu-bridge/lt8718_drv.c	2026-10-17 00:56:09.000000000 +0800
++++ b/loonggpu-bridge/lt8718_drv.c	2026-11-01 23:19:22.175215882 +0800
+@@ -522,7 +522,7 @@
+         }
+ 
+         phy->chip_version = version_val[1];
+-        strncpy(str, version_val, ARRAY_SIZE(version_val));
++        strscpy(str, version_val, ARRAY_SIZE(version_val));
+         lt8718_dev = phy->priv;
+         if (version_val[1] == 0x06)
+             lt8718_dev->ver = LT8718_VER_1;
+diff -urN '--exclude=*.o' '--exclude=*.ko' '--exclude=*.mod' '--exclude=*.mod.c' '--exclude=.*.cmd' '--exclude=modules.order' '--exclude=Module.symvers' '--exclude=.tmp*' a/loonggpu-bridge/lt9721_drv.c b/loonggpu-bridge/lt9721_drv.c
+--- a/loonggpu-bridge/lt9721_drv.c	2025-04-23 14:27:30.000000000 +0800
++++ b/loonggpu-bridge/lt9721_drv.c	2026-11-01 23:19:22.175015910 +0800
+@@ -64,7 +64,7 @@
+ 	}
+ 
+ 	phy->chip_version = version_val[1];
+-	strncpy(str, version_val, ARRAY_SIZE(version_val));
++	strscpy(str, version_val, ARRAY_SIZE(version_val));
+ 
+ 	lt9721_dev = phy->priv;
+ 	if (version_val[1] == 0x06)

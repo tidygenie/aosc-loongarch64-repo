@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Plasma (LoongGPU Wayland)
+Comment=KDE Plasma Wayland rendered by Loongson LG110
+Exec=/usr/bin/plasma-wayland-loonggpu
+TryExec=/usr/bin/plasma-wayland-loonggpu
+Type=Application
+DesktopNames=KDE

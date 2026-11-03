@@ -1,0 +1,6 @@
+build/
+*.deb
+*.log
+*.o
+*.so
+stage/

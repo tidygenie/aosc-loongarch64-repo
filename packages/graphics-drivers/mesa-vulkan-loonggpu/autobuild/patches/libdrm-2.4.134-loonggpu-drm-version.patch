@@ -1,0 +1,29 @@
+--- a/amdgpu/amdgpu_device.c
++++ b/amdgpu/amdgpu_device.c
+@@ -240,7 +240,14 @@
+ 	atomic_set(&dev->refcount, 1);
+ 
+ 	version = drmGetVersion(fd);
+-	if (version->version_major != 3) {
++	/* LoongGPU 1.x keeps the AMDGPU 3.x command/BO/VM ABI, but reports
++	 * its own DRM version. Accept it only by driver name and expose the
++	 * minimum ABI level expected by current Mesa. This build is private
++	 * to the LoongGPU RADV experiment and is not installed system-wide. */
++	int loonggpu_compat = version->version_major == 1 && version->name &&
++		(strcmp(version->name, "loonggpu") == 0 ||
++		 strcmp(version->name, "gsgpu") == 0);
++	if (version->version_major != 3 && !loonggpu_compat) {
+ 		fprintf(stderr, "%s: DRM version is %d.%d.%d but this driver is "
+ 			"only compatible with 3.x.x.\n",
+ 			__func__,
+@@ -254,8 +261,8 @@
+ 
+ 	dev->fd = fcntl(fd, F_DUPFD_CLOEXEC, 0);
+ 	dev->flink_fd = dev->fd;
+-	dev->major_version = version->version_major;
+-	dev->minor_version = version->version_minor;
++	dev->major_version = loonggpu_compat ? 3 : version->version_major;
++	dev->minor_version = loonggpu_compat ? 54 : version->version_minor;
+ 	drmFreeVersion(version);
+ 
+ 	pthread_mutex_init(&dev->bo_table_mutex, NULL);

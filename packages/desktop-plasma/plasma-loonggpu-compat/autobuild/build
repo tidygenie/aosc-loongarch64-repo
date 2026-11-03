@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# KWin/Plasma compatibility shims for the Loongson LG110 GPU.
+#
+# The vendor Mesa (gsgpu) exposes only GLES2/GL2.1 EGL without a usable
+# wl_drm or window-capable EGL config, so Plasma needs three small shims:
+#   kwin-drm-fd-reuse.so      - authorized card0 fd reuse + legacy wl_drm
+#   kwin-dmabuf-bridge.so     - wl_drm prime buffers -> KWin GraphicsBuffer
+#   gsgpu-egl-window-compat.so- makes pbuffer EGL configs usable by Qt
+# plus systemd drop-ins and a Wayland session launcher.
+set -euo pipefail
+FILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/../files" && pwd)"
+CFLAGS="-O2 -fPIC -I/usr/include/libdrm"
+
+build_so() { # <src> <out>
+  gcc -O2 -fPIC -shared -I/usr/include/libdrm -o "$2" "$1" -ldl -lEGL -ldrm
+}
+g++ -O2 -fPIC -shared -o /tmp/kwin-dmabuf-bridge.so "$FILES/src/kwin-dmabuf-bridge.cpp" -ldl -lEGL -ldrm
+
+install -Dvm755 plasma-wayland-loonggpu "$PKGDIR/usr/bin/plasma-wayland-loonggpu"
+install -Dvm755 "$FILES/libexec/plasmashell" "$PKGDIR/usr/libexec/plasma-loonggpu/plasmashell"
+install -Dvm644 "$FILES/plasma-loonggpu.desktop" "$PKGDIR/usr/share/wayland-sessions/plasma-loonggpu.desktop"
+install -Dvm644 /tmp/kwin-dmabuf-bridge.so "$PKGDIR/usr/lib/loonggpu/kwin-dmabuf-bridge.so"
+build_so "$FILES/src/kwin-drm-fd-reuse.c" /tmp/kwin-drm-fd-reuse.so
+build_so "$FILES/src/gsgpu-egl-window-compat.c" /tmp/gsgpu-egl-window-compat.so
+install -Dvm644 /tmp/kwin-drm-fd-reuse.so "$PKGDIR/usr/lib/loonggpu/kwin-drm-fd-reuse.so"
+install -Dvm644 /tmp/gsgpu-egl-window-compat.so "$PKGDIR/usr/lib/loonggpu/gsgpu-egl-window-compat.so"
+for d in "$FILES"/systemd/user/*/; do
+  n=$(basename "$d")
+  install -Dvm644 "$d"/*.conf "$PKGDIR/usr/lib/systemd/user/$n/$(basename "$(ls "$d"/*.conf | head -1)")"
+done
+install -Dvm644 "$FILES/src/README.md" "$PKGDIR/usr/share/doc/plasma-loonggpu-compat/README.md"

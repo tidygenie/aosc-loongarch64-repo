@@ -1,0 +1,8 @@
+PKGNAME=zerotier-one
+PKGSEC=net
+PKGDEP="glibc gcc-runtime"
+BUILDDEP="gcc git make"
+PKGDES="A client for ZeroTier network virtualization service"
+PKGHOMEPAGE="https://www.zerotier.com/"
+ABTYPE=self
+REL=1

@@ -1,0 +1,8 @@
+PKGNAME=v2raya
+PKGSEC=net
+PKGDEP="glibc v2ray"
+BUILDDEP="go nodejs yarn"
+PKGDES="A web GUI client of Project V which supports VMess, VLESS, SS, SSR, Trojan, Tuic and Juicity protocols"
+PKGHOMEPAGE="https://v2raya.org"
+ABTYPE=self
+REL=1

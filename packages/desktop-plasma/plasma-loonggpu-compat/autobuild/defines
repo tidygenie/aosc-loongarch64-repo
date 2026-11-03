@@ -1,0 +1,8 @@
+PKGNAME=plasma-loonggpu-compat
+PKGSEC=x11
+PKGDEP="kwin plasma-workspace wayland libdrm"
+BUILDDEP="gcc gcc-runtime"
+PKGDES="KDE Plasma Wayland compatibility shims for Loongson LoongGPU LG110"
+PKGHOMEPAGE="https://github.com/HougeLangley/aosc-loongarch64-thirdparty"
+ABTYPE=self
+REL=1

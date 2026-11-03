@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# EXPERIMENTAL / DEPRECATED.
+#
+# This builds RADV with LG110 tiles/PCI ids.  It enumerates the GPU, accepts
+# command buffers and waits on fences, but nothing is rasterised: the LG110
+# command processor consumes Loongson GSPKT packets, not AMD PM4, so the IB is
+# silently ignored.  Kept for reference only -- use vkgl-loonggpu instead.
+set -euo pipefail
+cd "$SRCDIR"
+patch -p1 < "$PKGDIR/../autobuild/patches/radv-loonggpu-lg110-20261102.patch" || true
+meson setup build-radv-loonggpu \
+  -Dvulkan-drivers=amd -Dgallium-drivers= -Dglx=disabled -Degl=disabled \
+  -Dplatforms= -Dllvm=enabled -Dbuildtype=release --prefix=/usr
+ninja -C build-radv-loonggpu
+DESTDIR="$PKGDIR" ninja -C build-radv-loonggpu install
+install -Dvm644 /usr/lib/loonggpu-vulkan/libvulkan_radeon.so "$PKGDIR/usr/lib/loonggpu-vulkan/libvulkan_radeon.so" 2>/dev/null || true

@@ -1,0 +1,4 @@
+VER=7.3.1
+SRCS="tarball::https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-${VER}.tar.xz"
+CHKSUMS="sha256::SKIP"
+CHKUPDATE="kernel::stable"

@@ -1,0 +1,175 @@
+--- a/src/amd/common/ac_gpu_info.c
++++ b/src/amd/common/ac_gpu_info.c
+@@ -403,11 +403,79 @@
+    out->has_primid_instancing_bug = info->gfx_level == GFX6 && info->max_se == 1;
+ }
+ 
++/* LG110's kernel driver exposes a VI/GFX8 UAPI but leaves GB_ADDR_CONFIG and
++ * both tiling tables zeroed.  Use the standard GFX8 P4_16x16 tables (the
++ * Polaris11 tables in gfx_v8_0.c), matching the four tile pipes reported by
++ * the LG110 device-info query.  Keep this scoped to the Loongson PCI ID and
++ * only use it when the kernel did not provide a configuration.
++ */
++static const uint32_t lg110_tile_modes[32] = {
++   [0] = 0x00800150,
++   [1] = 0x00800950,
++   [2] = 0x00801150,
++   [3] = 0x00801950,
++   [4] = 0x00802950,
++   [5] = 0x00802948,
++   [6] = 0x00802954,
++   [7] = 0x00802954,
++   [8] = 0x00000144,
++   [9] = 0x02000148,
++   [10] = 0x02000150,
++   [11] = 0x06000154,
++   [12] = 0x06000154,
++   [13] = 0x02400148,
++   [14] = 0x02400150,
++   [15] = 0x02400170,
++   [16] = 0x06400154,
++   [17] = 0x06400154,
++   [18] = 0x0040014c,
++   [19] = 0x0100014c,
++   [20] = 0x0100015c,
++   [21] = 0x01000174,
++   [22] = 0x01000164,
++   [23] = 0x01000164,
++   [24] = 0x0040015c,
++   [25] = 0x01000160,
++   [26] = 0x01000178,
++   [27] = 0x02c00148,
++   [28] = 0x02c00150,
++   [29] = 0x06c00154,
++   [30] = 0x06c00154,
++};
++
++static const uint32_t lg110_macro_tile_modes[16] = {
++   [0] = 0x000000e8,
++   [1] = 0x000000e8,
++   [2] = 0x000000e8,
++   [3] = 0x000000e4,
++   [4] = 0x000000d0,
++   [5] = 0x000000d0,
++   [6] = 0x000000d0,
++   [8] = 0x000000ed,
++   [9] = 0x000000e9,
++   [10] = 0x000000e8,
++   [11] = 0x000000e4,
++   [12] = 0x000000d0,
++   [13] = 0x00000090,
++   [14] = 0x00000040,
++};
++
+ void
+ ac_fill_tiling_info(struct radeon_info *info, const struct amdgpu_gpu_info *amdinfo)
+ {
++   const uint32_t *tile_modes = amdinfo->gb_tile_mode;
++   const uint32_t *macro_tile_modes = amdinfo->gb_macro_tile_mode;
++
+    info->mc_arb_ramcfg = amdinfo->mc_arb_ramcfg;
+    info->gb_addr_config = amdinfo->gb_addr_cfg;
++
++   if (info->pci_id == 0x7a25 && info->family_id == FAMILY_VI &&
++       !info->gb_addr_config && !tile_modes[8] && !macro_tile_modes[0]) {
++      info->gb_addr_config = 0x22011002;
++      tile_modes = lg110_tile_modes;
++      macro_tile_modes = lg110_macro_tile_modes;
++   }
++
+    if (info->gfx_level >= GFX9) {
+       if (!info->has_graphics && info->family >= CHIP_GFX940)
+          info->gb_addr_config = 0;
+@@ -416,16 +484,16 @@
+       assert((256 << G_0098F8_PIPE_INTERLEAVE_SIZE_GFX9(info->gb_addr_config)) ==
+              AMD_MEMCHANNEL_INTERLEAVE_BYTES);
+    } else {
+-      unsigned pipe_config = G_009910_PIPE_CONFIG(amdinfo->gb_tile_mode[CIK_TILE_MODE_COLOR_2D]);
++      unsigned pipe_config = G_009910_PIPE_CONFIG(tile_modes[CIK_TILE_MODE_COLOR_2D]);
+       info->num_tile_pipes = ac_pipe_config_to_num_pipes(pipe_config);
+       assert((256 << G_0098F8_PIPE_INTERLEAVE_SIZE_GFX6(info->gb_addr_config)) ==
+              AMD_MEMCHANNEL_INTERLEAVE_BYTES);
+    }
+ 
+-   memcpy(info->si_tile_mode_array, amdinfo->gb_tile_mode, sizeof(amdinfo->gb_tile_mode));
++   memcpy(info->si_tile_mode_array, tile_modes, sizeof(info->si_tile_mode_array));
+ 
+-   memcpy(info->cik_macrotile_mode_array, amdinfo->gb_macro_tile_mode,
+-          sizeof(amdinfo->gb_macro_tile_mode));
++   memcpy(info->cik_macrotile_mode_array, macro_tile_modes,
++          sizeof(info->cik_macrotile_mode_array));
+ }
+ 
+ static const uint32_t ac_ip_type_dw_padding_minus_1[AMD_NUM_IP_TYPES] = {
+@@ -640,13 +708,21 @@
+          identify_chip2(GODAVARI, KABINI);
+          break;
+       case FAMILY_VI:
+-         identify_chip(ICELAND);
+-         identify_chip(TONGA);
+-         identify_chip(FIJI);
+-         identify_chip(POLARIS10);
+-         identify_chip(POLARIS11);
+-         identify_chip(POLARIS12);
+-         identify_chip(VEGAM);
++         /* LG110 reports the VI/GFX8 UAPI but no AMD external revision.
++          * Start from the TONGA GFX8 backend; later LoongGPU-specific
++          * quirks should be keyed by pci_id rather than pretending this is
++          * a generic AMD board. */
++         if (device_info->device_id == 0x7a25) {
++            info->family = CHIP_TONGA;
++         } else {
++            identify_chip(ICELAND);
++            identify_chip(TONGA);
++            identify_chip(FIJI);
++            identify_chip(POLARIS10);
++            identify_chip(POLARIS11);
++            identify_chip(POLARIS12);
++            identify_chip(VEGAM);
++         }
+          break;
+       case FAMILY_CZ:
+          identify_chip(CARRIZO);
+@@ -1542,6 +1618,8 @@
+       return AC_QUERY_GPU_INFO_UNIMPLEMENTED_HW;
+ 
+    const char *marketing_name = ac_drm_get_marketing_name(dev);
++   if (info->pci_id == 0x7a25)
++      marketing_name = "LoongGPU LG110";
+    strncpy(info->marketing_name, marketing_name ? marketing_name : "AMD Unknown", sizeof(info->marketing_name));
+ 
+    ac_fill_memory_info(info, &device_info, &meminfo);
+--- a/src/amd/vulkan/radv_physical_device.c
++++ b/src/amd/vulkan/radv_physical_device.c
+@@ -1685,7 +1685,7 @@
+       .apiVersion = pdev->info.gfx_level >= GFX8 ? RADV_API_VERSION : RADV_API_VERSION_1_3,
+ #endif
+       .driverVersion = vk_get_driver_version(),
+-      .vendorID = ATI_VENDOR_ID,
++      .vendorID = pdev->info.pci_id == 0x7a25 ? 0x0014 : ATI_VENDOR_ID,
+       .deviceID = pdev->info.pci_id,
+       .deviceType = device_type,
+       .maxImageDimension1D = pdev->image_props.max_dims.width,
+@@ -2401,7 +2401,9 @@
+                           "Could not get the kernel driver version for device %s: %m", path);
+       }
+ 
+-      if (!strcmp(version->name, "amdgpu")) {
++      if (!strcmp(version->name, "amdgpu") ||
++          !strcmp(version->name, "gsgpu") ||
++          !strcmp(version->name, "loonggpu")) {
+ #ifdef HAVE_AMDGPU_VIRTIO
+          if (debug_get_bool_option("AMD_FORCE_VPIPE", false)) {
+             is_virtio = true;
+@@ -2735,6 +2737,11 @@
+ #endif
+ 
+    supported_device |= device->bustype == DRM_BUS_PCI && device->deviceinfo.pci->vendor_id == ATI_VENDOR_ID;
++   /* Loongson LG110 exposes the AMD VI/GFX8 UAPI through gsgpu. */
++   supported_device |= device->bustype == DRM_BUS_PCI &&
++                       device->deviceinfo.pci->vendor_id == 0x0014 &&
++                       (device->deviceinfo.pci->device_id == 0x7a36 ||
++                        device->deviceinfo.pci->device_id == 0x7a25);
+ 
+    if (!supported_device)
+       return VK_ERROR_INCOMPATIBLE_DRIVER;

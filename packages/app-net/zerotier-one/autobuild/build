@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# zerotier-one 的实际构建与暂存（ABTYPE=self）
+set -euo pipefail
+
+cd "$SRCDIR"
+
+echo "[build] 编译 ZeroTierOne $VER（$ABTHREADS 线程）"
+make -j"$ABTHREADS" -f make-linux.mk
+
+echo "[build] 暂存到 $PKGDIR"
+install -Dvm755 zerotier-one        "$PKGDIR/usr/bin/zerotier-one"
+# cli/idtool 是多调用（multi-call）入口，与上游 install 目标一致：用符号链接
+ln -svf zerotier-one "$PKGDIR/usr/bin/zerotier-cli"
+ln -svf zerotier-one "$PKGDIR/usr/bin/zerotier-idtool"
+
+install -Dvm644 debian/zerotier-one.service "$PKGDIR/usr/lib/systemd/system/zerotier-one.service"
+
+install -d "$PKGDIR/usr/share/doc/zerotier-one"
+install -vm644 LICENSE.txt "$PKGDIR/usr/share/doc/zerotier-one/"
+[[ -f COPYING ]] && install -vm644 COPYING "$PKGDIR/usr/share/doc/zerotier-one/"
+
+install -d "$PKGDIR/usr/share/man/man1" "$PKGDIR/usr/share/man/man8"
+gzip -9c doc/zerotier-cli.1  > "$PKGDIR/usr/share/man/man1/zerotier-cli.1.gz"
+gzip -9c doc/zerotier-idtool.1 > "$PKGDIR/usr/share/man/man1/zerotier-idtool.1.gz"
+gzip -9c doc/zerotier-one.8  > "$PKGDIR/usr/share/man/man8/zerotier-one.8.gz"
+chmod 644 "$PKGDIR"/usr/share/man/man1/*.gz "$PKGDIR"/usr/share/man/man8/*.gz
+
+install -d "$PKGDIR/var/lib/zerotier-one"
+install -vm644 ext/installfiles/linux/zerotier-one.te "$PKGDIR/var/lib/zerotier-one/zerotier-one.te"
+
+echo "[build] 暂存完成"
+find "$PKGDIR" -type f | sed "s|$PKGDIR||" | sort

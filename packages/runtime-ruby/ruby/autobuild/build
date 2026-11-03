@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Ruby 4.0 —— AOSC 第三方源构建
+set -euo pipefail
+cd "$SRCDIR"
+
+echo "[build] 配置 Ruby $VER"
+./configure \
+  --prefix=/usr \
+  --enable-shared \
+  --disable-install-doc \
+  --disable-yjit \
+  --with-out-ext=tk \
+  > "$SRCDIR/configure.log" 2>&1 || { tail -30 "$SRCDIR/configure.log"; exit 1; }
+
+echo "[build] 编译 Ruby $VER（$ABTHREADS 线程）"
+make -j"$ABTHREADS" > "$SRCDIR/make.log" 2>&1 || { tail -40 "$SRCDIR/make.log"; exit 1; }
+
+echo "[build] 安装到 $PKGDIR"
+make install DESTDIR="$PKGDIR" > "$SRCDIR/install.log" 2>&1 || { tail -30 "$SRCDIR/install.log"; exit 1; }
+
+# 去除安装文档体积
+rm -rf "$PKGDIR/usr/share/doc/ruby" "$PKGDIR/usr/share/ri" 2>/dev/null || true
+
+echo "[build] 完成，文件数：$(find "$PKGDIR" -type f | wc -l)"
