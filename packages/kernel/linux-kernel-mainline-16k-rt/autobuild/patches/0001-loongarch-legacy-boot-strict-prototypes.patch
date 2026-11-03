@@ -1,0 +1,12 @@
+--- a/arch/loongarch/kernel/legacy_boot.c	2026-11-04 07:23:45.003821648 +0800
++++ b/arch/loongarch/kernel/legacy_boot.c	2026-11-04 07:23:44.977190037 +0800
+@@ -684,7 +684,8 @@
+ 	},
+ };
+ 
+-void __init acpi_arch_init (){
++void __init acpi_arch_init(void)
++{
+ 	if (bpi_version == BPI_VERSION_NONE) {
+ 		return;
+ 	}

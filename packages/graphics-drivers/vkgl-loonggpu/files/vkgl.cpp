@@ -1859,6 +1859,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_MergePipelineCaches(VkDevice, VkPipel
 // stage 2: SPIR-V -> GLSL ES 1.00 translation and draw execution
 // ===========================================================================
 #include "spirv_glsl.hpp"
+#include "spirv_cross_util.hpp"
 
 static GLenum gl_type_for_format(VkFormat f, GLint *components, GLboolean *normalized) {
    *normalized = GL_FALSE;
@@ -1890,6 +1891,21 @@ static bool build_stage(GLuint *out_shader, GLenum gl_stage, const std::vector<u
       opts.emit_push_constant_as_uniform_buffer = false;
       c.set_common_options(opts);
       auto res = c.get_shader_resources();
+      // Give varyings location-based names so the vertex output and fragment
+      // input interfaces always match, regardless of SPIR-V debug names.
+      if (is_vertex) {
+         for (auto &o : res.stage_outputs) {
+            uint32_t loc = c.get_decoration(o.id, spv::DecorationLocation);
+            spirv_cross_util::rename_interface_variable(c, res.stage_outputs, loc,
+                                                        "vglv_" + std::to_string(loc));
+         }
+      } else {
+         for (auto &i : res.stage_inputs) {
+            uint32_t loc = c.get_decoration(i.id, spv::DecorationLocation);
+            spirv_cross_util::rename_interface_variable(c, res.stage_inputs, loc,
+                                                        "vglv_" + std::to_string(loc));
+         }
+      }
       for (auto &ubo : res.uniform_buffers) c.flatten_buffer_block(ubo.id);
       for (auto &pc : res.push_constant_buffers) c.flatten_buffer_block(pc.id);
 
