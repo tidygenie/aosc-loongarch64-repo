@@ -29,11 +29,20 @@ LoongArch 相关的 `AOSCOS-loongarch-*` 系列（0369–0374）全部应用成�
 复现：
 
 ```bash
-git clone --depth 1 --filter=blob:none --sparse -b stable \
-  https://github.com/AOSC-Dev/aosc-os-abbs.git
-cd aosc-os-abbs && git sparse-checkout set runtime-kernel/linux-kernel
-# 对每个 patch 依次 patch -p1 -N --fuzz=5
+./scripts/fetch-aosc-patches.sh /path/to/linux-7.3.1
+# 等价于：
+#   git clone --depth 1 --filter=blob:none --sparse -b stable AOSC-Dev/aosc-os-abbs
+#   git sparse-checkout set runtime-kernel/linux-kernel
+#   对每个 patch 依次 patch -p1 -N --fuzz=5
 ```
+
+本仓库另外收录了两个让 clang full-LTO 能编过 AOSC 补丁代码的修复
+（`packages/kernel/.../autobuild/patches/`）：
+
+| 补丁 | 原因 |
+|---|---|
+| `0001-loongarch-legacy-boot-strict-prototypes.patch` | AOSC 的 `acpi_arch_init (){` 缺 prototype，clang `-Werror=strict-prototypes` |
+| `0002-loongarch-ow-syscall-no-lto-for-feat-test.patch` | `feat_test.o` 要被 `$(OBJDUMP)` 读，full-LTO 下是 bitcode，需 `-fno-lto` |
 
 ## 配置
 
