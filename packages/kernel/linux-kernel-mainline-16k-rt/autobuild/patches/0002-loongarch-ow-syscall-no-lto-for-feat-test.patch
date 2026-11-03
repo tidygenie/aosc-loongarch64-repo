@@ -1,0 +1,12 @@
+--- a/arch/loongarch/ow_syscall/Kbuild	2026-11-04 07:32:40.661827760 +0800
++++ b/arch/loongarch/ow_syscall/Kbuild	2026-11-04 07:32:40.636463060 +0800
+@@ -10,6 +10,9 @@
+ obj-$(CONFIG_LOONGARCH_OW_SYSCALL) += la_ow_syscall.o
+ la_ow_syscall-y += fsstat.o la_ow_syscall_main.o signal.o systable.o
+ targets += feat_test.o
++# Full LTO emits LLVM bitcode; feat_test.o is inspected with $(OBJDUMP), so
++# this one object must stay a real object file.
++CFLAGS_feat_test.o := -fno-lto
+ 
+ $(obj)/kernel_feature.h: $(obj)/feat_test.syms
+ 	@$(kecho) '  GEN     $@'
