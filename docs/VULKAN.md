@@ -31,6 +31,12 @@
 
 ## 已知边界
 
+- 118 个尚未实现的核心入口点注册为 **no-op 桩**（返回 `VK_SUCCESS`），保证 loader 不返回
+  NULL、应用不崩，但语义未实现。影响较大的包括：`vkCmdClearAttachments`、
+  `vkCmdBlitImage`、`vkCmdCopyImage`、`vkCmdResolveImage`、`vkCmdBeginQuery`/`EndQuery`、
+  `vkCmdWriteTimestamp`、`vkCreateBufferView`、`vkQueueBindSparse`。
+
+
 - 二级命令缓冲区（`vkCmdExecuteCommands`）不会继承主缓冲区的 pipeline/描述符绑定，
   需在二级缓冲区里自行绑定；空绑定执行会画出错误结果（不会崩溃）。
 
