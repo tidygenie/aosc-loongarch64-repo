@@ -1,6 +1,6 @@
 PKGNAME=vkgl-loonggpu
 PKGSEC=libs
-PKGDEP="mesa wayland libdrm"
+PKGDEP="loonggl mesa wayland libdrm"
 BUILDDEP="gcc gcc-runtime spirv-cross"
 PKGDES="Minimal Vulkan ICD for Loongson LG110 backed by the vendor GLES/GL2.1 driver"
 PKGHOMEPAGE="https://github.com/HougeLangley/aosc-loongarch64-thirdparty"

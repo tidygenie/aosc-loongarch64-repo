@@ -16,3 +16,4 @@ g++ -std=c++17 -O2 -fPIC -shared -o /tmp/libvkgl.so "$FILES/vkgl.cpp" \
 install -Dvm644 /tmp/libvkgl.so "$PKGDIR/usr/lib/vkgl/libvkgl.so"
 install -Dvm644 "$FILES/vkgl_icd.json" "$PKGDIR/usr/share/vulkan/icd.d/vkgl_loonggpu.json"
 install -Dvm644 "$FILES"/README* "$PKGDIR/usr/share/doc/vkgl-loonggpu/README" 2>/dev/null || true
+install -Dvm755 "$(dirname "${BASH_SOURCE[0]}")/postinst" "$PKGDIR/DEBIAN/postinst"

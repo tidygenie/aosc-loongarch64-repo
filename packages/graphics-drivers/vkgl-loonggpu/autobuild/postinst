@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+# 厂商 RADV 风格的 ICD 能在 LG110 上枚举但画不出画面，必须停用
+radv=/usr/share/vulkan/icd.d/loonggpu_icd.loongarch64.json
+if [ -f "$radv" ] && [ ! -f "$radv.radv-disabled" ]; then
+  mv "$radv" "$radv.radv-disabled"
+  echo "vkgl-loonggpu: disabled non-functional RADV ICD ($radv.radv-disabled)" >&2
+fi
+# llvmpipe 是 CPU 渲染；LG110 机器要求必须用显卡
+lvp=/usr/share/vulkan/icd.d/lvp_icd.loongarch64.json
+if [ -f "$lvp" ] && [ ! -f "$lvp.lvp-disabled" ]; then
+  mv "$lvp" "$lvp.lvp-disabled"
+  echo "vkgl-loonggpu: disabled llvmpipe (CPU) Vulkan ICD ($lvp.lvp-disabled)" >&2
+fi
