@@ -42,3 +42,23 @@ cmake --build SPIRV-Cross/build -j4
 - 依赖写 AOSC 包名（`glibc` 而非 `libc6`）。
 - `plasma-loonggpu-compat` 的 shim 用 `LD_PRELOAD` 注入，编译时链接 `libdrm`/`libEGL`。
 - 构建内核见 [KERNEL.md](KERNEL.md)，它不走 `scripts/build-package.sh` 的通用流程。
+
+## 已知坑：命令行 `CFLAGS=` 会覆盖 Makefile 自带的 define
+
+djb 风格和老式 Makefile 常把 `-DLIBDIR=... -DDEFAULT_DUPLEX=...` 这类宏写在自己的
+`CFLAGS` 里。如果 formula 用
+
+```ruby
+system "make", "CFLAGS=-Wno-error=implicit-int ..."
+```
+
+显式传入 CFLAGS，make 会**忽略 Makefile 里的 CFLAGS**，这些 define 全部丢失，表现为
+`'LIBDIR' undeclared` / `You must compile with -D_REENTRANT` / `bcd.h: No such file`。
+
+正确做法（见 `packages/` 里 `fq` 的处理）：
+
+1. 优先把标志追加到 Makefile 自己的 `CFLAGS` 行（保留原有 define）；
+2. 如果必须传命令行 CFLAGS，就把 Makefile 需要的所有 `-D` 和 `-I` 一起写进同一条命令行；
+3. include 路径用 `Formula["<dep>"].opt_include`（keg-only 依赖不会自动进 CPATH）。
+
+受影响的包：`fq`、`mpage`、`libowfat`、`tundra` 等。
