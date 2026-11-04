@@ -19,6 +19,15 @@
 #include <gbm.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#ifndef GL_DEPTH_STENCIL
+#define GL_DEPTH_STENCIL 0x84F9
+#endif
+#ifndef GL_DEPTH_STENCIL_ATTACHMENT
+#define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
+#endif
+#ifndef GL_UNSIGNED_INT_24_8
+#define GL_UNSIGNED_INT_24_8 0x84FA
+#endif
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -391,8 +400,10 @@ static void ensure_gl_texture(Image *im) {
    case VK_FORMAT_R8G8B8A8_UNORM:
    case VK_FORMAT_R8G8B8A8_SRGB: im->gl_format = GL_RGBA; break;
    case VK_FORMAT_R16G16B16A16_SFLOAT: internal = GL_RGBA; im->gl_format = GL_RGBA; im->gl_type = GL_HALF_FLOAT_OES; break;
-   case VK_FORMAT_D16_UNORM:
-   case VK_FORMAT_D32_SFLOAT: internal = GL_DEPTH_COMPONENT16; im->gl_format = GL_DEPTH_COMPONENT; im->gl_type = GL_UNSIGNED_SHORT; break;
+   case VK_FORMAT_D16_UNORM: internal = GL_DEPTH_COMPONENT16; im->gl_format = GL_DEPTH_COMPONENT; im->gl_type = GL_UNSIGNED_SHORT; break;
+   case VK_FORMAT_D24_UNORM_S8_UINT: internal = GL_DEPTH_STENCIL; im->gl_format = GL_DEPTH_STENCIL; im->gl_type = GL_UNSIGNED_INT_24_8; break;
+   case VK_FORMAT_D32_SFLOAT:
+   case VK_FORMAT_D32_SFLOAT_S8_UINT: internal = GL_DEPTH_COMPONENT; im->gl_format = GL_DEPTH_COMPONENT; im->gl_type = GL_FLOAT; break;
    default: break;
    }
    glTexImage2D(GL_TEXTURE_2D, 0, (GLint)internal, (GLsizei)im->extent.width,
@@ -410,8 +421,13 @@ static void ensure_fbo(Image *im) {
    ensure_gl_texture(im);
    glGenFramebuffers(1, &im->fbo);
    glBindFramebuffer(GL_FRAMEBUFFER, im->fbo);
-   if (im->format == VK_FORMAT_D16_UNORM || im->format == VK_FORMAT_D32_SFLOAT)
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, im->tex, 0);
+   if (im->format == VK_FORMAT_D16_UNORM || im->format == VK_FORMAT_D32_SFLOAT ||
+       im->format == VK_FORMAT_D24_UNORM_S8_UINT || im->format == VK_FORMAT_D32_SFLOAT_S8_UINT) {
+      if (im->format == VK_FORMAT_D24_UNORM_S8_UINT)
+         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, im->tex, 0);
+      else
+         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, im->tex, 0);
+   }
    else
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, im->tex, 0);
    glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -686,7 +702,9 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_GetPhysicalDeviceFormatProperties(
       break;
    case VK_FORMAT_D16_UNORM:
    case VK_FORMAT_D32_SFLOAT:
-      p->optimalTilingFeatures = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+   case VK_FORMAT_D24_UNORM_S8_UINT:
+   case VK_FORMAT_D32_SFLOAT_S8_UINT:
+      p->optimalTilingFeatures = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
       p->linearTilingFeatures = p->optimalTilingFeatures;
       break;
    default:
@@ -926,7 +944,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateRenderPass(VkDevice, const VkRe
    for (uint32_t i = 0; i < ci->attachmentCount; i++) {
       const VkAttachmentDescription &a = ci->pAttachments[i];
       bool depth = (a.format == VK_FORMAT_D16_UNORM || a.format == VK_FORMAT_D32_SFLOAT ||
-                    a.format == VK_FORMAT_D24_UNORM_S8_UINT);
+                    a.format == VK_FORMAT_D24_UNORM_S8_UINT || a.format == VK_FORMAT_D32_SFLOAT_S8_UINT);
       if (depth) {
          rp->depth_format = a.format;
          rp->depth_load = a.loadOp;
@@ -958,7 +976,9 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateFramebuffer(VkDevice, const VkF
       auto *v = from_handle<ImageView>((uint64_t)ci->pAttachments[i]);
       if (!v) continue;
       bool depth = v->image && (v->image->format == VK_FORMAT_D16_UNORM ||
-                                v->image->format == VK_FORMAT_D32_SFLOAT);
+                                v->image->format == VK_FORMAT_D32_SFLOAT ||
+                                v->image->format == VK_FORMAT_D24_UNORM_S8_UINT ||
+                                v->image->format == VK_FORMAT_D32_SFLOAT_S8_UINT);
       if (depth) fb->depth = v; else fb->color = v;
    }
    *out = (VkFramebuffer)to_handle(fb);
