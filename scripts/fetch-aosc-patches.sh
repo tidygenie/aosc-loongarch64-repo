@@ -21,10 +21,16 @@ echo "== AOSC kernel package: $PKG"
 echo "== config: $PKG/autobuild/loongarch64/config.16k"
 
 : > "$OUT/report.tsv"
+# 明确跳过的补丁（见 packages/kernel/.../autobuild/patches/SKIPPED.md）
+SKIP_PATCHES="0356-RUYI-drm-amdgpu-disable-dynamic-PCIe-speed-switch-on.patch"
+
 applied=0; already=0; conflict=0
 cd "$TREE"
 for p in $(ls "$PKG"/autobuild/patches/*.patch | sort); do
   name="$(basename "$p")"
+  if [[ " $SKIP_PATCHES " == *" $name "* ]]; then
+     echo -e "skipped\t$name" >> "$OUT/report.tsv"; continue
+  fi
   if patch -p1 -N --fuzz=5 --dry-run --silent < "$p" >/dev/null 2>&1; then
      patch -p1 -N --fuzz=5 --silent < "$p" >/dev/null 2>&1 && {
         echo -e "applied\t$name" >> "$OUT/report.tsv"; applied=$((applied+1)); }
