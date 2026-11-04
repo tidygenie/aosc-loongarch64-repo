@@ -167,3 +167,17 @@ sudo dpkg -i linux-kernel-*_loongarch64.deb linux-headers-*_loongarch64.deb
 其余 307 个成功应用的补丁为通用修复（网络 PHY、PCI、USB、drm 等），
 55 个已被上游合并，40 个冲突补丁均与 LoongArch 无关（RISC-V/SpacemiT、x86、
 Surface、Rust 工具链）。
+
+## 外部模块（DKMS）前置条件
+
+内核 headers 包必须包含 **`tools/objtool/objtool`**，否则任何 DKMS 模块构建都会失败：
+
+```
+/bin/sh: /usr/src/linux-headers-<rel>/tools/objtool/objtool: No such file or directory
+```
+
+`package-kernel-v2.sh` / `package-kernel-v3.sh` 的 headers 段已经改为
+`include scripts tools/build tools/objtool tools/bpf`，把该二进制一起打包。
+
+`loonggpu` 的 tracepoint 告警（`unsafe pointer field 'ring_name'`）修复见
+`packages/graphics-drivers/loonggpu-dkms/`。
