@@ -288,12 +288,14 @@ struct CommandPool : Obj {
    Device *dev = nullptr;
 };
 
+struct CommandBuffer;
+
 struct Cmd {
    enum Kind {
       BeginRenderPass, EndRenderPass, BindPipeline, BindVertexBuffer, BindIndexBuffer,
       BindDescriptorSet, SetViewport, SetScissor, Draw, DrawIndexed, ClearColorImage,
       CopyBuffer, CopyBufferToImage, CopyImageToBuffer, UpdateBuffer, Barrier, PipelineBarrier,
-      DrawIndirect, DrawIndexedIndirect,
+      DrawIndirect, DrawIndexedIndirect, FillBuffer, ExecuteCommands,
    } kind;
    Framebuffer *fb = nullptr;
    RenderPass *rp = nullptr;
@@ -312,6 +314,9 @@ struct Cmd {
    VkBufferImageCopy region = {};
    Buffer *src = nullptr;
    std::vector<VkBufferCopy> copies;
+   uint32_t fill_value = 0;
+   VkDeviceSize size = 0;
+   std::vector<CommandBuffer *> secondary;
    uint32_t indirect_stride = 0;
    const void *update_data = nullptr;
    uint32_t update_size = 0;
@@ -1544,6 +1549,20 @@ static void execute_cmds(CommandBuffer *c) {
             vkgl_execute_draw(cur_pipe, sets, vbuf, voff, ibuf, ioff, cmd);
          }
          break;
+      case Cmd::FillBuffer:
+         if (cmd.buf && cmd.buf->mem) {
+            uint8_t *p = cmd.buf->mem->shadow.data() + cmd.buf->mem_offset + cmd.offset;
+            VkDeviceSize n = (cmd.size == VK_WHOLE_SIZE) ? (cmd.buf->size - cmd.offset) : cmd.size;
+            for (VkDeviceSize i = 0; i < n; i += 4) {
+               uint32_t v = cmd.fill_value;
+               size_t chunk = (size_t)std::min<VkDeviceSize>(4, n - i);
+               memcpy(p + i, &v, chunk);
+            }
+         }
+         break;
+      case Cmd::ExecuteCommands:
+         for (auto *sec : cmd.secondary) if (sec) execute_cmds(sec);
+         break;
       case Cmd::CopyBuffer:
          if (cmd.src && cmd.buf && cmd.src->mem && cmd.buf->mem) {
             for (auto &r : cmd.copies) {
@@ -1848,10 +1867,147 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_GetImageSubresourceLayout(VkDevice, VkIma
 
 struct Entry { const char *name; void *fn; };
 
+/* ---- stubs for not-yet-implemented core entry points (keep the loader
+ * from handing out NULL pointers; they are no-ops returning success) ---- */
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_BindBufferMemory2(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_BindImageMemory2(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBeginQuery(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBeginRenderPass2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBeginRendering(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBindDescriptorSets2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBindIndexBuffer2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBindVertexBuffers2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBlitImage(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBlitImage2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdClearAttachments(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdClearDepthStencilImage(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyBuffer2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyBufferToImage2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyImage(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyImage2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyImageToBuffer2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyQueryPoolResults(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDispatch(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDispatchBase(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDispatchIndirect(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDrawIndexedIndirectCount(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDrawIndirectCount(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdEndQuery(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdEndRenderPass2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdEndRendering(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdNextSubpass(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdNextSubpass2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdPipelineBarrier2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdPushConstants(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdPushConstants2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdPushDescriptorSet(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdPushDescriptorSet2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdPushDescriptorSetWithTemplate(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdPushDescriptorSetWithTemplate2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdResetEvent(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdResetEvent2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdResetQueryPool(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdResolveImage(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdResolveImage2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetBlendConstants(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetCullMode(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetDepthBias(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetDepthBiasEnable(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetDepthBounds(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetDepthBoundsTestEnable(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetDepthCompareOp(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetDepthTestEnable(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetDepthWriteEnable(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetDeviceMask(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetEvent(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetEvent2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetFrontFace(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetLineStipple(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetLineWidth(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetPrimitiveRestartEnable(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetPrimitiveTopology(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetRasterizerDiscardEnable(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetRenderingAttachmentLocations(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetRenderingInputAttachmentIndices(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetScissorWithCount(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetStencilCompareMask(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetStencilOp(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetStencilReference(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetStencilTestEnable(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetStencilWriteMask(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetViewportWithCount(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdWaitEvents(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdWaitEvents2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdWriteTimestamp(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdWriteTimestamp2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CopyImageToImage(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CopyImageToMemory(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CopyMemoryToImage(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateBufferView(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateComputePipelines(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateDescriptorUpdateTemplate(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreatePrivateDataSlot(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateRenderPass2(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSamplerYcbcrConversion(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_DestroyBufferView(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_DestroyDescriptorUpdateTemplate(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_DestroyPrivateDataSlot(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_DestroySamplerYcbcrConversion(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkgl_GetBufferDeviceAddress(void *a1, ...) { (void)a1; { return {}; } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetBufferMemoryRequirements2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR uint64_t VKAPI_CALL vkgl_GetBufferOpaqueCaptureAddress(void *a1, ...) { (void)a1; { return 0; } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetDescriptorSetLayoutSupport(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetDeviceBufferMemoryRequirements(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetDeviceGroupPeerMemoryFeatures(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetDeviceImageMemoryRequirements(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetDeviceImageSparseMemoryRequirements(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetDeviceImageSubresourceLayout(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetDeviceMemoryCommitment(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR uint64_t VKAPI_CALL vkgl_GetDeviceMemoryOpaqueCaptureAddress(void *a1, ...) { (void)a1; { return 0; } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetDeviceQueue2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetImageMemoryRequirements2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetImageSparseMemoryRequirements(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetImageSparseMemoryRequirements2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetImageSubresourceLayout2(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_GetPhysicalDeviceToolProperties(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetPrivateData(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetRenderAreaGranularity(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_GetRenderingAreaGranularity(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_GetSemaphoreCounterValue(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_MapMemory2(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_QueueBindSparse(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_QueueSubmit2(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_ResetQueryPool(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_SetPrivateData(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_SignalSemaphore(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_TransitionImageLayout(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_TrimCommandPool(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_UnmapMemory2(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+static VKAPI_ATTR void VKAPI_CALL vkgl_UpdateDescriptorSetWithTemplate(void *a1, ...) { (void)a1; { } }
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_WaitSemaphores(void *a1, ...) { (void)a1; { return VK_SUCCESS; } }
+
+
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdFillBuffer(VkCommandBuffer cb, VkBuffer buf, VkDeviceSize off,
+                                                     VkDeviceSize size, uint32_t data) {
+   auto *c = from_handle<CommandBuffer>((uint64_t)cb);
+   Cmd cmd{}; cmd.kind = Cmd::FillBuffer; cmd.buf = from_handle<Buffer>((uint64_t)buf);
+   cmd.offset = off; cmd.size = size; cmd.fill_value = data;
+   c->cmds.push_back(cmd);
+}
+
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdExecuteCommands(VkCommandBuffer cb, uint32_t count,
+                                                           const VkCommandBuffer *bufs) {
+   auto *c = from_handle<CommandBuffer>((uint64_t)cb);
+   Cmd cmd{}; cmd.kind = Cmd::ExecuteCommands;
+   for (uint32_t i = 0; i < count; i++) cmd.secondary.push_back(from_handle<CommandBuffer>((uint64_t)bufs[i]));
+   c->cmds.push_back(cmd);
+}
+
 #define FN(name) {"vk" #name, (void *)vkgl_##name}
 
 static const Entry g_entry_table[] = {
    FN(CreateInstance), FN(DestroyInstance), FN(EnumerateInstanceVersion),
+   FN(BindBufferMemory2), FN(BindImageMemory2), FN(CmdBeginQuery), FN(CmdBeginRenderPass2), FN(CmdBeginRendering), FN(CmdBindDescriptorSets2), FN(CmdBindIndexBuffer2), FN(CmdBindVertexBuffers2), FN(CmdBlitImage), FN(CmdBlitImage2), FN(CmdClearAttachments), FN(CmdClearDepthStencilImage), FN(CmdCopyBuffer2), FN(CmdCopyBufferToImage2), FN(CmdCopyImage), FN(CmdCopyImage2), FN(CmdCopyImageToBuffer2), FN(CmdCopyQueryPoolResults), FN(CmdDispatch), FN(CmdDispatchBase), FN(CmdDispatchIndirect), FN(CmdDrawIndexedIndirectCount), FN(CmdDrawIndirectCount), FN(CmdEndQuery), FN(CmdEndRenderPass2), FN(CmdEndRendering), FN(CmdExecuteCommands), FN(CmdFillBuffer), FN(CmdNextSubpass), FN(CmdNextSubpass2), FN(CmdPipelineBarrier2), FN(CmdPushConstants), FN(CmdPushConstants2), FN(CmdPushDescriptorSet), FN(CmdPushDescriptorSet2), FN(CmdPushDescriptorSetWithTemplate), FN(CmdPushDescriptorSetWithTemplate2), FN(CmdResetEvent), FN(CmdResetEvent2), FN(CmdResetQueryPool), FN(CmdResolveImage), FN(CmdResolveImage2), FN(CmdSetBlendConstants), FN(CmdSetCullMode), FN(CmdSetDepthBias), FN(CmdSetDepthBiasEnable), FN(CmdSetDepthBounds), FN(CmdSetDepthBoundsTestEnable), FN(CmdSetDepthCompareOp), FN(CmdSetDepthTestEnable), FN(CmdSetDepthWriteEnable), FN(CmdSetDeviceMask), FN(CmdSetEvent), FN(CmdSetEvent2), FN(CmdSetFrontFace), FN(CmdSetLineStipple), FN(CmdSetLineWidth), FN(CmdSetPrimitiveRestartEnable), FN(CmdSetPrimitiveTopology), FN(CmdSetRasterizerDiscardEnable), FN(CmdSetRenderingAttachmentLocations), FN(CmdSetRenderingInputAttachmentIndices), FN(CmdSetScissorWithCount), FN(CmdSetStencilCompareMask), FN(CmdSetStencilOp), FN(CmdSetStencilReference), FN(CmdSetStencilTestEnable), FN(CmdSetStencilWriteMask), FN(CmdSetViewportWithCount), FN(CmdWaitEvents), FN(CmdWaitEvents2), FN(CmdWriteTimestamp), FN(CmdWriteTimestamp2), FN(CopyImageToImage), FN(CopyImageToMemory), FN(CopyMemoryToImage), FN(CreateBufferView), FN(CreateComputePipelines), FN(CreateDescriptorUpdateTemplate), FN(CreatePrivateDataSlot), FN(CreateRenderPass2), FN(CreateSamplerYcbcrConversion), FN(DestroyBufferView), FN(DestroyDescriptorUpdateTemplate), FN(DestroyPrivateDataSlot), FN(DestroySamplerYcbcrConversion), FN(GetBufferDeviceAddress), FN(GetBufferMemoryRequirements2), FN(GetBufferOpaqueCaptureAddress), FN(GetDescriptorSetLayoutSupport), FN(GetDeviceBufferMemoryRequirements), FN(GetDeviceGroupPeerMemoryFeatures), FN(GetDeviceImageMemoryRequirements), FN(GetDeviceImageSparseMemoryRequirements), FN(GetDeviceImageSubresourceLayout), FN(GetDeviceMemoryCommitment), FN(GetDeviceMemoryOpaqueCaptureAddress), FN(GetDeviceQueue2), FN(GetImageMemoryRequirements2), FN(GetImageSparseMemoryRequirements), FN(GetImageSparseMemoryRequirements2), FN(GetImageSubresourceLayout2), FN(GetPhysicalDeviceToolProperties), FN(GetPrivateData), FN(GetRenderAreaGranularity), FN(GetRenderingAreaGranularity), FN(GetSemaphoreCounterValue), FN(MapMemory2), FN(QueueBindSparse), FN(QueueSubmit2), FN(ResetQueryPool), FN(SetPrivateData), FN(SignalSemaphore), FN(TransitionImageLayout), FN(TrimCommandPool), FN(UnmapMemory2), FN(UpdateDescriptorSetWithTemplate), FN(WaitSemaphores),
    FN(EnumerateInstanceExtensionProperties), FN(EnumerateInstanceLayerProperties),
    FN(EnumeratePhysicalDevices), FN(GetPhysicalDeviceFeatures), FN(GetPhysicalDeviceProperties),
    FN(GetPhysicalDeviceProperties2), FN(GetPhysicalDeviceQueueFamilyProperties),
