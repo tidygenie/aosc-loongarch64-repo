@@ -17,13 +17,13 @@ if [[ "$(getconf PAGESIZE)" == 16384 ]]; then ok "16K pages"; else bad "page siz
 echo "  /proc/version: $(cut -c1-160 /proc/version)"
 
 case "$REL" in
-  *gcc-o3)  grep -q "gcc version" /proc/version && ok "built with gcc -O3" || bad "gcc build expected" ;;
-  *clang-lto) grep -q "clang version" /proc/version && ok "built with clang (full LTO)" || bad "clang build expected" ;;
+  *gcc-o3)  grep -qE "gcc \(GCC\)|gcc version" /proc/version && ok "built with gcc -O3" || bad "gcc build expected" ;;
+  *clang-lto) grep -qE "clang version|Clang" /proc/version && ok "built with clang (full LTO)" || bad "clang build expected" ;;
 esac
 
 echo "== 2. modules / DKMS"
 if lsmod | grep -q '^loonggpu'; then ok "loonggpu loaded"; else bad "loonggpu not loaded"; fi
-if dkms status 2>/dev/null | grep -q "loonggpu.*${REL}"; then ok "DKMS entry for $REL"; else bad "no DKMS entry for $REL"; fi
+if dkms status 2>/dev/null | grep -F "$REL" | grep -q installed; then ok "DKMS entry for $REL"; else bad "no DKMS entry for $REL"; fi
 
 echo "== 3. graphics"
 if command -v qdbus >/dev/null && [[ -n "${XDG_RUNTIME_DIR:-}" ]]; then
