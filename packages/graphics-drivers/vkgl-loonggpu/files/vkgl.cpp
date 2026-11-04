@@ -282,6 +282,7 @@ struct Cmd {
       BeginRenderPass, EndRenderPass, BindPipeline, BindVertexBuffer, BindIndexBuffer,
       BindDescriptorSet, SetViewport, SetScissor, Draw, DrawIndexed, ClearColorImage,
       CopyBuffer, CopyBufferToImage, CopyImageToBuffer, UpdateBuffer, Barrier, PipelineBarrier,
+      DrawIndirect, DrawIndexedIndirect,
    } kind;
    Framebuffer *fb = nullptr;
    RenderPass *rp = nullptr;
@@ -298,6 +299,9 @@ struct Cmd {
    VkClearColorValue cc = {};
    VkImageSubresourceRange range = {};
    VkBufferImageCopy region = {};
+   Buffer *src = nullptr;
+   std::vector<VkBufferCopy> copies;
+   uint32_t indirect_stride = 0;
    const void *update_data = nullptr;
    uint32_t update_size = 0;
    VkDeviceSize update_offset = 0;
@@ -1291,7 +1295,31 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdClearColorImage(VkCommandBuffer cb, Vk
    c->cmds.push_back(cmd);
 }
 
-static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyBuffer(VkCommandBuffer, VkBuffer, VkBuffer, uint32_t, const VkBufferCopy *) {}
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyBuffer(VkCommandBuffer cb, VkBuffer src, VkBuffer dst,
+                                                     uint32_t n, const VkBufferCopy *regions) {
+   auto *c = from_handle<CommandBuffer>((uint64_t)cb);
+   Cmd cmd{}; cmd.kind = Cmd::CopyBuffer;
+   cmd.src = from_handle<Buffer>((uint64_t)src);
+   cmd.buf = from_handle<Buffer>((uint64_t)dst);
+   for (uint32_t i = 0; i < n; i++) cmd.copies.push_back(regions[i]);
+   c->cmds.push_back(cmd);
+}
+
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDrawIndirect(VkCommandBuffer cb, VkBuffer buf, VkDeviceSize off,
+                                                       uint32_t count, uint32_t stride) {
+   auto *c = from_handle<CommandBuffer>((uint64_t)cb);
+   Cmd cmd{}; cmd.kind = Cmd::DrawIndirect; cmd.buf = from_handle<Buffer>((uint64_t)buf);
+   cmd.offset = off; cmd.count = count; cmd.indirect_stride = stride ? stride : sizeof(VkDrawIndirectCommand);
+   c->cmds.push_back(cmd);
+}
+
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDrawIndexedIndirect(VkCommandBuffer cb, VkBuffer buf, VkDeviceSize off,
+                                                              uint32_t count, uint32_t stride) {
+   auto *c = from_handle<CommandBuffer>((uint64_t)cb);
+   Cmd cmd{}; cmd.kind = Cmd::DrawIndexedIndirect; cmd.buf = from_handle<Buffer>((uint64_t)buf);
+   cmd.offset = off; cmd.count = count; cmd.indirect_stride = stride ? stride : sizeof(VkDrawIndexedIndirectCommand);
+   c->cmds.push_back(cmd);
+}
 
 static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyBufferToImage(VkCommandBuffer cb, VkBuffer buf, VkImage img,
                                                             VkImageLayout, uint32_t n,
@@ -1465,6 +1493,33 @@ static void execute_cmds(CommandBuffer *c) {
          glEnable(GL_SCISSOR_TEST);
          glScissor(sc.offset.x, sc.offset.y, (GLsizei)sc.extent.width, (GLsizei)sc.extent.height);
          break;
+      case Cmd::DrawIndirect:
+         if (cur_pipe && cmd.buf && cmd.buf->mem) {
+            const uint8_t *base = cmd.buf->mem->shadow.data() + cmd.buf->mem_offset + cmd.offset;
+            for (uint32_t i = 0; i < cmd.count; i++) {
+               const VkDrawIndirectCommand *d = (const VkDrawIndirectCommand *)(base + i * cmd.indirect_stride);
+               Cmd sub = cmd; sub.kind = Cmd::Draw;
+               sub.first = d->firstVertex; sub.count = d->vertexCount; sub.instances = d->instanceCount;
+               extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &, Buffer *, VkDeviceSize,
+                                             Buffer *, VkDeviceSize, const Cmd &);
+               vkgl_execute_draw(cur_pipe, sets, vbuf, voff, ibuf, ioff, sub);
+            }
+         }
+         break;
+      case Cmd::DrawIndexedIndirect:
+         if (cur_pipe && cmd.buf && cmd.buf->mem) {
+            const uint8_t *base = cmd.buf->mem->shadow.data() + cmd.buf->mem_offset + cmd.offset;
+            for (uint32_t i = 0; i < cmd.count; i++) {
+               const VkDrawIndexedIndirectCommand *d = (const VkDrawIndexedIndirectCommand *)(base + i * cmd.indirect_stride);
+               Cmd sub = cmd; sub.kind = Cmd::DrawIndexed;
+               sub.first = d->firstIndex; sub.count = d->indexCount;
+               sub.vertex_offset = d->vertexOffset; sub.instances = d->instanceCount;
+               extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &, Buffer *, VkDeviceSize,
+                                             Buffer *, VkDeviceSize, const Cmd &);
+               vkgl_execute_draw(cur_pipe, sets, vbuf, voff, ibuf, ioff, sub);
+            }
+         }
+         break;
       case Cmd::Draw:
       case Cmd::DrawIndexed:
          if (cur_pipe) {
@@ -1472,6 +1527,15 @@ static void execute_cmds(CommandBuffer *c) {
             extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &, Buffer *, VkDeviceSize,
                                           Buffer *, VkDeviceSize, const Cmd &);
             vkgl_execute_draw(cur_pipe, sets, vbuf, voff, ibuf, ioff, cmd);
+         }
+         break;
+      case Cmd::CopyBuffer:
+         if (cmd.src && cmd.buf && cmd.src->mem && cmd.buf->mem) {
+            for (auto &r : cmd.copies) {
+               if (r.srcOffset + r.size > cmd.src->size || r.dstOffset + r.size > cmd.buf->size) continue;
+               memcpy(cmd.buf->mem->shadow.data() + cmd.buf->mem_offset + r.dstOffset,
+                      cmd.src->mem->shadow.data() + cmd.src->mem_offset + r.srcOffset, (size_t)r.size);
+            }
          }
          break;
       case Cmd::CopyBufferToImage:
@@ -1800,6 +1864,7 @@ static const Entry g_entry_table[] = {
    FN(CmdBindVertexBuffers), FN(CmdBindIndexBuffer), FN(CmdSetViewport), FN(CmdSetScissor),
    FN(CmdDraw), FN(CmdDrawIndexed), FN(CmdPipelineBarrier), FN(CmdClearColorImage), FN(CmdCopyBuffer),
    FN(CmdCopyBufferToImage), FN(CmdCopyImageToBuffer), FN(CmdUpdateBuffer),
+   FN(CmdDrawIndirect), FN(CmdDrawIndexedIndirect),
    FN(CreateFence), FN(DestroyFence), FN(GetFenceStatus), FN(ResetFences), FN(WaitForFences),
    FN(CreateSemaphore), FN(DestroySemaphore),
    FN(CreateEvent), FN(DestroyEvent), FN(GetEventStatus), FN(SetEvent), FN(ResetEvent),
