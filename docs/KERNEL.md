@@ -181,3 +181,9 @@ Surface、Rust 工具链）。
 
 `loonggpu` 的 tracepoint 告警（`unsafe pointer field 'ring_name'`）修复见
 `packages/graphics-drivers/loonggpu-dkms/`。
+
+## 变体共存
+
+`gcc-o3` 与 `clang-lto` 的包名、`/boot` 文件名、`/lib/modules/<release>` 目录、
+`/usr/src/linux-headers-<release>` 路径都带变体后缀，因此**两个内核可以同时安装**，
+在 GRUB 里选择启动即可做 A/B 对比；打包脚本不再声明 `Conflicts`。
