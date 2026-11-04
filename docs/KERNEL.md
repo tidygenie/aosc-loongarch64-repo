@@ -43,6 +43,7 @@ LoongArch 相关的 `AOSCOS-loongarch-*` 系列（0369–0374）全部应用成�
 |---|---|
 | `0001-loongarch-legacy-boot-strict-prototypes.patch` | AOSC 的 `acpi_arch_init (){` 缺 prototype，clang `-Werror=strict-prototypes` |
 | `0002-loongarch-ow-syscall-no-lto-for-feat-test.patch` | `feat_test.o` 要被 `$(OBJDUMP)` 读，full-LTO 下是 bitcode，需 `-fno-lto` |
+| `0003-gpio-xilinx-init-state-for-O3.patch` | `-O3` 下 gcc 发现 `xgpio_get()` 用未初始化的 bitmap 做读改写（`-Werror=uninitialized`），补 `bitmap_zero()` |
 
 ## 配置
 
