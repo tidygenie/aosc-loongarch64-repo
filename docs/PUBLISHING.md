@@ -41,3 +41,16 @@ gpg --armor --export <fingerprint> > repo/key.gpg
 
 - 删除 `pool/` 中对应 deb 后重新 `--index-only --deploy` 即可从索引中移除；
 - 如需彻底撤回，再同步删除服务器上的 pool 文件（发布器不会自动删除远端文件）。
+
+## 站点上的公钥
+
+发布器会把公钥同步到站点根：
+
+```
+https://homebrewloongarch64.site/aosc/key.gpg     # ASCII armored，给 gpg --dearmor 用
+https://homebrewloongarch64.site/aosc/thirdparty.gpg  # 二进制 keyring
+```
+
+`repo/key.gpg` 是同一份公钥的仓库副本。**改动签名密钥后必须同时更新这三处**，
+否则用户按 README 安装时会得到 `NO_PUBKEY`。`srv/aosc/key.gpg` 曾经是 0 字节，
+就是这类漂移的实例（2026-11-04 修复）。
