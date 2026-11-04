@@ -78,8 +78,19 @@ struct GlCtx {
    }
 
    void init() {
-      setenv("__EGL_VENDOR_LIBRARY_FILENAMES",
-             "/usr/share/glvnd/egl_vendor.d/40_gsgpu.json", 1);
+      /* Pick the first vendor JSON that actually exists: different vendor
+       * tarballs install it under different names (and some none at all, in
+       * which case glvnd's default enumeration is the best we can do). */
+      {
+         static const char *cands[] = {
+            "/usr/share/glvnd/egl_vendor.d/40_gsgpu.json",
+            "/usr/share/glvnd/egl_vendor.d/60_gsgpu.json",
+            "/usr/share/glvnd/egl_vendor.d/60_loonggpu.json",
+         };
+         for (const char *c : cands) {
+            if (access(c, R_OK) == 0) { setenv("__EGL_VENDOR_LIBRARY_FILENAMES", c, 1); break; }
+         }
+      }
       setenv("GBM_BACKEND", "gsgpu", 1);
       drm_fd = open("/dev/dri/renderD128", O_RDWR | O_CLOEXEC);
       if (drm_fd < 0) { perror("vkgl: open renderD128"); return; }
