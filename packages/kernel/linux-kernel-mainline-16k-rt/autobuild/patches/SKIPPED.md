@@ -26,3 +26,20 @@ RISC-V/SpacemiT、x86、Surface、Rust 工具链等非 LoongArch 补丁，`patch
 
 处理：删除这三行残留（Intel MEI 与 LoongArch 无关，iTouch 设备 ID 也不需要）。
 如需保留，可同时把 `PCI_DEVICE_ID_INTEL_MEI_ICP_LP_3` 定义补回 `hw-me-regs.h`。
+
+## 0344-SURFACE-hid-multitouch-Prevent-mode-set-on-Surface-L.patch（错位应用）
+
+补丁要在 `mt_on_hid_hw_open()` 里加 `td` 声明和 quirk 判断，但 hunk 的上下文与 7.3.1 不同，
+`patch --fuzz` 把整段插进了 `mt_probe()` 中一个 `if (...)` 条件的中间，导致：
+
+```
+hid-multitouch.c:2310: error: expected ')' before 'struct'
+hid-multitouch.c:2459: error: 'td' undeclared
+```
+
+处理：把插入块从 `if` 表达式里摘出、恢复条件为上游写法；并给 `mt_on_hid_hw_open()`
+补上 `struct mt_device *td = hid_get_drvdata(hdev);` 与同样的 quirk 判断。
+
+> 这是第三个“hunk 错位”案例（前两个：0356 amdgpu、0427 mei）。
+> 规律：**带长上下文的 Surface/RISC-V 补丁在 7.3.1 上容易错位**，出错时优先检查
+> 这些补丁对应文件的结构是否被插坏。
