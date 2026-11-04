@@ -1426,6 +1426,7 @@ static void execute_cmds(CommandBuffer *c) {
    Buffer *ibuf = nullptr; VkDeviceSize ioff = 0;
    VkViewport vp = {0, 0, 0, 0, 0, 1};
    VkRect2D sc = {{0, 0}, {0, 0}};
+   int fb_height = 0;
 
    for (auto &cmd : c->cmds) {
       switch (cmd.kind) {
@@ -1439,6 +1440,7 @@ static void execute_cmds(CommandBuffer *c) {
          glViewport(0, 0, (GLsizei)w, (GLsizei)h);
          vp = {0, 0, (float)w, (float)h, 0, 1};
          sc = {{0, 0}, {w, h}};
+         fb_height = (int)h;
          if (fb->depth && fb->depth->image) {
             ensure_fbo(fb->depth->image);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -1486,7 +1488,9 @@ static void execute_cmds(CommandBuffer *c) {
          break;
       case Cmd::SetViewport:
          vp = cmd.vp;
-         glViewport((GLint)vp.x, (GLint)(vp.height - vp.y - vp.height), (GLsizei)vp.width, (GLsizei)vp.height);
+         /* Vulkan viewport origin is top-left, GL is bottom-left */
+         glViewport((GLint)vp.x, (GLint)(fb_height - vp.y - vp.height),
+                    (GLsizei)vp.width, (GLsizei)vp.height);
          break;
       case Cmd::SetScissor:
          sc = cmd.scissor;
