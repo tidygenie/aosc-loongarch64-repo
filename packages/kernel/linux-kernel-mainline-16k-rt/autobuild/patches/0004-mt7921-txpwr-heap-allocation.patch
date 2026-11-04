@@ -1,0 +1,59 @@
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c	2026-11-04 15:10:28.850538203 +0800
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c	2026-11-04 15:10:28.815104816 +0800
+@@ -77,31 +77,37 @@
+ #define mt7921_print_txpwr_entry(prefix, rate)				\
+ ({									\
+ 	mt7921_seq_puts_array(s, #prefix " (user)",			\
+-			      txpwr.data[TXPWR_USER].rate,		\
+-			      ARRAY_SIZE(txpwr.data[TXPWR_USER].rate)); \
++			      txpwr->data[TXPWR_USER].rate,		\
++			      ARRAY_SIZE(txpwr->data[TXPWR_USER].rate)); \
+ 	mt7921_seq_puts_array(s, #prefix " (eeprom)",			\
+-			      txpwr.data[TXPWR_EEPROM].rate,		\
+-			      ARRAY_SIZE(txpwr.data[TXPWR_EEPROM].rate)); \
++			      txpwr->data[TXPWR_EEPROM].rate,		\
++			      ARRAY_SIZE(txpwr->data[TXPWR_EEPROM].rate)); \
+ 	mt7921_seq_puts_array(s, #prefix " (tmac)",			\
+-			      txpwr.data[TXPWR_MAC].rate,		\
+-			      ARRAY_SIZE(txpwr.data[TXPWR_MAC].rate));	\
++			      txpwr->data[TXPWR_MAC].rate,		\
++			      ARRAY_SIZE(txpwr->data[TXPWR_MAC].rate));	\
+ })
+ 
+ static int
+ mt7921_txpwr(struct seq_file *s, void *data)
+ {
+ 	struct mt792x_dev *dev = dev_get_drvdata(s->private);
+-	struct mt7921_txpwr txpwr;
++	struct mt7921_txpwr *txpwr;
+ 	int ret;
+ 
++	txpwr = kzalloc(sizeof(*txpwr), GFP_KERNEL);
++	if (!txpwr)
++		return -ENOMEM;
++
+ 	mt792x_mutex_acquire(dev);
+-	ret = mt7921_get_txpwr_info(dev, &txpwr);
++	ret = mt7921_get_txpwr_info(dev, txpwr);
+ 	mt792x_mutex_release(dev);
+ 
+-	if (ret)
++	if (ret) {
++		kfree(txpwr);
+ 		return ret;
++	}
+ 
+-	seq_printf(s, "Tx power table (channel %d)\n", txpwr.ch);
++	seq_printf(s, "Tx power table (channel %d)\n", txpwr->ch);
+ 	seq_printf(s, "%-16s  %6s %6s %6s %6s\n",
+ 		   " ", "1m", "2m", "5m", "11m");
+ 	mt7921_print_txpwr_entry(CCK, cck);
+@@ -136,6 +142,8 @@
+ 	mt7921_print_txpwr_entry(HE996, he996);
+ 	mt7921_print_txpwr_entry(HE996x2, he996x2);
+ 
++	kfree(txpwr);
++
+ 	return 0;
+ }
+ 
