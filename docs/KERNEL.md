@@ -109,3 +109,60 @@ sudo dpkg -i linux-kernel-*_loongarch64.deb linux-headers-*_loongarch64.deb
 - 看 `/proc/version` 区分编译器（`gcc version` vs `clang version`）；
 - 看 `uname -r` 区分变体；
 - 图形验证：`qdbus org.kde.KWin /KWin supportInformation | grep renderer` 应显示 LG110。
+
+## 实际落地的 LoongArch 相关补丁（48 个）
+
+在 7.3.1 上最终成功应用、且与 LoongArch/龙芯平台直接相关的补丁：
+
+  - `0004-UPSTREAM-MIPS-Loongson64-dts-Add-node-for-LS7A-PCH-L`
+  - `0021-FROMLIST-LoongArch-Update-the-flush-cache-policy`
+  - `0026-FROMLIST-PCI-Prevent-LS7A-Bus-Master-clearing-on-kex`
+  - `0033-FROMLIST-RFC-drm-amdkfd-disable-HSA_AMD_SVM-on-Loong`
+  - `0065-BACKPORT-FROMLIST-LoongArch-detect-and-disable-sc.q-`
+  - `0182-FROMLIST-pci-loongson-Avoid-L0s-on-LS7A1000-PCIe-x8-`
+  - `0184-FROMLIST-can-Add-Loongson-CAN-FD-controller-driver`
+  - `0185-FROMLIST-can-loongson_canfd-Add-RXDMA-support`
+  - `0186-FROMLIST-gpio-loongson-64bit-Add-back-the-support-fo`
+  - `0189-FROMLIST-cpufreq-loongson3-Make-this-driver-depend-o`
+  - `0190-FROMLIST-cpufreq-loongson3-Adjust-the-width-of-id-an`
+  - `0191-FROMLIST-cpufreq-loongson3-Replace-per-package-mutex`
+  - `0192-FROMLIST-cpufreq-loongson3-Use-global-physical-CPU-I`
+  - `0193-FROMLIST-cpufreq-loongson3-Replace-IOCSR-read-write-`
+  - `0202-FROMLIST-MIPS-Loongson-Add-board_ebase_setup-support`
+  - `0203-FROMLIST-MIPS-Loongson64-Enlarge-cross-package-node-`
+  - `0206-LOONGSON-LoongArch-Add-CPU-HWMon-platform-driver`
+  - `0207-LOONGSON-drivers-firmware-Move-sysfb_init-from-devic`
+  - `0208-LOONGSON-drm-radeon-Workaround-radeon-driver-bug-for`
+  - `0264-DEBIAN-Use-RELAXED-ieee754-mode-for-Loongson-3-as-3A`
+  - `0297-BACKPORT-DEEPIN-pci-quirks-LS7A2000-Fix-pm-transitio`
+  - `0367-AOSCOS-loongarch-re-introduce-add_numamem_region-ini`
+  - `0368-AOSCOS-loongarch-basic-boot-support-for-legacy-firmw`
+  - `0369-AOSCOS-loongarch-parse-BPI-data-and-add-memory-mappi`
+  - `0370-AOSCOS-loongarch-add-MADT-ACPI-table-conversion`
+  - `0371-AOSCOS-loongarch-correct-missing-offset-of-PCI-root-`
+  - `0372-AOSCOS-loongarch-fix-missing-dependency-info-in-DSDT`
+  - `0373-AOSCOS-loongarch-fix-DMA-address-offset`
+  - `0374-AOSCOS-loongarch-fix-HT_RX_INT_TRANS-register`
+  - `0375-AOSCOS-arch-loongarch-add-la_ow_syscall-as-in-tree-m`
+  - `0378-AOSCOS-MIPS-Temporarily-disable-Loongson3-LL-SC-erra`
+  - `0384-AOSCOS-MIPS-loongson64-deselect-ARCH_SUPPORTS_HUGETL`
+  - `0395-AOSCOS-MIPS-Loongson-Add-constant-timer-support`
+  - `0396-AOSCOS-MIPS-loongson64-fix-constant-timer-build-on-k`
+  - `0397-AOSCOS-MIPS-loongson64-use-generic-vDSO-clock-mode-s`
+  - `0398-AOSCOS-MIPS-Loongson-Add-PMON-read-write-in-OS-suppo`
+  - `0400-AOSCOS-MIPS-math-emu-replace-CPU_LOONGSON3-condition`
+  - `0402-AOSCOS-memset-optimization-for-loongson-3`
+  - `0403-AOSCOS-MIPS-loongson3-memset-replace-asm-export.h-wi`
+  - `0404-AOSCOS-MIPS-loongson3-memset-use-PTR_WD-to-fix-build`
+  - `0406-AOSCOS-memcpy-optimization-for-loongson-3`
+  - `0407-AOSCOS-MIPS-loongson3-memcpy-use-PTR_WD-to-fix-build`
+  - `0408-AOSCOS-MIPS-loongson3-memcpy-replace-asm-export.h-wi`
+  - `0409-AOSCOS-MIPS-mark-CPU_LOONGSON64-as-HAVE_PLAT_MEMCPY`
+  - `0410-AOSCOS-MIPS-loongson3-memcpy-adapt-to-RAW_COPY_USER`
+  - `0411-AOSCOS-spi-spi-loongson-allow-building-on-MACH_LOONG`
+  - `0419-AOSCOS-MIPS-Loongson-Salvage-the-full-count-from-the`
+  - `0441-AOSCOS-mmc-loongson2-add-back-the-so-called-ABI-1.0-`
+
+其余 307 个成功应用的补丁为通用修复（网络 PHY、PCI、USB、drm 等），
+55 个已被上游合并，40 个冲突补丁均与 LoongArch 无关（RISC-V/SpacemiT、x86、
+Surface、Rust 工具链）。
