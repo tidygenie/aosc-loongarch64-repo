@@ -1,0 +1,13 @@
+{
+  "initial_sha256": {
+    "/tmp/vkgl-ab-base/libvkgl.so": "4272d2b598d9b1de42cb6917825717e91f8aada9be33f53a5858535f55d50eb4",
+    "/home/houge/infra/vkgl/libvkgl.so": "49f6c83f4898800234c7457f11f23a66a1c17148fd83f128e5582bd7ed0a729c",
+    "/usr/lib/vkgl/libvkgl.so": "49f6c83f4898800234c7457f11f23a66a1c17148fd83f128e5582bd7ed0a729c"
+  },
+  "final_sha256": {
+    "/tmp/vkgl-ab-base/libvkgl.so": "4272d2b598d9b1de42cb6917825717e91f8aada9be33f53a5858535f55d50eb4",
+    "/home/houge/infra/vkgl/libvkgl.so": "49f6c83f4898800234c7457f11f23a66a1c17148fd83f128e5582bd7ed0a729c",
+    "/usr/lib/vkgl/libvkgl.so": "49f6c83f4898800234c7457f11f23a66a1c17148fd83f128e5582bd7ed0a729c"
+  },
+  "unchanged_during_matrix": true
+}

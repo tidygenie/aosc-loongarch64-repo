@@ -71,6 +71,7 @@
   | shading | 119 | 157 | +31.9% | 8.463→6.421 ms（-24.1%） |
 
   原始数据与可复现 runner：[`scripts/tests/vkgl`](../scripts/tests/vkgl/)。无 clear 的 effect2d/desktop 不宣称提升，也不外推大型 3D。
+- 1920×1080 FIFO 四轮交错配对共 24 次成功运行，12/12 对均提升：vertex **21.5→27.5 FPS（+27.9%）**，texture **20.5→26.0（+26.8%）**，shading **21→25（+19.0%）**。两变体均实测 gsgpu、三张 dmabuf 零拷贝图像、无 llvmpipe，库 hash 在矩阵期间不变；仍不外推其他场景。
 - 安装后的 deb 在 dmabuf/wl_shm 均为 **5/5、0 validation errors、GPU-only**；acquire/fence 与 padded copy 回归保持通过。
 
 ## 0.1.14 实测（2026-11-05）

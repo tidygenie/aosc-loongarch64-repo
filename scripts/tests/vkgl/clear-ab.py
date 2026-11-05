@@ -13,10 +13,13 @@ parser.add_argument("--base", required=True, help="ICD JSON for the control")
 parser.add_argument("--candidate", required=True, help="ICD JSON for the candidate")
 parser.add_argument("--rounds", type=int, default=6)
 parser.add_argument("--duration", type=int, default=5)
+parser.add_argument("--size", default="640x480", help="vkmark window size, for example 1920x1080")
 parser.add_argument("--output", type=Path)
 args = parser.parse_args()
 if args.rounds < 1 or args.duration < 1:
     parser.error("rounds and duration must be positive")
+if not re.fullmatch(r"[1-9][0-9]{0,3}x[1-9][0-9]{0,3}", args.size):
+    parser.error("size must be WIDTHxHEIGHT")
 
 rows = []
 for round_no in range(1, args.rounds + 1):
@@ -32,7 +35,7 @@ for round_no in range(1, args.rounds + 1):
             env.pop("VKGL_DEBUG", None)
             env.pop("VKGL_PROF", None)
             command = [
-                "vkmark", "--winsys", "wayland", "-p", "fifo", "-s", "640x480",
+                "vkmark", "--winsys", "wayland", "-p", "fifo", "-s", args.size,
                 "-b", f"{scene}:duration={args.duration}",
             ]
             started = time.monotonic()
