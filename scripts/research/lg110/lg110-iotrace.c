@@ -45,12 +45,13 @@
 #define GSPKT_VM_BIND   0x8A
 #define GSPKT_XDMA_COPY 0xC0
 
-#define LG110_MAX_GEM       256
-#define LG110_MAX_VA        512
-#define LG110_MAX_USER_MAP  256
-#define LG110_MAX_CHUNKS    32
-#define LG110_MAX_IB_DWORDS 32
-#define LG110_HARD_MAX_SUBS 1000000U
+#define LG110_MAX_GEM           256
+#define LG110_MAX_VA            512
+#define LG110_MAX_USER_MAP      256
+#define LG110_MAX_CHUNKS        32
+#define LG110_DEFAULT_IB_DWORDS 32
+#define LG110_HARD_MAX_IB_DWORDS 512
+#define LG110_HARD_MAX_SUBS     1000000U
 
 struct gem_record {
     int used;
@@ -88,6 +89,7 @@ static unsigned int max_submissions = 64;
 static unsigned int submission_count;
 static unsigned int max_aux_records;
 static unsigned int aux_record_count;
+static unsigned int max_ib_dwords = LG110_DEFAULT_IB_DWORDS;
 
 static int (*real_ioctl)(int, unsigned long, ...);
 static void *(*real_mmap)(void *, size_t, int, int, int, off_t);
@@ -120,11 +122,20 @@ static void configure(void)
         if (end && end != value && *end == '\0' && parsed <= LG110_HARD_MAX_SUBS)
             max_aux_records = (unsigned int)parsed;
     }
+
+    value = getenv("LG110_TRACE_IB_DWORDS");
+    end = NULL;
+    if (value && *value) {
+        parsed = strtoul(value, &end, 10);
+        if (end && end != value && *end == '\0' && parsed > 0 &&
+            parsed <= LG110_HARD_MAX_IB_DWORDS)
+            max_ib_dwords = (unsigned int)parsed;
+    }
 }
 
 static void log_line(const char *format, ...)
 {
-    char buffer[2048];
+    char buffer[8192];
     va_list ap;
     int length;
 
@@ -485,10 +496,10 @@ static void trace_ib_locked(unsigned int sequence, unsigned int index, int fd,
                             const struct drm_loonggpu_cs_chunk_ib *ib)
 {
     struct ib_source source;
-    uint32_t dwords[LG110_MAX_IB_DWORDS];
+    uint32_t dwords[LG110_HARD_MAX_IB_DWORDS];
     size_t count;
     unsigned int i;
-    char values[512];
+    char values[LG110_HARD_MAX_IB_DWORDS * 11 + 1];
     size_t used = 0;
     uint32_t op;
 
@@ -505,8 +516,8 @@ static void trace_ib_locked(unsigned int sequence, unsigned int index, int fd,
     }
 
     count = ib->ib_bytes / 4;
-    if (count > LG110_MAX_IB_DWORDS)
-        count = LG110_MAX_IB_DWORDS;
+    if (count > max_ib_dwords)
+        count = max_ib_dwords;
     if (count > source.available / 4)
         count = source.available / 4;
     if (!count) {
@@ -705,7 +716,7 @@ int ioctl(int fd, unsigned long request, ...)
                 log_line("LG110TRACE version=1 pid=%ld max_submissions=%u "
                          "max_chunks=%u max_ib_dwords=%u",
                          (long)getpid(), max_submissions,
-                         LG110_MAX_CHUNKS, LG110_MAX_IB_DWORDS);
+                         LG110_MAX_CHUNKS, max_ib_dwords);
             trace_cs_locked(sequence, fd, &cs_input, cs_valid, result,
                             saved_errno, output_valid, output_handle);
         }
