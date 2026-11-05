@@ -1,20 +1,21 @@
-# LG110 full-IB differential: texture vs. gradient
+# LG110 full-IB differential: texture vs. gradient, both vkgl 0.1.15
 
 ## Capture and completeness
 
-- Texture capture date: 2026-11-05; installed `vkgl-loonggpu 0.1.15-1`. The existing gradient comparison log was captured with 0.1.14-1, so version skew is an explicit confound in every cross-workload comparison below.
+- Capture date: 2026-11-05. Both primary captures used installed `vkgl-loonggpu 0.1.15-1`.
+- Primary texture log: `vktest-texture-full.log`. Primary gradient log: `vktest-gradient-v0.1.15-full.log`, with matching `.stdout.log` and `.exit` files.
+- The former texture-0.1.15 vs. gradient-0.1.14 comparison is **superseded** by this same-version comparison. The old `vktest-gradient-full.log` is retained only as a historical artifact and is no longer the comparison input.
 - Working directory: `/home/houge/infra/vkgl`; installed ICD: `/home/houge/infra/vkgl/vkgl_icd.json` -> `/usr/lib/vkgl/libvkgl.so`.
 - Active Wayland: `XDG_RUNTIME_DIR=/run/user/1000`, `WAYLAND_DISPLAY=wayland-0`.
-- Tracer bounds: `LG110_TRACE_MAX=512`, `LG110_TRACE_IB_DWORDS=512`. No other GPU test was run concurrently.
-- `vktest-texture` completed all 120 frames, printed `PASS vktest-texture`, and exited 0.
+- Both captures used `LG110_TRACE_MAX=512` and `LG110_TRACE_IB_DWORDS=512`, with no concurrent GPU test.
+- Each test completed all 120 frames, printed its PASS line, and exited 0. All 121 CS calls in each capture returned 0; sequence 121 was logged below the 512-submission cap.
 
-| IP type | CS / IB count | IB bytes | Dumped dwords | Complete | Truncated | Unresolved |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `ip_type=2` (sequence 1) | 1 | 64 | 16 | 1 | 0 | 0 |
-| `ip_type=0` (sequences 2–121) | 120 | 1600 | 400 | 120 | 0 | 0 |
-| Total | 121 | — | — | 121 | 0 | 0 |
+| Workload | `ip_type=2` XDMA | `ip_type=0` GFX | Complete | Truncated | Unresolved |
+| --- | --- | --- | ---: | ---: | ---: |
+| Texture | 1 × 64 bytes, 16/16 dwords | 120 × 1600 bytes, 400/400 dwords each | 121 | 0 | 0 |
+| Gradient 0.1.15 recapture | 1 × 64 bytes, 16/16 dwords | 120 × 1088 bytes, 272/272 dwords each | 121 | 0 | 0 |
 
-All 121 CS calls returned 0. Sequence 121 was logged, below the 512-submission cap. Every GFX IB is fully captured at 400/400 dwords, so the 512-dword cap was not raised and the tracer was not rebuilt.
+The 512-dword cap was sufficient for both captures, so it was not raised and the tracer was not rebuilt. As an additional cross-version check, all 121 old-gradient and new-gradient IB data arrays are identical dword-for-dword; this is why every recalculated differential count below is unchanged.
 
 ## Observed header words / opcodes
 
@@ -37,7 +38,7 @@ Word offsets are zero-based. `0x88` and `0x89` remain unknown; no semantic names
 - 119 values: words **110, 242, 346, 350, 352, 374**.
 - Invariant offsets: `0-53,55-86,88-109,111-241,243-317,319-345,347-349,351,353-373,375-399`.
 
-### Gradient: 262 invariant and 10 varying offsets
+### Gradient 0.1.15: 262 invariant and 10 varying offsets
 
 - Two values: words **54, 184**.
 - Sixty values: word **87**.
@@ -70,6 +71,6 @@ The stronger observed alignment is texture's **third** block. Its 114 equal text
 
 At the first steady-state frame, the aligned block starts differ as follows: texture `266=0x00810089`, `267=0x0000000f`, `268=0x41010400`; gradient `132=0x00810089`, `133=0x0000000f`, `134=0x40000400`. These are observations only, not opcode or field interpretations.
 
-## Concrete next hypothesis
+## Same-version recheck conclusion
 
-Test whether texture's extra block at 132–263, and the resulting shift of the best-aligned block from gradient 132 to texture 266, tracks descriptor binding rather than shader contents. First recapture gradient with the same installed vkgl 0.1.15 to remove version skew; then use a research-only gradient-shader variant that adds the same descriptor layout/bind without changing its shaders or draw parameters. The measurable prediction is whether an additional `0x00810089` block appears at 134 and whether the 114/16 aligned equality pattern moves accordingly. This is a testable correlation hypothesis, not a semantic assignment.
+The same-version recapture replaces the old cross-version comparison without changing its numerical results. In particular, the texture-second/gradient-second `0x00810089` alignment remains **97 equal / 33 different / 0 mixed**, and the texture-third/gradient-second alignment remains **114 equal / 16 different / 0 mixed** across all 119 frame-matched steady-state pairs. No additional semantic interpretation is made.
