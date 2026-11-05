@@ -29,30 +29,40 @@ config NETFILTER_XTABLES_LEGACY
 这不是我们内核配置漏项，而是上游的硬性限制；AOSC 的 7.1.13 内核没有该限制，
 是因为它早于这条 Kconfig 变更。
 
-## 解决
+## 解决（v2raya 2.5.13-2）
 
-RT 内核下统一使用 **nft 后端**（`nf_tables` 我们已启用：`CONFIG_NF_TABLES=m`）：
+内核已启用原生 nftables（`CONFIG_NF_TABLES=m` 和 TPROXY 相关模块）。正确修复分两层：
+
+1. **本仓库 deb 包**：`v2raya.service.d/10-nftables.conf` 给服务设置
+   `Environment=V2RAYA_NFTABLES_SUPPORT=on`，并让 v2raya 依赖 `nftables`；
+2. **上游后端自动检测补丁**：仅在 `iptables --version` 明确显示 `(legacy)` 时，
+   以只读的 `iptables -t mangle -L` 探测；只有输出明确符合“mangle 表初始化失败、Table does not exist”
+   才切换到 nft。权限错误、其他失败和可工作的 legacy 都保持原行为。补丁及 13 项 root-free 测试位于
+   [HougeLangley/v2rayA 的 `v2raya-nft-auto` 分支](https://github.com/HougeLangley/v2rayA/tree/v2raya-nft-auto)。
+   上游要求人类审核并亲自提交，故没有把 AI 生成内容冒充人工审核后的 PR。
+
+安装/恢复：
 
 ```sh
-for t in iptables iptables-save iptables-restore ip6tables ip6tables-save ip6tables-restore; do
-    ln -sf xtables-nft-multi /usr/sbin/$t
-done
+sudo apt update
+sudo apt install v2raya       # 2.5.13-2 或更新
+sudo systemctl daemon-reload
+sudo systemctl restart v2raya
 ```
 
-本仓库的安装脚本把它固化为 systemd 服务 `iptables-nft-default.service`
-（在 `network-pre.target` / `v2raya.service` 之前执行），内核升级后依然生效。
-
-验证：
+已在**系统链接仍指向 legacy、全局 `iptables-nft-default.service` 已停用**的条件下验证：
 
 ```sh
-iptables --version            # iptables v1.8.11 (nf_tables)
-iptables -t mangle -N TP_OUT  # 成功
-iptables -t mangle -A TP_OUT -p tcp -j TPROXY --on-port 52345 --tproxy-mark 0x1/0x1
-ip rule add fwmark 0x1 lookup 100
-ip route add local 0.0.0.0/0 dev lo table 100
+iptables --version            # iptables v1.8.11 (legacy)
+systemctl is-active v2raya    # active
+pgrep -x v2raya_core          # 恰好一个 core
+sudo nft list tables          # table inet v2raya / table inet v2raya_dns
+curl -x socks5h://127.0.0.1:20170 https://api.ipify.org
 ```
 
-以上命令在 RT 内核 + nft 后端下全部成功，v2raya 的 tproxy 因此可用。
+以上均通过；因此不再需要为了 v2raya 修改整个系统的 iptables 默认后端。
+其他仍强制使用 legacy 的程序可以单独迁移到 nft，或自行选择全局 `xtables-nft-multi`，
+但这不是 v2raya 包正常工作的前提。
 
 ## 备注
 

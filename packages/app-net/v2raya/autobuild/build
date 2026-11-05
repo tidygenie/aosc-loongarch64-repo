@@ -35,6 +35,16 @@ fi
 
 install -Dvm644 install/universal/v2raya.service      "$PKGDIR/usr/lib/systemd/system/v2raya.service"
 install -Dvm644 install/universal/v2raya-lite.service "$PKGDIR/usr/lib/systemd/user/v2raya-lite.service"
+
+# PREEMPT_RT 内核不提供 legacy xtables（NETFILTER_XTABLES_LEGACY 依赖
+# !PREEMPT_RT）。上游 auto 检测只看 iptables 用户态链接，可能误选 legacy。
+# 本包明确使用已声明为运行依赖的原生 nftables；/etc/default/v2raya 仍可覆盖。
+install -d "$PKGDIR/usr/lib/systemd/system/v2raya.service.d"
+cat > "$PKGDIR/usr/lib/systemd/system/v2raya.service.d/10-nftables.conf" <<'EOF'
+[Service]
+Environment=V2RAYA_NFTABLES_SUPPORT=on
+EOF
+
 install -Dvm644 install/universal/v2raya.default      "$PKGDIR/etc/default/v2raya"
 install -Dvm644 install/universal/v2raya.desktop      "$PKGDIR/usr/share/applications/v2raya.desktop"
 install -Dvm644 install/universal/v2raya.png          "$PKGDIR/usr/share/icons/hicolor/512x512/apps/v2raya.png"

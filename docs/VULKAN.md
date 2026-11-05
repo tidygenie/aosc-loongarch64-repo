@@ -25,8 +25,9 @@
 | Pipeline | SPIR-V → GLSL 1.20（SPIRV-Cross），UBO 扁平化成 `uniform vec4 name[N]` |
 | Vertex input | `glBindAttribLocation` + `glVertexAttribPointer` |
 | `gl_VertexID` | 绑定 0..N-1 的 float 属性，索引取值即 index |
-| Swapchain | `wl_shm` + `glReadPixels`（B8G8R8A8 用 `GL_BGRA`） |
-| 呈现方向 | GL 行序直接写 wl_shm（两次 Y 翻转互相抵消） |
+| Swapchain | GBM linear BO → EGLImage → GL texture；优先 `zwp_linux_dmabuf_v1` 零拷贝呈现，逐图像保留 `wl_shm` 回退 |
+| 呈现同步 | 独立的 `wl_event_queue` 只分发 buffer release，避免在 acquire 内重入应用的 configure/swapchain 重建 |
+| 呈现方向 | GL 行序直接呈现（Y 翻转约定与背面剔除方向必须一致） |
 | 背面剔除 | **翻转 `glFrontFace`**（Vulkan Y-down vs GL Y-up） |
 
 ## 已知边界
@@ -41,9 +42,19 @@
   需在二级缓冲区里自行绑定；空绑定执行会画出错误结果（不会崩溃）。
 
 
-- 无 compute、多渲染目标、实例化、时间戳查询；
+- 不支持 compute、多渲染目标、实例化、时间戳查询；
 - 纹理仅支持常见 8bit 格式与线性 tiling 上传；
-- 交换链是 CPU 拷贝呈现（性能一般，但正确）。
+- dmabuf 使用线性 `XR24` 和 `DRM_FORMAT_MOD_INVALID`；KWin 在本机上拒绝 modifier 0 的导入，
+  而接受 `0x00ffffffffffffff`。单个图像导入/FBO 失败时只回退该图像到 `wl_shm`；
+- `VKGL_NO_DMABUF=1` 可强制旧的 `glReadPixels` + `wl_shm` 路径用于对照。
+
+## 0.1.11 实测（2026-11-05）
+
+- `scripts/test-vulkan.sh`：**5/5 通过**，包括 vkcube、vkmark 五场景、0 validation errors、无 llvmpipe；
+- vkcube 截图有真实彩色内容，连续帧差分确认动画变化；
+- 1920x1080 vkmark 五场景（每场景 3 秒）：dmabuf 总分 **21–23**，同库 `VKGL_NO_DMABUF=1` 为 **16**；
+  零拷贝有明确收益，但约 20 FPS 仍不等于大型 3D 应用可流畅运行；
+- 调试日志：`VKGL_DEBUG=1`；发布时普通运行不打印逐帧日志。
 
 ## 测试
 

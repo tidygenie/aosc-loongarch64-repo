@@ -14,6 +14,7 @@
 #include <vulkan/vulkan.h>
 #include <wayland-client.h>
 #include <wayland-client-protocol.h>
+#include "linux-dmabuf-client-protocol.h"
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <gbm.h>
@@ -32,6 +33,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <poll.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -343,6 +345,10 @@ struct Surface : Obj {
    wl_surface *surface = nullptr;
 };
 
+static const bool dmabuf_disabled = getenv("VKGL_NO_DMABUF") != nullptr;
+
+typedef void (*PFNEGLIMAGETARGETTEXTURE2DOESPROC)(unsigned int, void *);
+struct ShmRelease;
 struct Swapchain : Obj {
    Device *dev = nullptr;
    Surface *surface = nullptr;
@@ -356,6 +362,13 @@ struct Swapchain : Obj {
    std::vector<void *> shm_data;
    std::vector<size_t> shm_size;
    std::vector<wl_shm_pool *> pools;
+   zwp_linux_dmabuf_v1 *dmabuf = nullptr;
+   wl_event_queue *queue = nullptr;
+   bool dmabuf_ok = false;
+   std::vector<gbm_bo *> bos;
+   std::vector<wl_buffer *> dbufs;
+   std::vector<EGLImage> eglimgs;
+   std::vector<ShmRelease *> releases;
    uint32_t current = 0;
 };
 
@@ -1719,10 +1732,13 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
    // find wl_shm in the registry via the surface's display
    struct Finder {
       wl_shm *shm = nullptr;
+      zwp_linux_dmabuf_v1 *dmabuf = nullptr;
    } finder;
    auto global_cb = [](void *data, wl_registry *reg, uint32_t name, const char *iface, uint32_t) {
       auto *f = (Finder *)data;
       if (strcmp(iface, "wl_shm") == 0) f->shm = (wl_shm *)wl_registry_bind(reg, name, &wl_shm_interface, 1);
+      else if (strcmp(iface, "zwp_linux_dmabuf_v1") == 0)
+         f->dmabuf = (zwp_linux_dmabuf_v1 *)wl_registry_bind(reg, name, &zwp_linux_dmabuf_v1_interface, 3);
    };
    auto global_remove = [](void *, wl_registry *, uint32_t) {};
    const wl_registry_listener reg_listener = {global_cb, global_remove};
@@ -1731,6 +1747,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
    wl_display_roundtrip(sc->surface->display);
    wl_registry_destroy(wlreg);
    shm = finder.shm;
+   sc->dmabuf = finder.dmabuf;
+   if (sc->dmabuf) sc->queue = wl_display_create_queue(sc->surface->display);
    if (!shm) { fprintf(stderr, "vkgl: no wl_shm\n"); delete sc; return VK_ERROR_INITIALIZATION_FAILED; }
    VKGL_LOG("swapchain: wl_shm ok, creating %u images\n", sc->count);
 
@@ -1742,6 +1760,11 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
    sc->shm_data.resize(sc->count, nullptr);
    sc->shm_size.resize(sc->count, bytes);
    sc->pools.resize(sc->count, nullptr);
+   sc->bos.resize(sc->count, nullptr);
+   sc->dbufs.resize(sc->count, nullptr);
+   sc->eglimgs.resize(sc->count, EGL_NO_IMAGE_KHR);
+   sc->releases.resize(sc->count, nullptr);
+   uint32_t dmabuf_images = 0;
    for (uint32_t i = 0; i < sc->count; i++) {
       int fd = memfd_create("vkgl-swapchain", MFD_CLOEXEC);
       if (fd < 0) { perror("vkgl: memfd_create"); return VK_ERROR_OUT_OF_HOST_MEMORY; }
@@ -1758,16 +1781,101 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
       sc->pools[i] = pool;
       sc->wl_buffers[i] = wbuf;
       sc->shm_data[i] = data;
+      sc->releases[i] = rel;
       auto *img = new Image();
       img->type = VK_OBJECT_TYPE_IMAGE;
       img->format = sc->format;
       img->extent = {sc->extent.width, sc->extent.height, 1};
       img->usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-      ensure_gl_texture(img);
+      /* Render directly into a linear GBM BO and give that same allocation to
+       * the compositor.  The wl_shm image above remains a per-image fallback. */
+      bool image_dmabuf = false;
+      if (!dmabuf_disabled && sc->dmabuf && GlCtx::get().ok) {
+         GlCtx &g = GlCtx::get();
+         gbm_bo *bo = gbm_bo_create(g.gbm, sc->extent.width, sc->extent.height,
+                                    GBM_FORMAT_XRGB8888, GBM_BO_USE_LINEAR | GBM_BO_USE_RENDERING);
+         if (bo) {
+            int bfd = gbm_bo_get_fd(bo);
+            uint32_t bstride = gbm_bo_get_stride(bo);
+            EGLAttrib iattr[] = {
+               EGL_WIDTH, (EGLAttrib)sc->extent.width,
+               EGL_HEIGHT, (EGLAttrib)sc->extent.height,
+               EGL_LINUX_DRM_FOURCC_EXT, 0x34325258 /* DRM_FORMAT_XRGB8888 */,
+               EGL_DMA_BUF_PLANE0_FD_EXT, (EGLAttrib)bfd,
+               EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
+               EGL_DMA_BUF_PLANE0_PITCH_EXT, (EGLAttrib)bstride,
+               EGL_NONE };
+            EGLImage eimg = bfd >= 0 ? eglCreateImage(g.dpy, EGL_NO_CONTEXT, EGL_LINUX_DMA_BUF_EXT, nullptr, iattr)
+                                     : EGL_NO_IMAGE_KHR;
+            GLuint tex = 0;
+            wl_buffer *wb = nullptr;
+            if (eimg != EGL_NO_IMAGE_KHR) {
+               auto fn = (PFNEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress("glEGLImageTargetTexture2DOES");
+               if (fn) {
+                  glGenTextures(1, &tex);
+                  glBindTexture(GL_TEXTURE_2D, tex);
+                  fn(GL_TEXTURE_2D, (GLeglImageOES)eimg);
+                  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+               }
+               if (tex && glGetError() == GL_NO_ERROR) {
+                  zwp_linux_buffer_params_v1 *params = zwp_linux_dmabuf_v1_create_params(sc->dmabuf);
+                  constexpr uint64_t mod_invalid = 0x00ffffffffffffffULL;
+                  zwp_linux_buffer_params_v1_add(params, bfd, 0, 0, bstride,
+                                                 (uint32_t)(mod_invalid >> 32), (uint32_t)mod_invalid);
+                  wb = zwp_linux_buffer_params_v1_create_immed(params, sc->extent.width, sc->extent.height,
+                                                              0x34325258, 0);
+                  zwp_linux_buffer_params_v1_destroy(params);
+               }
+            }
+            if (bfd >= 0) close(bfd);
+            if (tex && wb) {
+               img->tex = tex;
+               sc->bos[i] = bo;
+               sc->dbufs[i] = wb;
+               sc->eglimgs[i] = eimg;
+               if (sc->queue) wl_proxy_set_queue((wl_proxy *)wb, sc->queue);
+               wl_buffer_add_listener(wb, &shm_listener, rel);
+               image_dmabuf = true;
+               VKGL_LOG("swapchain[%u]: dmabuf zero-copy bo=%p stride=%u\n", i, (void*)bo, bstride);
+            } else {
+               if (wb) wl_buffer_destroy(wb);
+               if (eimg != EGL_NO_IMAGE_KHR) eglDestroyImage(g.dpy, eimg);
+               if (tex) glDeleteTextures(1, &tex);
+               gbm_bo_destroy(bo);
+            }
+         }
+      }
+      if (!image_dmabuf) ensure_gl_texture(img);
       ensure_fbo(img);
+      if (image_dmabuf) {
+         GlCtx::get().make_current();
+         glBindFramebuffer(GL_FRAMEBUFFER, img->fbo);
+         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+         if (status == GL_FRAMEBUFFER_COMPLETE) {
+            dmabuf_images++;
+         } else {
+            fprintf(stderr, "vkgl: dmabuf FBO incomplete (0x%x), using wl_shm for image %u\n", status, i);
+            glDeleteFramebuffers(1, &img->fbo);
+            glDeleteTextures(1, &img->tex);
+            img->fbo = img->tex = 0;
+            wl_buffer_destroy(sc->dbufs[i]);
+            eglDestroyImage(GlCtx::get().dpy, sc->eglimgs[i]);
+            gbm_bo_destroy(sc->bos[i]);
+            sc->dbufs[i] = nullptr;
+            sc->eglimgs[i] = EGL_NO_IMAGE_KHR;
+            sc->bos[i] = nullptr;
+            ensure_gl_texture(img);
+            ensure_fbo(img);
+         }
+      }
       sc->images[i] = img;
       sc->image_handles[i] = (VkImage)to_handle(img);
    }
+   sc->dmabuf_ok = dmabuf_images == sc->count;
    *out = (VkSwapchainKHR)to_handle(sc);
    reg(sc, *out);
    VKGL_LOG("swapchain %ux%u x%u\n", sc->extent.width, sc->extent.height, sc->count);
@@ -1776,12 +1884,24 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
 
 static VKAPI_ATTR void VKAPI_CALL vkgl_DestroySwapchainKHR(VkDevice, VkSwapchainKHR h, const VkAllocationCallbacks *) {
    auto *sc = from_handle<Swapchain>((uint64_t)h);
+   GlCtx &g = GlCtx::get();
+   if (g.ok) g.make_current();
    for (uint32_t i = 0; i < sc->count; i++) {
+      if (sc->dbufs[i]) wl_buffer_destroy(sc->dbufs[i]);
       if (sc->wl_buffers[i]) wl_buffer_destroy(sc->wl_buffers[i]);
+      if (sc->images[i] && g.ok) {
+         if (sc->images[i]->fbo) glDeleteFramebuffers(1, &sc->images[i]->fbo);
+         if (sc->images[i]->tex) glDeleteTextures(1, &sc->images[i]->tex);
+      }
+      if (sc->eglimgs[i] != EGL_NO_IMAGE_KHR) eglDestroyImage(g.dpy, sc->eglimgs[i]);
+      if (sc->bos[i]) gbm_bo_destroy(sc->bos[i]);
       if (sc->pools[i]) wl_shm_pool_destroy(sc->pools[i]);
       if (sc->shm_data[i]) munmap(sc->shm_data[i], sc->shm_size[i]);
-      if (sc->images[i]) { delete sc->images[i]; }
+      delete sc->releases[i];
+      delete sc->images[i];
    }
+   if (sc->dmabuf) zwp_linux_dmabuf_v1_destroy(sc->dmabuf);
+   if (sc->queue) wl_event_queue_destroy(sc->queue);
    unreg((uint64_t)h);
    delete sc;
 }
@@ -1797,11 +1917,59 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_GetSwapchainImagesKHR(VkDevice, VkSwa
    return c == sc->count ? VK_SUCCESS : VK_INCOMPLETE;
 }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkgl_AcquireNextImageKHR(VkDevice, VkSwapchainKHR h, uint64_t,
+static bool wait_dmabuf_release(Swapchain *sc, uint32_t idx, uint64_t timeout_ns) {
+   ShmRelease *rel = sc->releases[idx];
+   if (!sc->dbufs[idx] || !rel || rel->released) return true;
+   if (timeout_ns == 0) return false;
+   wl_display *display = sc->surface->display;
+   wl_event_queue *queue = sc->queue;
+   if (!queue) return false;
+   const bool infinite = timeout_ns == UINT64_MAX;
+   int64_t remaining = infinite ? -1 : (int64_t)(timeout_ns / 1000000);
+   if (!infinite && remaining < 1) remaining = 1;
+   while (infinite || remaining > 0) {
+      /* Never dispatch the application's default queue from inside a Vulkan
+       * call: its configure callback may legally recreate the swapchain. */
+      wl_display_dispatch_queue_pending(display, queue);
+      if (rel->released) return true;
+      while (wl_display_prepare_read_queue(display, queue) != 0)
+         wl_display_dispatch_queue_pending(display, queue);
+      if (rel->released) {
+         wl_display_cancel_read(display);
+         return true;
+      }
+      wl_display_flush(display);
+      pollfd pfd = {wl_display_get_fd(display), POLLIN, 0};
+      int slice = infinite ? 4 : (int)std::min<int64_t>(4, remaining);
+      int pr = poll(&pfd, 1, slice);
+      if (pr > 0 && (pfd.revents & POLLIN)) wl_display_read_events(display);
+      else wl_display_cancel_read(display);
+      wl_display_dispatch_queue_pending(display, queue);
+      if (rel->released) return true;
+      if (!infinite) remaining -= slice;
+   }
+   VKGL_LOG("acquire image %u timed out waiting for compositor release\n", idx);
+   return rel->released;
+}
+
+static VKAPI_ATTR VkResult VKAPI_CALL vkgl_AcquireNextImageKHR(VkDevice, VkSwapchainKHR h, uint64_t timeout,
                                                                VkSemaphore, VkFence, uint32_t *index) {
    auto *sc = from_handle<Swapchain>((uint64_t)h);
-   *index = sc->current;
-   sc->current = (sc->current + 1) % sc->count;
+   for (uint32_t n = 0; n < sc->count; n++) {
+      uint32_t idx = (sc->current + n) % sc->count;
+      ShmRelease *rel = sc->releases[idx];
+      if (!sc->dbufs[idx] || !rel || rel->released) {
+         *index = idx;
+         sc->current = (idx + 1) % sc->count;
+         VKGL_LOG("acquire sc=%p idx=%u dmabuf=%d\n", (void*)sc, idx, sc->dbufs[idx] != nullptr);
+         return VK_SUCCESS;
+      }
+   }
+   uint32_t idx = sc->current;
+   if (!wait_dmabuf_release(sc, idx, timeout)) return VK_TIMEOUT;
+   *index = idx;
+   sc->current = (idx + 1) % sc->count;
+   VKGL_LOG("acquire sc=%p idx=%u after wait dmabuf=%d\n", (void*)sc, idx, sc->dbufs[idx] != nullptr);
    return VK_SUCCESS;
 }
 
@@ -1812,18 +1980,27 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_QueuePresentKHR(VkQueue, const VkPres
       auto *sc = from_handle<Swapchain>((uint64_t)pi->pSwapchains[i]);
       uint32_t idx = pi->pImageIndices[i];
       if (idx >= sc->count) continue;
+      VKGL_LOG("present sc=%p idx=%u dmabuf=%d\n", (void*)sc, idx, sc->dbufs[idx] != nullptr);
       Image *img = sc->images[idx];
       GlCtx::get().make_current();
-      glBindFramebuffer(GL_FRAMEBUFFER, img->fbo);
-      glPixelStorei(GL_PACK_ALIGNMENT, 4);
-      /* wl_shm XRGB8888 is little-endian BGRA; read BGRA when the swapchain
-       * is B8G8R8A8 so colours are not swapped on screen. */
-      if (sc->format == VK_FORMAT_B8G8R8A8_UNORM)
-         glReadPixels(0, 0, (GLsizei)sc->extent.width, (GLsizei)sc->extent.height, GL_BGRA_EXT, GL_UNSIGNED_BYTE, sc->shm_data[idx]);
-      else
-         glReadPixels(0, 0, (GLsizei)sc->extent.width, (GLsizei)sc->extent.height, GL_RGBA, GL_UNSIGNED_BYTE, sc->shm_data[idx]);
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-      {
+      wl_buffer *present_buf = sc->dbufs[idx] ? sc->dbufs[idx] : sc->wl_buffers[idx];
+      if (sc->dbufs[idx]) {
+         /* glReadPixels used to provide an implicit full GPU sync.  Keep that
+          * guarantee without copying pixels through the CPU. */
+         glBindFramebuffer(GL_FRAMEBUFFER, img->fbo);
+         glFinish();
+         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+         if (sc->releases[idx]) sc->releases[idx]->released = false;
+      } else {
+         glBindFramebuffer(GL_FRAMEBUFFER, img->fbo);
+         glPixelStorei(GL_PACK_ALIGNMENT, 4);
+         /* wl_shm XRGB8888 is little-endian BGRA; read BGRA when the swapchain
+          * is B8G8R8A8 so colours are not swapped on screen. */
+         if (sc->format == VK_FORMAT_B8G8R8A8_UNORM)
+            glReadPixels(0, 0, (GLsizei)sc->extent.width, (GLsizei)sc->extent.height, GL_BGRA_EXT, GL_UNSIGNED_BYTE, sc->shm_data[idx]);
+         else
+            glReadPixels(0, 0, (GLsizei)sc->extent.width, (GLsizei)sc->extent.height, GL_RGBA, GL_UNSIGNED_BYTE, sc->shm_data[idx]);
+         glBindFramebuffer(GL_FRAMEBUFFER, 0);
          static int plog = 0;
          if (plog++ < 6) {
             unsigned char *p8 = (unsigned char *)sc->shm_data[idx];
@@ -1831,10 +2008,11 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_QueuePresentKHR(VkQueue, const VkPres
             VKGL_LOG("present idx=%u px(center)=%02x %02x %02x %02x fbo=%u tex=%u\n", idx, p8[off], p8[off+1], p8[off+2], p8[off+3], img->fbo, img->tex);
          }
       }
-      wl_surface_attach(sc->surface->surface, sc->wl_buffers[idx], 0, 0);
+      wl_surface_attach(sc->surface->surface, present_buf, 0, 0);
       wl_surface_damage(sc->surface->surface, 0, 0, (int32_t)sc->extent.width, (int32_t)sc->extent.height);
       wl_surface_commit(sc->surface->surface);
       wl_display_flush(sc->surface->display);
+      if (pi->pResults) pi->pResults[i] = VK_SUCCESS;
    }
    return VK_SUCCESS;
 }
