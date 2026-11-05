@@ -1703,10 +1703,9 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_GetPhysicalDeviceSurfaceFormatsKHR(Vk
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_GetPhysicalDeviceSurfacePresentModesKHR(
    VkPhysicalDevice, VkSurfaceKHR, uint32_t *n, VkPresentModeKHR *m) {
    VKGL_LOG("present modes n=%u\n", *n);
-   static const VkPresentModeKHR modes[] = {VK_PRESENT_MODE_FIFO_KHR, VK_PRESENT_MODE_MAILBOX_KHR,
-                                            VK_PRESENT_MODE_IMMEDIATE_KHR};
-   if (!m) { *n = 3; return VK_SUCCESS; }
-   uint32_t c = std::min<uint32_t>(3, *n);
+   static const VkPresentModeKHR modes[] = {VK_PRESENT_MODE_FIFO_KHR};
+   if (!m) { *n = 1; return VK_SUCCESS; }
+   uint32_t c = std::min<uint32_t>(1, *n);
    memcpy(m, modes, c * sizeof(VkPresentModeKHR));
    *n = c;
    return VK_SUCCESS;
@@ -1748,8 +1747,13 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
    wl_registry_destroy(wlreg);
    shm = finder.shm;
    sc->dmabuf = finder.dmabuf;
-   if (sc->dmabuf) sc->queue = wl_display_create_queue(sc->surface->display);
-   if (!shm) { fprintf(stderr, "vkgl: no wl_shm\n"); delete sc; return VK_ERROR_INITIALIZATION_FAILED; }
+   sc->queue = wl_display_create_queue(sc->surface->display);
+   if (!sc->queue) {
+      fprintf(stderr, "vkgl: cannot create presentation event queue\n");
+      delete sc;
+      return VK_ERROR_OUT_OF_HOST_MEMORY;
+   }
+   if (!shm) { fprintf(stderr, "vkgl: no wl_shm\n"); wl_event_queue_destroy(sc->queue); delete sc; return VK_ERROR_INITIALIZATION_FAILED; }
    VKGL_LOG("swapchain: wl_shm ok, creating %u images\n", sc->count);
 
    size_t stride = (size_t)sc->extent.width * 4;
@@ -1776,6 +1780,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
                                                   (int32_t)sc->extent.height, (int32_t)stride,
                                                   WL_SHM_FORMAT_XRGB8888);
       auto *rel = new ShmRelease(); rel->buf = wbuf; rel->released = true;
+      wl_proxy_set_queue((wl_proxy *)wbuf, sc->queue);
       wl_buffer_add_listener(wbuf, &shm_listener, rel);
       close(fd);
       sc->pools[i] = pool;
@@ -1917,24 +1922,38 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_GetSwapchainImagesKHR(VkDevice, VkSwa
    return c == sc->count ? VK_SUCCESS : VK_INCOMPLETE;
 }
 
-static bool wait_dmabuf_release(Swapchain *sc, uint32_t idx, uint64_t timeout_ns) {
-   ShmRelease *rel = sc->releases[idx];
-   if (!sc->dbufs[idx] || !rel || rel->released) return true;
-   if (timeout_ns == 0) return false;
+static int find_released_image(Swapchain *sc) {
+   for (uint32_t n = 0; n < sc->count; n++) {
+      uint32_t idx = (sc->current + n) % sc->count;
+      ShmRelease *rel = sc->releases[idx];
+      if (rel && rel->released) return (int)idx;
+   }
+   return -1;
+}
+
+static void dispatch_release_events(Swapchain *sc) {
+   if (sc->queue) wl_display_dispatch_queue_pending(sc->surface->display, sc->queue);
+}
+
+static bool wait_buffer_release(Swapchain *sc, uint64_t timeout_ns) {
    wl_display *display = sc->surface->display;
    wl_event_queue *queue = sc->queue;
-   if (!queue) return false;
+   if (!queue) return find_released_image(sc) >= 0;
+   /* Even a nonblocking acquire must consume releases which already arrived. */
+   dispatch_release_events(sc);
+   if (find_released_image(sc) >= 0) return true;
+   if (timeout_ns == 0) return false;
    const bool infinite = timeout_ns == UINT64_MAX;
    int64_t remaining = infinite ? -1 : (int64_t)(timeout_ns / 1000000);
    if (!infinite && remaining < 1) remaining = 1;
    while (infinite || remaining > 0) {
       /* Never dispatch the application's default queue from inside a Vulkan
        * call: its configure callback may legally recreate the swapchain. */
-      wl_display_dispatch_queue_pending(display, queue);
-      if (rel->released) return true;
+      dispatch_release_events(sc);
+      if (find_released_image(sc) >= 0) return true;
       while (wl_display_prepare_read_queue(display, queue) != 0)
-         wl_display_dispatch_queue_pending(display, queue);
-      if (rel->released) {
+         dispatch_release_events(sc);
+      if (find_released_image(sc) >= 0) {
          wl_display_cancel_read(display);
          return true;
       }
@@ -1944,32 +1963,28 @@ static bool wait_dmabuf_release(Swapchain *sc, uint32_t idx, uint64_t timeout_ns
       int pr = poll(&pfd, 1, slice);
       if (pr > 0 && (pfd.revents & POLLIN)) wl_display_read_events(display);
       else wl_display_cancel_read(display);
-      wl_display_dispatch_queue_pending(display, queue);
-      if (rel->released) return true;
+      dispatch_release_events(sc);
+      if (find_released_image(sc) >= 0) return true;
       if (!infinite) remaining -= slice;
    }
-   VKGL_LOG("acquire image %u timed out waiting for compositor release\n", idx);
-   return rel->released;
+   VKGL_LOG("acquire timed out waiting for compositor release\n");
+   return find_released_image(sc) >= 0;
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_AcquireNextImageKHR(VkDevice, VkSwapchainKHR h, uint64_t timeout,
                                                                VkSemaphore, VkFence, uint32_t *index) {
    auto *sc = from_handle<Swapchain>((uint64_t)h);
-   for (uint32_t n = 0; n < sc->count; n++) {
-      uint32_t idx = (sc->current + n) % sc->count;
-      ShmRelease *rel = sc->releases[idx];
-      if (!sc->dbufs[idx] || !rel || rel->released) {
-         *index = idx;
-         sc->current = (idx + 1) % sc->count;
-         VKGL_LOG("acquire sc=%p idx=%u dmabuf=%d\n", (void*)sc, idx, sc->dbufs[idx] != nullptr);
-         return VK_SUCCESS;
-      }
+   int idx = find_released_image(sc);
+   bool waited = idx < 0;
+   if (waited) {
+      if (!wait_buffer_release(sc, timeout)) return VK_TIMEOUT;
+      idx = find_released_image(sc);
    }
-   uint32_t idx = sc->current;
-   if (!wait_dmabuf_release(sc, idx, timeout)) return VK_TIMEOUT;
-   *index = idx;
-   sc->current = (idx + 1) % sc->count;
-   VKGL_LOG("acquire sc=%p idx=%u after wait dmabuf=%d\n", (void*)sc, idx, sc->dbufs[idx] != nullptr);
+   if (idx < 0) return VK_TIMEOUT;
+   *index = (uint32_t)idx;
+   sc->current = ((uint32_t)idx + 1) % sc->count;
+   VKGL_LOG("acquire sc=%p idx=%d dmabuf=%d after_wait=%d\n", (void*)sc, idx,
+            sc->dbufs[idx] != nullptr, waited);
    return VK_SUCCESS;
 }
 
@@ -1990,7 +2005,6 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_QueuePresentKHR(VkQueue, const VkPres
          glBindFramebuffer(GL_FRAMEBUFFER, img->fbo);
          glFinish();
          glBindFramebuffer(GL_FRAMEBUFFER, 0);
-         if (sc->releases[idx]) sc->releases[idx]->released = false;
       } else {
          glBindFramebuffer(GL_FRAMEBUFFER, img->fbo);
          glPixelStorei(GL_PACK_ALIGNMENT, 4);
@@ -2008,6 +2022,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_QueuePresentKHR(VkQueue, const VkPres
             VKGL_LOG("present idx=%u px(center)=%02x %02x %02x %02x fbo=%u tex=%u\n", idx, p8[off], p8[off+1], p8[off+2], p8[off+3], img->fbo, img->tex);
          }
       }
+      if (sc->releases[idx]) sc->releases[idx]->released = false;
       wl_surface_attach(sc->surface->surface, present_buf, 0, 0);
       wl_surface_damage(sc->surface->surface, 0, 0, (int32_t)sc->extent.width, (int32_t)sc->extent.height);
       wl_surface_commit(sc->surface->surface);

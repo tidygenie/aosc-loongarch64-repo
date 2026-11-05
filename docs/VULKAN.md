@@ -26,7 +26,7 @@
 | Vertex input | `glBindAttribLocation` + `glVertexAttribPointer` |
 | `gl_VertexID` | 绑定 0..N-1 的 float 属性，索引取值即 index |
 | Swapchain | GBM linear BO → EGLImage → GL texture；优先 `zwp_linux_dmabuf_v1` 零拷贝呈现，逐图像保留 `wl_shm` 回退 |
-| 呈现同步 | 独立的 `wl_event_queue` 只分发 buffer release，避免在 acquire 内重入应用的 configure/swapchain 重建 |
+| 呈现同步 | dmabuf 与 wl_shm 共用独立 `wl_event_queue`，只分发 buffer release；两种路径都等待 compositor release，避免 acquire 内重入默认队列的 configure/swapchain 重建 |
 | 呈现方向 | GL 行序直接呈现（Y 翻转约定与背面剔除方向必须一致） |
 | 背面剔除 | **翻转 `glFrontFace`**（Vulkan Y-down vs GL Y-up） |
 
@@ -46,7 +46,17 @@
 - 纹理仅支持常见 8bit 格式与线性 tiling 上传；
 - dmabuf 使用线性 `XR24` 和 `DRM_FORMAT_MOD_INVALID`；KWin 在本机上拒绝 modifier 0 的导入，
   而接受 `0x00ffffffffffffff`。单个图像导入/FBO 失败时只回退该图像到 `wl_shm`；
-- `VKGL_NO_DMABUF=1` 可强制旧的 `glReadPixels` + `wl_shm` 路径用于对照。
+- `VKGL_NO_DMABUF=1` 可强制旧的 `glReadPixels` + `wl_shm` 路径用于对照；
+- 目前只声明实际实现的 FIFO。vkmark 默认硬请求 Mailbox，测试需显式加 `-p fifo`，不能靠虚报
+  Mailbox/Immediate 能力绕过。
+
+## 0.1.12 实测（2026-11-05，clang-LTO 内核）
+
+- 修复 wl_shm 未等待 release 的共享内存竞争；timeout=0 的 acquire 也会先分发已到达事件，等待后重新扫描所有图像。
+- 安装后的 deb 分别跑 dmabuf 与 `VKGL_NO_DMABUF=1`：两条路径均 **5/5、0 validation errors、GPU-only**。
+- 640×480 FIFO vkmark 五场景：dmabuf **120/132/101/61/120 FPS**，wl_shm **77/82/69/57/74 FPS**。
+  这是小型场景结果，不外推为大型 3D 性能。
+- 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
 
 ## 0.1.11 实测（2026-11-05）
 
