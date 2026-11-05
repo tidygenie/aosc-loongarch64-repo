@@ -372,7 +372,9 @@ struct Swapchain : Obj {
    std::vector<wl_buffer *> dbufs;
    std::vector<EGLImage> eglimgs;
    std::vector<ShmRelease *> releases;
+   wl_shm *shm = nullptr;
    uint32_t current = 0;
+   ~Swapchain();
 };
 
 // ---------------------------------------------------------------------------
@@ -1600,16 +1602,63 @@ static void execute_cmds(CommandBuffer *c) {
       case Cmd::CopyBufferToImage:
          VKGL_LOG("CopyBufferToImage buf=%p img=%p extent=%ux%u\n", (void*)cmd.buf, (void*)cmd.img, cmd.region.imageExtent.width, cmd.region.imageExtent.height);
          if (cmd.buf && cmd.buf->mem && cmd.img) {
+            const VkBufferImageCopy &r = cmd.region;
+            size_t bpp = 4;
+            switch (cmd.img->format) {
+            case VK_FORMAT_R16G16B16A16_SFLOAT: bpp = 8; break;
+            case VK_FORMAT_D16_UNORM: bpp = 2; break;
+            case VK_FORMAT_D32_SFLOAT_S8_UINT: bpp = 8; break;
+            default: break;
+            }
+            uint64_t width = r.imageExtent.width, height = r.imageExtent.height;
+            uint64_t row_texels = r.bufferRowLength ? r.bufferRowLength : width;
+            uint64_t row_bytes = width * bpp;
+            bool linear = cmd.img->tiling == VK_IMAGE_TILING_LINEAR && cmd.img->mem;
+            bool valid = width && height && r.imageExtent.depth == 1 && r.imageOffset.z == 0 &&
+               row_texels >= width &&
+               (uint64_t)r.imageOffset.x + width <= cmd.img->extent.width &&
+               (uint64_t)r.imageOffset.y + height <= cmd.img->extent.height;
+            std::vector<uint8_t> packed;
+            if (valid) packed.resize((size_t)(row_bytes * height));
+            for (uint64_t y = 0; valid && y < height; y++) {
+               uint64_t src_rel = r.bufferOffset + y * row_texels * bpp;
+               uint64_t dst_rel = ((uint64_t)r.imageOffset.y + y) * cmd.img->extent.width * bpp +
+                  (uint64_t)r.imageOffset.x * bpp;
+               const auto &src_shadow = cmd.buf->mem->shadow;
+               if (src_rel > cmd.buf->size || row_bytes > cmd.buf->size - src_rel ||
+                   cmd.buf->mem_offset > src_shadow.size() || src_rel > src_shadow.size() - cmd.buf->mem_offset ||
+                   row_bytes > src_shadow.size() - cmd.buf->mem_offset - src_rel) {
+                  valid = false;
+                  break;
+               }
+               memcpy(packed.data() + y * row_bytes, src_shadow.data() + cmd.buf->mem_offset + src_rel, (size_t)row_bytes);
+               if (linear) {
+                  const auto &dst_shadow = cmd.img->mem->shadow;
+                  if (cmd.img->mem_offset > dst_shadow.size() || dst_rel > dst_shadow.size() - cmd.img->mem_offset ||
+                      row_bytes > dst_shadow.size() - cmd.img->mem_offset - dst_rel) valid = false;
+               }
+            }
+            if (!valid) {
+               VKGL_LOG("CopyBufferToImage rejected unsupported or out-of-bounds region\n");
+               break;
+            }
+            if (linear) {
+               uint8_t *dst = cmd.img->mem->shadow.data() + cmd.img->mem_offset;
+               uint64_t image_pitch = (uint64_t)cmd.img->extent.width * bpp;
+               for (uint64_t y = 0; y < height; y++)
+                  memcpy(dst + ((uint64_t)r.imageOffset.y + y) * image_pitch + (uint64_t)r.imageOffset.x * bpp,
+                         packed.data() + y * row_bytes, (size_t)row_bytes);
+            }
             ensure_gl_texture(cmd.img);
             glBindTexture(GL_TEXTURE_2D, cmd.img->tex);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            const uint8_t *src = cmd.buf->mem->shadow.data() + cmd.buf->mem_offset + cmd.region.bufferOffset;
-            glTexSubImage2D(GL_TEXTURE_2D, 0, (GLint)cmd.region.imageOffset.x, (GLint)cmd.region.imageOffset.y,
-                            (GLsizei)cmd.region.imageExtent.width, (GLsizei)cmd.region.imageExtent.height,
-                            cmd.img->gl_format, cmd.img->gl_type, src);
-            /* This legacy path does not update the image shadow. Preserve its
-             * previous next-draw upload behavior instead of caching stale data. */
-            cmd.img->uploaded_revision = 0;
+            glTexSubImage2D(GL_TEXTURE_2D, 0, (GLint)r.imageOffset.x, (GLint)r.imageOffset.y,
+                            (GLsizei)width, (GLsizei)height,
+                            cmd.img->gl_format, cmd.img->gl_type, packed.data());
+            if (linear) {
+               cmd.img->mem->revision++;
+               cmd.img->uploaded_revision = cmd.img->mem->revision;
+            }
             glBindTexture(GL_TEXTURE_2D, 0);
          }
          break;
@@ -1651,6 +1700,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_QueueSubmit(VkQueue, uint32_t n, cons
 struct ShmRelease {
    wl_buffer *buf = nullptr;
    bool released = true;
+   bool acquired = false;
 };
 
 static void shm_release(void *data, wl_buffer *) {
@@ -1761,6 +1811,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
    wl_display_roundtrip(sc->surface->display);
    wl_registry_destroy(wlreg);
    shm = finder.shm;
+   sc->shm = shm;
    sc->dmabuf = finder.dmabuf;
    sc->queue = wl_display_create_queue(sc->surface->display);
    if (!sc->queue) {
@@ -1768,7 +1819,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
       delete sc;
       return VK_ERROR_OUT_OF_HOST_MEMORY;
    }
-   if (!shm) { fprintf(stderr, "vkgl: no wl_shm\n"); wl_event_queue_destroy(sc->queue); delete sc; return VK_ERROR_INITIALIZATION_FAILED; }
+   if (!shm) { fprintf(stderr, "vkgl: no wl_shm\n"); delete sc; return VK_ERROR_INITIALIZATION_FAILED; }
    VKGL_LOG("swapchain: wl_shm ok, creating %u images\n", sc->count);
 
    size_t stride = (size_t)sc->extent.width * 4;
@@ -1786,10 +1837,10 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
    uint32_t dmabuf_images = 0;
    for (uint32_t i = 0; i < sc->count; i++) {
       int fd = memfd_create("vkgl-swapchain", MFD_CLOEXEC);
-      if (fd < 0) { perror("vkgl: memfd_create"); return VK_ERROR_OUT_OF_HOST_MEMORY; }
-      if (ftruncate(fd, (off_t)bytes) != 0) { perror("vkgl: ftruncate"); close(fd); return VK_ERROR_OUT_OF_HOST_MEMORY; }
+      if (fd < 0) { perror("vkgl: memfd_create"); delete sc; return VK_ERROR_OUT_OF_HOST_MEMORY; }
+      if (ftruncate(fd, (off_t)bytes) != 0) { perror("vkgl: ftruncate"); close(fd); delete sc; return VK_ERROR_OUT_OF_HOST_MEMORY; }
       void *data = mmap(nullptr, bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-      if (data == MAP_FAILED) { perror("vkgl: mmap"); close(fd); return VK_ERROR_OUT_OF_HOST_MEMORY; }
+      if (data == MAP_FAILED) { perror("vkgl: mmap"); close(fd); delete sc; return VK_ERROR_OUT_OF_HOST_MEMORY; }
       wl_shm_pool *pool = wl_shm_create_pool(shm, fd, (int32_t)bytes);
       wl_buffer *wbuf = wl_shm_pool_create_buffer(pool, 0, (int32_t)sc->extent.width,
                                                   (int32_t)sc->extent.height, (int32_t)stride,
@@ -1902,28 +1953,34 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSwapchainKHR(VkDevice, const Vk
    return VK_SUCCESS;
 }
 
-static VKAPI_ATTR void VKAPI_CALL vkgl_DestroySwapchainKHR(VkDevice, VkSwapchainKHR h, const VkAllocationCallbacks *) {
-   auto *sc = from_handle<Swapchain>((uint64_t)h);
-   GlCtx &g = GlCtx::get();
-   if (g.ok) g.make_current();
-   for (uint32_t i = 0; i < sc->count; i++) {
-      if (sc->dbufs[i]) wl_buffer_destroy(sc->dbufs[i]);
-      if (sc->wl_buffers[i]) wl_buffer_destroy(sc->wl_buffers[i]);
-      if (sc->images[i] && g.ok) {
-         if (sc->images[i]->fbo) glDeleteFramebuffers(1, &sc->images[i]->fbo);
-         if (sc->images[i]->tex) glDeleteTextures(1, &sc->images[i]->tex);
+Swapchain::~Swapchain() {
+   size_t n = images.size();
+   if (n) {
+      GlCtx &g = GlCtx::get();
+      if (g.ok) g.make_current();
+      for (size_t i = 0; i < n; i++) {
+         if (dbufs[i]) wl_buffer_destroy(dbufs[i]);
+         if (wl_buffers[i]) wl_buffer_destroy(wl_buffers[i]);
+         if (images[i] && g.ok) {
+            if (images[i]->fbo) glDeleteFramebuffers(1, &images[i]->fbo);
+            if (images[i]->tex) glDeleteTextures(1, &images[i]->tex);
+         }
+         if (eglimgs[i] != EGL_NO_IMAGE_KHR && g.ok) eglDestroyImage(g.dpy, eglimgs[i]);
+         if (bos[i]) gbm_bo_destroy(bos[i]);
+         if (pools[i]) wl_shm_pool_destroy(pools[i]);
+         if (shm_data[i]) munmap(shm_data[i], shm_size[i]);
+         delete releases[i];
+         delete images[i];
       }
-      if (sc->eglimgs[i] != EGL_NO_IMAGE_KHR) eglDestroyImage(g.dpy, sc->eglimgs[i]);
-      if (sc->bos[i]) gbm_bo_destroy(sc->bos[i]);
-      if (sc->pools[i]) wl_shm_pool_destroy(sc->pools[i]);
-      if (sc->shm_data[i]) munmap(sc->shm_data[i], sc->shm_size[i]);
-      delete sc->releases[i];
-      delete sc->images[i];
    }
-   if (sc->dmabuf) zwp_linux_dmabuf_v1_destroy(sc->dmabuf);
-   if (sc->queue) wl_event_queue_destroy(sc->queue);
+   if (shm) wl_shm_destroy(shm);
+   if (dmabuf) zwp_linux_dmabuf_v1_destroy(dmabuf);
+   if (queue) wl_event_queue_destroy(queue);
+}
+
+static VKAPI_ATTR void VKAPI_CALL vkgl_DestroySwapchainKHR(VkDevice, VkSwapchainKHR h, const VkAllocationCallbacks *) {
    unreg((uint64_t)h);
-   delete sc;
+   delete from_handle<Swapchain>((uint64_t)h);
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_GetSwapchainImagesKHR(VkDevice, VkSwapchainKHR h,
@@ -1941,7 +1998,7 @@ static int find_released_image(Swapchain *sc) {
    for (uint32_t n = 0; n < sc->count; n++) {
       uint32_t idx = (sc->current + n) % sc->count;
       ShmRelease *rel = sc->releases[idx];
-      if (rel && rel->released) return (int)idx;
+      if (rel && rel->released && !rel->acquired) return (int)idx;
    }
    return -1;
 }
@@ -1987,7 +2044,7 @@ static bool wait_buffer_release(Swapchain *sc, uint64_t timeout_ns) {
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_AcquireNextImageKHR(VkDevice, VkSwapchainKHR h, uint64_t timeout,
-                                                               VkSemaphore, VkFence, uint32_t *index) {
+                                                               VkSemaphore, VkFence fence, uint32_t *index) {
    auto *sc = from_handle<Swapchain>((uint64_t)h);
    int idx = find_released_image(sc);
    bool waited = idx < 0;
@@ -1996,6 +2053,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_AcquireNextImageKHR(VkDevice, VkSwapc
       idx = find_released_image(sc);
    }
    if (idx < 0) return VK_TIMEOUT;
+   sc->releases[idx]->acquired = true;
+   if (fence) from_handle<Fence>((uint64_t)fence)->signaled = true;
    *index = (uint32_t)idx;
    sc->current = ((uint32_t)idx + 1) % sc->count;
    VKGL_LOG("acquire sc=%p idx=%d dmabuf=%d after_wait=%d\n", (void*)sc, idx,
@@ -2037,7 +2096,10 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_QueuePresentKHR(VkQueue, const VkPres
             VKGL_LOG("present idx=%u px(center)=%02x %02x %02x %02x fbo=%u tex=%u\n", idx, p8[off], p8[off+1], p8[off+2], p8[off+3], img->fbo, img->tex);
          }
       }
-      if (sc->releases[idx]) sc->releases[idx]->released = false;
+      if (sc->releases[idx]) {
+         sc->releases[idx]->released = false;
+         sc->releases[idx]->acquired = false;
+      }
       wl_surface_attach(sc->surface->surface, present_buf, 0, 0);
       wl_surface_damage(sc->surface->surface, 0, 0, (int32_t)sc->extent.width, (int32_t)sc->extent.height);
       wl_surface_commit(sc->surface->surface);

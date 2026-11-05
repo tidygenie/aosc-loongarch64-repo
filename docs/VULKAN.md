@@ -58,6 +58,16 @@
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
 
+## 0.1.14 实测（2026-11-05）
+
+- Swapchain 图像增加 acquired 状态：已经 acquire、尚未 present 的图像不会被再次返回；成功 acquire 才给调用方 fence 置位，present 时清除 acquired 并等待 compositor release。
+- `CopyBufferToImage` 按 `bufferRowLength` 逐行打包，同时更新线性 Image 的 shadow 和 Memory 代次，避免下一次采样被旧 shadow 覆盖。
+- Swapchain 正常析构与 memfd/ftruncate/mmap 部分创建失败共用资源清理，补充 wl_shm proxy 释放。
+- ICD manifest 改为 `/usr/lib/vkgl/libvkgl.so`，不再引用开发目录；重新编译源码树不会偷换已安装驱动。
+- 新 `vktest-acquire` 在 dmabuf/wl_shm 均通过：图像独占 acquire、fence、耗尽后 timeout、release 后重新 acquire。
+- 新 padded 线性纹理测试中，真实 0.1.13 `/usr/lib` 对照红/蓝像素均为 **0**；0.1.14 两条路径均为 **153,600 + 153,600**。
+- 安装后的 deb 两条路径仍均为 **5/5、0 validation errors、GPU-only**。本版是正确性与生命周期修复，不宣称性能提升。
+
 ## 0.1.13 实测（2026-11-05）
 
 - Memory 写入增加全局代次，Buffer/Image 记录已上传代次；Unmap、UpdateBuffer、FillBuffer、CopyBuffer 均使代次前进。

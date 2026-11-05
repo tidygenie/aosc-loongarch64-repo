@@ -1,7 +1,7 @@
 {
     "file_format_version": "1.0.0",
     "ICD": {
-        "library_path": "/home/houge/infra/vkgl/libvkgl.so",
+        "library_path": "/usr/lib/vkgl/libvkgl.so",
         "api_version": "1.0.0"
     }
 }
