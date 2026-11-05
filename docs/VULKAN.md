@@ -58,6 +58,21 @@
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
 
+## 0.1.15 实测（2026-11-05）
+
+- 临时 wall/thread-CPU instrumentation 发现常见 color+depth render pass 每帧实际调用三次 clear：color+depth、depth loop、post-loop depth。提交末尾 `glFlush` 等待这些 GL/GPU 工作；逐 draw `glGetError` 仅约 1.48 μs，不是热点。
+- 对 `fb->color && fb->depth && clears.size()==2` 合并为一次 `glClear(COLOR|DEPTH)`，先设置两个 clear value；所有其他 attachment/clear 排列保留原 fallback。未改 `glFlush`、present `glFinish`、dmabuf 或 fence/release。
+- 最终合入库与安装包逐字节一致。640×480 FIFO vkmark，六轮 base/candidate 交错配对、每场景 5 秒，**18/18 对均提升**：
+
+  | 场景 | 0.1.14 中位 FPS | 0.1.15 中位 FPS | 变化 | 中位帧时间变化 |
+  |---|---:|---:|---:|---:|
+  | vertex | 149 | 222 | +49.0% | 6.713→4.505 ms（-32.9%） |
+  | texture | 106.5 | 149 | +39.9% | 9.465→6.723 ms（-29.0%） |
+  | shading | 119 | 157 | +31.9% | 8.463→6.421 ms（-24.1%） |
+
+  原始数据与可复现 runner：[`scripts/tests/vkgl`](../scripts/tests/vkgl/)。无 clear 的 effect2d/desktop 不宣称提升，也不外推大型 3D。
+- 安装后的 deb 在 dmabuf/wl_shm 均为 **5/5、0 validation errors、GPU-only**；acquire/fence 与 padded copy 回归保持通过。
+
 ## 0.1.14 实测（2026-11-05）
 
 - Swapchain 图像增加 acquired 状态：已经 acquire、尚未 present 的图像不会被再次返回；成功 acquire 才给调用方 fence 置位，present 时清除 acquired 并等待 compositor release。

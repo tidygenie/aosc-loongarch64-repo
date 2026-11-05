@@ -1491,22 +1491,34 @@ static void execute_cmds(CommandBuffer *c) {
             glDisable(GL_DEPTH_TEST);
          }
          glDisable(GL_SCISSOR_TEST);
-         for (size_t i = 0; i < cmd.clears.size(); i++) {
-            const VkClearValue &cv = cmd.clears[i];
-            bool is_depth = fb->depth && i >= (cmd.clears.size() - (fb->depth ? 1 : 0));
-            if (is_depth) {
-               glClearDepthf(cv.depthStencil.depth);
-               glClear(GL_DEPTH_BUFFER_BIT);
-            } else {
-               glClearColor(cv.color.float32[0], cv.color.float32[1], cv.color.float32[2], cv.color.float32[3]);
-               GLbitfield bits = GL_COLOR_BUFFER_BIT;
-               if (fb->depth) bits |= GL_DEPTH_BUFFER_BIT;
-               glClear(bits);
+         /* The common single-color + depth case needs one combined clear.
+          * Set both values first; keep the original fallback for every other
+          * attachment/clear arrangement. */
+         if (fb->color && fb->depth && cmd.clears.size() == 2) {
+            const VkClearValue &color = cmd.clears[0];
+            const VkClearValue &depth = cmd.clears[1];
+            glClearColor(color.color.float32[0], color.color.float32[1],
+                         color.color.float32[2], color.color.float32[3]);
+            glClearDepthf(depth.depthStencil.depth);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+         } else {
+            for (size_t i = 0; i < cmd.clears.size(); i++) {
+               const VkClearValue &cv = cmd.clears[i];
+               bool is_depth = fb->depth && i >= (cmd.clears.size() - (fb->depth ? 1 : 0));
+               if (is_depth) {
+                  glClearDepthf(cv.depthStencil.depth);
+                  glClear(GL_DEPTH_BUFFER_BIT);
+               } else {
+                  glClearColor(cv.color.float32[0], cv.color.float32[1], cv.color.float32[2], cv.color.float32[3]);
+                  GLbitfield bits = GL_COLOR_BUFFER_BIT;
+                  if (fb->depth) bits |= GL_DEPTH_BUFFER_BIT;
+                  glClear(bits);
+               }
             }
-         }
-         if (!cmd.clears.empty() && fb->depth) {
-            glClearDepthf(cmd.clears.back().depthStencil.depth);
-            glClear(GL_DEPTH_BUFFER_BIT);
+            if (!cmd.clears.empty() && fb->depth) {
+               glClearDepthf(cmd.clears.back().depthStencil.depth);
+               glClear(GL_DEPTH_BUFFER_BIT);
+            }
          }
          glBindFramebuffer(GL_FRAMEBUFFER, fbo);
          break;
