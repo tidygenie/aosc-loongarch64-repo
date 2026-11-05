@@ -1,0 +1,48 @@
+--- a/Makefile	2026-11-05 00:06:05.757727608 +0800
++++ b/Makefile	2026-11-05 00:06:05.728952806 +0800
+@@ -53,7 +53,9 @@
+   OBJDUMP ?= objdump
+   module_build_flags :=
+ 
+-  ifneq ($(CONFIG_CC_IS_CLANG),)
++  # dkms 调用时 CONFIG_CC_IS_CLANG 不在环境里，直接从目标内核的 .config 判断
++  LB_CC_IS_CLANG := $(shell grep -sq '^CONFIG_CC_IS_CLANG=y' /lib/modules/$(KERNEL_UNAME)/build/.config 2>/dev/null && echo y)
++  ifneq ($(CONFIG_CC_IS_CLANG)$(LB_CC_IS_CLANG),)
+     ifeq ($(shell command -v clang > /dev/null && echo "y"),)
+       $(error "clang is not installed, exit...")
+     endif
+--- a/loonggpu-bridge/it66121_drv.c	2026-11-05 00:06:05.757850894 +0800
++++ b/loonggpu-bridge/it66121_drv.c	2026-11-05 00:06:05.730028194 +0800
+@@ -351,12 +351,12 @@
+ static int it66121_get_modes(struct loonggpu_bridge_phy *phy,
+ 			     struct drm_connector *connector)
+ {
+-	struct edid *edid;
++	const struct edid *edid;
+ 	unsigned int count = 0;
+ 	edid = lg_drm_do_get_edid(connector, it66121_get_edid_block, phy);
+ 	if (edid) {
+ 		drm_connector_update_edid_property(connector, edid);
+-		count = drm_add_edid_modes(connector, edid);
++		count = drm_add_edid_modes(connector, (struct edid *)edid);
+ 	} else {
+ 		count = drm_add_modes_noedid(connector, 1920, 1080);
+ 		DRM_DEV_INFO(to_dev(phy), "Update default edid method 1080p\n");
+--- a/loonggpu-bridge/lt8618_drv.c	2026-11-05 00:06:05.757999100 +0800
++++ b/loonggpu-bridge/lt8618_drv.c	2026-11-05 00:06:05.731086793 +0800
+@@ -624,13 +624,13 @@
+ static int lt8618_get_modes(struct loonggpu_bridge_phy *phy,
+ 			    struct drm_connector *connector)
+ {
+-	struct edid *edid;
++	const struct edid *edid;
+ 	unsigned int count;
+ 
+ 	edid = lg_drm_do_get_edid(connector, lt8618_get_edid_block, phy);
+ 	if (edid) {
+ 		drm_connector_update_edid_property(connector, edid);
+-		count = drm_add_edid_modes(connector, edid);
++		count = drm_add_edid_modes(connector, (struct edid *)edid);
+ 		kfree(edid);
+ 	} else {
+ 		count = drm_add_modes_noedid(connector, 1920, 1080);

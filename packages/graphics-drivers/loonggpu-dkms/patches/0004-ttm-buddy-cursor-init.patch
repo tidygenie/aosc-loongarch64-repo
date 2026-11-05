@@ -1,0 +1,49 @@
+--- a/loonggpu/loonggpu_ttm.c
++++ b/loonggpu/loonggpu_ttm.c
+@@ -333,14 +333,26 @@
+ 	while (size) {
+ #endif
+ 		unsigned long cur_size;
+-		uint64_t from = src_node_start, to = dst_node_start;
++		uint64_t from, to;
+ 		struct dma_fence *next;
+ 
+ 	#if defined(LG_DRM_DRM_BUDDY_H_PRESENT)
++		/* The cursor is authoritative for every chunk, including the
++		 * page offset used to size the GTT mapping. Leaving these as
++		 * uninitialised stack values can send invalid work to XDMA. */
++		src_node_start = src_mm.start;
++		dst_node_start = dst_mm.start;
++		src_page_offset = src_node_start & (PAGE_SIZE - 1);
++		dst_page_offset = dst_node_start & (PAGE_SIZE - 1);
++		from = src_node_start;
++		to = dst_node_start;
+ 		/* Copy size cannot exceed GTT_MAX_BYTES. So if src or dst
+ 		 * begins at an offset, then adjust the size accordingly
+ 		 */
+ 		cur_size = min3(src_mm.size, dst_mm.size, GTT_MAX_BYTES);
++		if (cur_size + src_page_offset > GTT_MAX_BYTES ||
++		    cur_size + dst_page_offset > GTT_MAX_BYTES)
++			cur_size -= max(src_page_offset, dst_page_offset);
+ 
+ 		/* Map src to window 0 and dst to window 1. */
+                 r = loonggpu_map_buffer(src->bo, src->mem, &src_mm,
+@@ -368,6 +380,8 @@
+ 		loonggpu_res_next(&src_mm, cur_size);
+ 		loonggpu_res_next(&dst_mm, cur_size);
+ 	#else
++		from = src_node_start;
++		to = dst_node_start;
+ 		cur_size = min3(min(src_node_size, dst_node_size), size,
+ 				GTT_MAX_BYTES);
+ 		if (cur_size + src_page_offset > GTT_MAX_BYTES ||
+@@ -1946,6 +1960,9 @@
+ 	*addr = adev->gmc.gart_start;
+ 	*addr += (u64)window * LOONGGPU_GTT_MAX_TRANSFER_SIZE *
+ 		LOONGGPU_GPU_PAGE_SIZE;
++#if defined(LG_DRM_DRM_BUDDY_H_PRESENT)
++	*addr += mm_cur->start & (PAGE_SIZE - 1);
++#endif
+ 
+ 	num_dw = adev->mman.buffer_funcs->copy_num_dw;
+ 	while (num_dw & 0x7)

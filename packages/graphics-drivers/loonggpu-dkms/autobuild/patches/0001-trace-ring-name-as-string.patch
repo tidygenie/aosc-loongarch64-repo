@@ -1,0 +1,63 @@
+--- a/include/loonggpu_trace.h	2026-11-04 09:26:50.151145975 +0800
++++ b/include/loonggpu_trace.h	2026-11-04 09:28:27.163962540 +0800
+@@ -148,7 +148,7 @@
+ 			     __field(unsigned int, context)
+ 			     __field(unsigned int, seqno)
+ 			     __field(struct dma_fence *, fence)
+-			     __field(char *, ring_name)
++			     __string(ring_name, to_loonggpu_ring(job->base.sched)->name)
+ 			     __field(u32, num_ibs)
+ 			     ),
+ 
+@@ -158,18 +158,18 @@
+ #endif
+ 			   __entry->context = job->base.s_fence->finished.context;
+ 			   __entry->seqno = job->base.s_fence->finished.seqno;
+-			   __entry->ring_name = to_loonggpu_ring(job->base.sched)->name;
++			   __assign_str(ring_name);
+ 			   __entry->num_ibs = job->num_ibs;
+ 			   ),
+ 
+ #if defined(LG_DRM_SCHED_JOB_HAS_ID)
+ 	    TP_printk("sched_job=%llu, context=%u, seqno=%u, ring_name=%s, num_ibs=%u",
+ 		      __entry->sched_job_id, __entry->context,
+-		      __entry->seqno, __entry->ring_name, __entry->num_ibs)
++		      __entry->seqno, __get_str(ring_name), __entry->num_ibs)
+ #else
+ 	    TP_printk("context=%u, seqno=%u, ring_name=%s, num_ibs=%u",
+ 		      __entry->context,
+-		      __entry->seqno, __entry->ring_name, __entry->num_ibs)
++		      __entry->seqno, __get_str(ring_name), __entry->num_ibs)
+ #endif
+ );
+ 
+@@ -182,7 +182,7 @@
+ #endif
+ 			     __field(unsigned int, context)
+ 			     __field(unsigned int, seqno)
+-			     __field(char *, ring_name)
++			     __string(ring_name, to_loonggpu_ring(job->base.sched)->name)
+ 			     __field(u32, num_ibs)
+ 			     ),
+ 
+@@ -192,17 +192,17 @@
+ #endif
+ 			   __entry->context = job->base.s_fence->finished.context;
+ 			   __entry->seqno = job->base.s_fence->finished.seqno;
+-			   __entry->ring_name = to_loonggpu_ring(job->base.sched)->name;
++			   __assign_str(ring_name);
+ 			   __entry->num_ibs = job->num_ibs;
+ 			   ),
+ #if defined(LG_DRM_SCHED_JOB_HAS_ID)
+ 	    TP_printk("sched_job=%llu, context=%u, seqno=%u, ring_name=%s, num_ibs=%u",
+ 		      __entry->sched_job_id, __entry->context,
+-		      __entry->seqno, __entry->ring_name, __entry->num_ibs)
++		      __entry->seqno, __get_str(ring_name), __entry->num_ibs)
+ #else
+ 	    TP_printk("context=%u, seqno=%u, ring_name=%s, num_ibs=%u",
+ 		      __entry->context,
+-		      __entry->seqno, __entry->ring_name, __entry->num_ibs)
++		      __entry->seqno, __get_str(ring_name), __entry->num_ibs)
+ #endif
+ );
+ 

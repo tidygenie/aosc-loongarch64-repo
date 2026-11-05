@@ -91,7 +91,7 @@ make -j1 LLVM=1 all
 
 ## 打包与安装
 
-`files/package-kernel-v2.sh <gcc-o3|clang-lto>` 会：
+`files/package-kernel-v3.sh <gcc-o3|clang-lto>` 会：
 
 1. `make modules_install` 到 staging；
 2. 拷贝 `vmlinuz`、`System.map`、`.config`；
@@ -111,6 +111,17 @@ sudo dpkg -i linux-kernel-*_loongarch64.deb linux-headers-*_loongarch64.deb
 - 看 `/proc/version` 区分编译器（`gcc version` vs `clang version`）；
 - 看 `uname -r` 区分变体；
 - 图形验证：`qdbus org.kde.KWin /KWin supportInformation | grep renderer` 应显示 LG110。
+
+### 2026-11-05 clang-LTO 桌面验证
+
+- 实际运行 `7.3.1-mainline-16k-rt-clang-lto`，clang/LLD 22.1.8，16K 页、`SMP PREEMPT_RT`。
+- 首次启动的 `ring xdma0 timeout` 已定位为 DKMS TTM DRM-buddy 路径读取未初始化的游标/页内偏移；
+  clang 会把临时 GTT 的映射页数折成 0。修复见 `packages/graphics-drivers/loonggpu-dkms/` 的 0004。
+- 修复后本次启动无 XDMA timeout/GPU reset；KWin 与嵌套 Weston 的 GL renderer 均为
+  `LoongGPU(TM) LG110 (...clang-lto...)`，Plasma/Weston 映射 gsgpu，无 llvmpipe/swrast。
+- vkgl dmabuf vkcube 也已在 clang 会话运行。一次性验证服务完成后自动禁用，GRUB 保留 gcc-O3 回退。
+- clang 内核 deb 强依赖 `loonggpu-kernel-dkms >= 2:1.0.2+lnd25.1-2`；postinst 不再忽略
+  DKMS 错误，并硬校验 initramfs 内存在 `updates/dkms/loonggpu.ko`。
 
 ## 实际落地的 LoongArch 相关补丁（48 个）
 

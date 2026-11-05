@@ -1,0 +1,36 @@
+set -euo pipefail
+
+UPSTREAM_DEB="$(dirname "$SRCDIR")/loonggpu-kernel-dkms_${__UPSTREAM_VER}_loong64.deb"
+[[ -f "$UPSTREAM_DEB" ]]
+
+echo "Unpacking upstream LoongGPU DKMS payload ..."
+dpkg -x "$UPSTREAM_DEB" "$PKGDIR/"
+cp -a "$PKGDIR_SRC/autobuild/overrides/." "$PKGDIR/"
+
+MODULE_SRC="$PKGDIR/usr/src/loonggpu-${__UPSTREAM_VER%%-*}"
+cd "$MODULE_SRC"
+for patch in "$PKGDIR_SRC"/autobuild/patches.deferred/*.patch \
+             "$PKGDIR_SRC"/autobuild/patches/*.patch; do
+    echo "Applying $(basename "$patch")"
+    patch --no-backup-if-mismatch -s -p1 < "$patch"
+done
+
+# Do not ship a source package without the actual clang/TTM corrections.
+grep -q 'CONFIG_CC_IS_CLANG' Makefile
+grep -q 'src_node_start = src_mm.start' loonggpu/loonggpu_ttm.c
+grep -q 'src_page_offset = src_node_start & (PAGE_SIZE - 1)' loonggpu/loonggpu_ttm.c
+
+mkdir -p "$PKGDIR/DEBIAN"
+echo /etc/udev/rules.d/70-loonggpu.rules > "$PKGDIR/DEBIAN/conffiles"
+for script in postinst prerm; do
+    {
+        echo '#!/bin/bash'
+        sed "s/%PKGVER%/${PKGVER%%+*}/g" \
+            "$PKGDIR_SRC/autobuild/${script}.in"
+    } > "$PKGDIR/DEBIAN/$script"
+    chmod 755 "$PKGDIR/DEBIAN/$script"
+done
+for script in preinst postrm; do
+    printf '#!/bin/bash\nexit 0\n' > "$PKGDIR/DEBIAN/$script"
+    chmod 755 "$PKGDIR/DEBIAN/$script"
+done

@@ -26,7 +26,7 @@ fi
 
 echo "== 3. vkmark scenes"
 if command -v vkmark >/dev/null; then
-  out=$(timeout 120 vkmark --winsys wayland -s 640x480 \
+  out=$(timeout 120 vkmark --winsys wayland -p fifo -s 640x480 \
         -b vertex:duration=2 -b texture:duration=2 -b shading:duration=2 \
         -b effect2d:duration=2 -b desktop:duration=2 2>&1)
   n=$(grep -c "FPS:" <<<"$out")
