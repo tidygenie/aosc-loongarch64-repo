@@ -85,6 +85,14 @@
   零拷贝有明确收益，但约 20 FPS 仍不等于大型 3D 应用可流畅运行；
 - 调试日志：`VKGL_DEBUG=1`；发布时普通运行不打印逐帧日志。
 
+## 原生 GSPKT 追踪（2026-11-05）
+
+- 只读 `LD_PRELOAD` tracer 已能关联 GEM/VA/mmap 与 CS，并恢复真实厂商 GL 提交的 IB 内容；源码和样本见
+  [`scripts/research/lg110`](../scripts/research/lg110/)。
+- 实测厂商 GEM_VA 使用 `0xc0286448`（IOWR），公开 1.0.2 头为 `0x40286448`（IOW）；payload 相同，tracer 兼容匹配但不改原 ioctl。
+- `vktest-clear` 样本 4/4 次 CS 成功、4/4 个 576 字节 IB 均完成 32-dword dump，并带 FENCE chunk；首字包含未知 opcode `0x88`，后续出现公开头注释为 DRAW 的 `0x89`。
+- 这只是后续 clear/draw 差分和独立 winsys 研究的起点，**不是原生 Vulkan 已实现**。下一步必须确认包语义与 shader ISA，不能复用 AMD PM4/RADV 代替。
+
 ## 测试
 
 ```bash
