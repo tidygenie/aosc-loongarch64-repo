@@ -20,7 +20,7 @@
 | Vulkan 概念 | 实现 |
 |---|---|
 | Instance/Device/Queue | 单设备，EGL/GBM 上下文懒创建 |
-| Memory | CPU shadow + GL buffer/texture |
+| Memory | CPU shadow + GL buffer/texture；Memory 全局代次跟踪写入，未映射且未修改的静态 Buffer/线性 Image 跳过重复上传 |
 | Render pass / Framebuffer | FBO（颜色纹理 + 深度纹理） |
 | Pipeline | SPIR-V → GLSL 1.20（SPIRV-Cross），UBO 扁平化成 `uniform vec4 name[N]` |
 | Vertex input | `glBindAttribLocation` + `glVertexAttribPointer` |
@@ -57,6 +57,15 @@
 - 640×480 FIFO vkmark 五场景：dmabuf **120/132/101/61/120 FPS**，wl_shm **77/82/69/57/74 FPS**。
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
+
+## 0.1.13 实测（2026-11-05）
+
+- Memory 写入增加全局代次，Buffer/Image 记录已上传代次；Unmap、UpdateBuffer、FillBuffer、CopyBuffer 均使代次前进。
+  持久映射资源仍逐 draw 上传，避免漏掉应用直接写入；UpdateBuffer 同时修正了遗漏的 `mem_offset`。
+- 安装后的 deb 在 dmabuf 与 wl_shm 两路径均为 **5/5、0 validation errors、GPU-only**；实际截屏包含彩色内容，
+  相邻帧在立方体区域有 52,659 个显著变化像素，确认不是静态假画面。
+- 同机 1920×1080 vkmark 总分：0.1.12 为 **25**，缓存版为 **24**。这一差异视为波动，不宣称 1080p 流畅度提升；
+  本版确定消除的是未修改静态资源的冗余 CPU→GPU 上传。
 
 ## 0.1.11 实测（2026-11-05）
 

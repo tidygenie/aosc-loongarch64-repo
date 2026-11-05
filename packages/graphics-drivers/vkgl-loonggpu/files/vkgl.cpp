@@ -174,6 +174,7 @@ struct Memory : Obj {
    bool bound_buffer = false;
    bool bound_image = false;
    bool mapped = false;
+   uint64_t revision = 1;
 };
 
 struct Buffer : Obj {
@@ -182,6 +183,7 @@ struct Buffer : Obj {
    Memory *mem = nullptr;
    VkDeviceSize mem_offset = 0;
    GLuint gl = 0;                 // GL buffer (created on bind)
+   uint64_t uploaded_revision = 0;
 };
 
 struct Image : Obj {
@@ -195,6 +197,7 @@ struct Image : Obj {
    GLuint fbo = 0;
    GLenum gl_format = GL_RGBA;
    GLenum gl_type = GL_UNSIGNED_BYTE;
+   uint64_t uploaded_revision = 0;
 };
 
 struct ImageView : Obj {
@@ -854,7 +857,9 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_MapMemory(VkDevice, VkDeviceMemory me
 }
 
 static VKAPI_ATTR void VKAPI_CALL vkgl_UnmapMemory(VkDevice, VkDeviceMemory mem) {
-   from_handle<Memory>((uint64_t)mem)->mapped = false;
+   auto *m = from_handle<Memory>((uint64_t)mem);
+   m->mapped = false;
+   m->revision++;
 }
 
 static VKAPI_ATTR void VKAPI_CALL vkgl_FlushMappedMemoryRanges(VkDevice, uint32_t, const VkMappedMemoryRange *) {}
@@ -899,6 +904,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_BindBufferMemory(VkDevice, VkBuffer b
    auto *b = from_handle<Buffer>((uint64_t)buf);
    b->mem = from_handle<Memory>((uint64_t)mem);
    b->mem_offset = off;
+   b->uploaded_revision = 0;
    ensure_gl_buffer(b);
    return VK_SUCCESS;
 }
@@ -930,6 +936,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_BindImageMemory(VkDevice, VkImage img
    auto *im = from_handle<Image>((uint64_t)img);
    im->mem = from_handle<Memory>((uint64_t)mem);
    im->mem_offset = off;
+   im->uploaded_revision = 0;
    ensure_gl_texture(im);
    return VK_SUCCESS;
 }
@@ -1377,8 +1384,11 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyImageToBuffer(VkCommandBuffer cb, 
 static VKAPI_ATTR void VKAPI_CALL vkgl_CmdUpdateBuffer(VkCommandBuffer cb, VkBuffer buf, VkDeviceSize off,
                                                        VkDeviceSize size, const void *data) {
    auto *b = from_handle<Buffer>((uint64_t)buf);
-   if (b && b->mem && off + size <= b->mem->shadow.size())
-      memcpy(b->mem->shadow.data() + off, data, (size_t)size);
+   if (b && b->mem && off + size <= b->size &&
+       b->mem_offset + off + size <= b->mem->shadow.size()) {
+      memcpy(b->mem->shadow.data() + b->mem_offset + off, data, (size_t)size);
+      b->mem->revision++;
+   }
 }
 
 // ---------------------------------------------------------------------------
@@ -1570,6 +1580,7 @@ static void execute_cmds(CommandBuffer *c) {
                uint32_t v = cmd.fill_value;
                size_t chunk = (size_t)std::min<VkDeviceSize>(4, n - i);
                memcpy(p + i, &v, chunk);
+               if (i + chunk == n) cmd.buf->mem->revision++;
             }
          }
          break;
@@ -1582,6 +1593,7 @@ static void execute_cmds(CommandBuffer *c) {
                if (r.srcOffset + r.size > cmd.src->size || r.dstOffset + r.size > cmd.buf->size) continue;
                memcpy(cmd.buf->mem->shadow.data() + cmd.buf->mem_offset + r.dstOffset,
                       cmd.src->mem->shadow.data() + cmd.src->mem_offset + r.srcOffset, (size_t)r.size);
+               cmd.buf->mem->revision++;
             }
          }
          break;
@@ -1595,6 +1607,9 @@ static void execute_cmds(CommandBuffer *c) {
             glTexSubImage2D(GL_TEXTURE_2D, 0, (GLint)cmd.region.imageOffset.x, (GLint)cmd.region.imageOffset.y,
                             (GLsizei)cmd.region.imageExtent.width, (GLsizei)cmd.region.imageExtent.height,
                             cmd.img->gl_format, cmd.img->gl_type, src);
+            /* This legacy path does not update the image shadow. Preserve its
+             * previous next-draw upload behavior instead of caching stale data. */
+            cmd.img->uploaded_revision = 0;
             glBindTexture(GL_TEXTURE_2D, 0);
          }
          break;
@@ -2641,7 +2656,10 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
    // vertex buffer content: upload shadow memory
    if (vbuf && vbuf->mem && vbuf->gl) {
       glBindBuffer(GL_ARRAY_BUFFER, vbuf->gl);
-      glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)vbuf->size, vbuf->mem->shadow.data() + vbuf->mem_offset);
+      if (vbuf->mem->mapped || vbuf->uploaded_revision != vbuf->mem->revision) {
+         glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)vbuf->size, vbuf->mem->shadow.data() + vbuf->mem_offset);
+         vbuf->uploaded_revision = vbuf->mem->revision;
+      }
    }
    for (auto &a : p->via) {
       GLint comps; GLboolean norm;
@@ -2703,10 +2721,12 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
             if (view->image->tiling == VK_IMAGE_TILING_LINEAR && view->image->mem) {
                ensure_gl_texture(view->image);
                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-               glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+               if (view->image->mem->mapped || view->image->uploaded_revision != view->image->mem->revision)
+                  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                                (GLsizei)view->image->extent.width, (GLsizei)view->image->extent.height,
                                view->image->gl_format, view->image->gl_type,
                                view->image->mem->shadow.data() + view->image->mem_offset);
+               view->image->uploaded_revision = view->image->mem->revision;
             }
             glUniform1i(t.loc, unit);
             VKGL_LOG("texture bound binding=%u tex=%u unit=%d loc=%d img=%p\n", t.binding, view->image->tex, unit, t.loc, (void*)view->image);
@@ -2733,7 +2753,10 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
    if (cmd.kind == Cmd::DrawIndexed) {
       if (ibuf && ibuf->gl) {
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuf->gl);
-         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, (GLsizeiptr)ibuf->size, ibuf->mem->shadow.data() + ibuf->mem_offset);
+         if (ibuf->mem->mapped || ibuf->uploaded_revision != ibuf->mem->revision) {
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, (GLsizeiptr)ibuf->size, ibuf->mem->shadow.data() + ibuf->mem_offset);
+            ibuf->uploaded_revision = ibuf->mem->revision;
+         }
          GLenum it = GL_UNSIGNED_SHORT;
          glDrawElements(GL_TRIANGLES, (GLsizei)cmd.count, it,
                         (const void *)(uintptr_t)(ioff + (VkDeviceSize)cmd.first * (it == GL_UNSIGNED_INT ? 4 : 2)));
