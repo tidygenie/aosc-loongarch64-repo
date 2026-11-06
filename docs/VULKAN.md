@@ -21,6 +21,7 @@
 |---|---|
 | Instance/Device/Queue | 单设备，EGL/GBM 上下文懒创建 |
 | Memory | CPU shadow + GL buffer/texture；Memory 全局代次跟踪写入，未映射且未修改的静态 Buffer/线性 Image 跳过重复上传 |
+| `ClearAttachments` | 活跃 render pass 内 color attachment0 的受限矩形/多层拒绝；用 `glScissor + glClear` 直接 GPU 清除，保存恢复 FBO/scissor/clear color/color mask |
 | `CopyImage` | 不同 2D color、同 B8/R8 UNORM、mip0/单层、未映射 dst 的受限区域，从 src FBO 用 `glCopyTexSubImage2D` 直接复制到 dst texture；无 vkgl CPU 像素中转 |
 | `CopyImageToBuffer` | 当前 2D color mip0/单层、B8/R8 RGBA8 与 tight/`bufferRowLength` padded 区域从实际 FBO `glReadPixels`，转换 Y 方向并检查溢出/边界；不宣称 depth/多层支持 |
 | Render pass / Framebuffer | FBO（颜色纹理 + 深度纹理） |
@@ -34,8 +35,8 @@
 
 ## 已知边界
 
-- 117 个尚未实现的核心入口点注册为 **no-op 桩**（返回 `VK_SUCCESS`），保证 loader 不返回
-  NULL、应用不崩，但语义未实现。影响较大的包括：`vkCmdClearAttachments`、
+- 116 个尚未实现的核心入口点注册为 **no-op 桩**（返回 `VK_SUCCESS`），保证 loader 不返回
+  NULL、应用不崩，但语义未实现。影响较大的包括：
   `vkCmdBlitImage`、`vkCmdResolveImage`、`vkCmdBeginQuery`/`EndQuery`、
   `vkCmdWriteTimestamp`、`vkCreateBufferView`、`vkQueueBindSparse`。
 
@@ -59,6 +60,14 @@
 - 640×480 FIFO vkmark 五场景：dmabuf **120/132/101/61/120 FPS**，wl_shm **77/82/69/57/74 FPS**。
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
+
+## 0.1.19 实测（2026-11-06）
+
+- 实现原先完全 no-op 的 `vkCmdClearAttachments`：仅限活跃 render pass 的 color attachment0、baseArrayLayer0/layerCount1、非负且完整位于 framebuffer 内的矩形；支持多个 clear attachment 与 rect 的组合，depth/stencil/越界明确拒绝。
+- 执行使用 `glScissor + glClear` 直接 GPU 清除，并保存恢复 FBO、scissor box/enable、clear color 与 color mask；命令记录深拷贝 clear/rect，不保留调用者栈指针。
+- 真实测试分别 padded readback 已清除的 `(320,239) 2×2` 和邻近未清除的 `(324,239) 2×2`。A/B 的 clear 区四像素均为 `40 20 10 ff`；邻近区保持 gradient+sample，A/B 仅 red 由 0 增至 64。两个 32-byte buffer 的全部 guard/padding 均不变。
+- 2048-dword full-line tracer 捕获 120 个逻辑帧对应的 121 个 GFX：seq2=800、seq3=272、seq4..122=400；总计 **48,672 dword 全同、0 截断**，A/B SHA-256 均为 `834addd09674cf704413cde34ca3f68bbec9a263b5903ee2ed54042254954df5`。通用比较器拒绝 122 个成功 CS，专用严格比较器按实际 XDMA+GFX 布局验证，不推断额外物理提交的未知语义。
+- 包内/安装/dev SHA-256 均为 `04e51457f62e56b4a3443c3cd99e6a0d7a0cffb74e9b72fff765d7c327da38e3`。安装版 tight/padded/CopyImage/ClearAttachments A/B、dmabuf/wl_shm **5/5、0 validation errors、GPU-only** 全部通过；公开相对路径 ClearAttachments 源码重新构建后的 A/B 及四个 raw buffer 也与 dev 完全一致。无性能或完整 Vulkan 合规宣称。
 
 ## 0.1.18 实测（2026-11-06）
 

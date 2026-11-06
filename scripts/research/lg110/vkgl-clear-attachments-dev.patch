@@ -1,0 +1,91 @@
+--- a/vkgl.cpp
++++ b/vkgl.cpp
+@@ -298,13 +298,15 @@
+ struct Cmd {
+    enum Kind {
+       BeginRenderPass, EndRenderPass, BindPipeline, BindVertexBuffer, BindIndexBuffer,
+-      BindDescriptorSet, SetViewport, SetScissor, Draw, DrawIndexed, ClearColorImage,
++      BindDescriptorSet, SetViewport, SetScissor, Draw, DrawIndexed, ClearColorImage, ClearAttachments,
+       CopyBuffer, CopyBufferToImage, CopyImageToBuffer, CopyImage, UpdateBuffer, Barrier, PipelineBarrier,
+       DrawIndirect, DrawIndexedIndirect, FillBuffer, ExecuteCommands,
+    } kind;
+    Framebuffer *fb = nullptr;
+    RenderPass *rp = nullptr;
+    std::vector<VkClearValue> clears;
++   std::vector<VkClearAttachment> clear_attachments;
++   std::vector<VkClearRect> clear_rects;
+    Pipeline *pipe = nullptr;
+    Buffer *buf = nullptr;
+    VkDeviceSize offset = 0;
+@@ -1552,6 +1554,53 @@
+          glEnable(GL_SCISSOR_TEST);
+          glScissor(sc.offset.x, sc.offset.y, (GLsizei)sc.extent.width, (GLsizei)sc.extent.height);
+          break;
++      case Cmd::ClearAttachments: {
++         Framebuffer *fb = cmd.fb;
++         Image *target = fb && fb->color ? fb->color->image : nullptr;
++         bool valid = cmd.rp && fb && target && target->fbo &&
++            !cmd.clear_attachments.empty() && !cmd.clear_rects.empty() &&
++            fb->width <= INT32_MAX && fb->height <= INT32_MAX;
++         for (const auto &a : cmd.clear_attachments)
++            if (a.aspectMask != VK_IMAGE_ASPECT_COLOR_BIT || a.colorAttachment != 0) valid = false;
++         if (fb) for (const auto &cr : cmd.clear_rects) {
++            int64_t x = cr.rect.offset.x, y = cr.rect.offset.y;
++            int64_t w = cr.rect.extent.width, h = cr.rect.extent.height;
++            if (cr.baseArrayLayer != 0 || cr.layerCount != 1 || x < 0 || y < 0 || !w || !h ||
++                x + w > fb->width || y + h > fb->height) valid = false;
++         }
++         if (!valid) {
++            VKGL_LOG("ClearAttachments rejected unsupported or out-of-bounds request\n");
++            break;
++         }
++         GLint previous_fbo = 0, previous_box[4] = {};
++         GLboolean previous_scissor = GL_FALSE, previous_mask[4] = {};
++         GLfloat previous_color[4] = {};
++         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previous_fbo);
++         glGetIntegerv(GL_SCISSOR_BOX, previous_box);
++         glGetFloatv(GL_COLOR_CLEAR_VALUE, previous_color);
++         glGetBooleanv(GL_COLOR_WRITEMASK, previous_mask);
++         previous_scissor = glIsEnabled(GL_SCISSOR_TEST);
++         glBindFramebuffer(GL_FRAMEBUFFER, target->fbo);
++         glEnable(GL_SCISSOR_TEST);
++         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
++         for (const auto &a : cmd.clear_attachments) {
++            glClearColor(a.clearValue.color.float32[0], a.clearValue.color.float32[1],
++                         a.clearValue.color.float32[2], a.clearValue.color.float32[3]);
++            for (const auto &cr : cmd.clear_rects) {
++               GLint gl_y = (GLint)((int64_t)fb->height - cr.rect.offset.y - cr.rect.extent.height);
++               glScissor((GLint)cr.rect.offset.x, gl_y,
++                         (GLsizei)cr.rect.extent.width, (GLsizei)cr.rect.extent.height);
++               glClear(GL_COLOR_BUFFER_BIT);
++            }
++         }
++         glScissor(previous_box[0], previous_box[1], previous_box[2], previous_box[3]);
++         if (previous_scissor) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
++         glClearColor(previous_color[0], previous_color[1], previous_color[2], previous_color[3]);
++         glColorMask(previous_mask[0], previous_mask[1], previous_mask[2], previous_mask[3]);
++         glBindFramebuffer(GL_FRAMEBUFFER, previous_fbo);
++         /* The executor's logical Vulkan scissor (`sc`) is deliberately unchanged. */
++         break;
++      }
+       case Cmd::DrawIndirect:
+          if (cur_pipe && cmd.buf && cmd.buf->mem) {
+             const uint8_t *base = cmd.buf->mem->shadow.data() + cmd.buf->mem_offset + cmd.offset;
+@@ -2260,7 +2309,16 @@
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBindVertexBuffers2(void *a1, ...) { (void)a1; { } }
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBlitImage(void *a1, ...) { (void)a1; { } }
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBlitImage2(void *a1, ...) { (void)a1; { } }
+-static VKAPI_ATTR void VKAPI_CALL vkgl_CmdClearAttachments(void *a1, ...) { (void)a1; { } }
++static VKAPI_ATTR void VKAPI_CALL vkgl_CmdClearAttachments(VkCommandBuffer cb, uint32_t attachment_count,
++                                                            const VkClearAttachment *attachments,
++                                                            uint32_t rect_count, const VkClearRect *rects) {
++   auto *c = from_handle<CommandBuffer>((uint64_t)cb);
++   Cmd cmd{}; cmd.kind = Cmd::ClearAttachments;
++   cmd.fb = c->active_fb; cmd.rp = c->active_rp;
++   if (attachment_count && attachments) cmd.clear_attachments.assign(attachments, attachments + attachment_count);
++   if (rect_count && rects) cmd.clear_rects.assign(rects, rects + rect_count);
++   c->cmds.push_back(std::move(cmd));
++}
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdClearDepthStencilImage(void *a1, ...) { (void)a1; { } }
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyBuffer2(void *a1, ...) { (void)a1; { } }
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyBufferToImage2(void *a1, ...) { (void)a1; { } }

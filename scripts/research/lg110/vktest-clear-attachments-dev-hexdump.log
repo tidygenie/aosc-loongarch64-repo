@@ -1,0 +1,15 @@
+A clear length=32 exact_expected=1
+A clear 00000000: a5 a5 a5 a5 40 20 10 ff 40 20 10 ff a5 a5 a5 a5
+A clear 00000010: a5 a5 a5 a5 40 20 10 ff 40 20 10 ff a5 a5 a5 a5
+A neighbor length=32 exact_expected=1
+A neighbor 00000000: a5 a5 a5 a5 00 80 00 ff 00 80 00 ff a5 a5 a5 a5
+A neighbor 00000010: a5 a5 a5 a5 00 7f 00 ff 00 7f 00 ff a5 a5 a5 a5
+B clear length=32 exact_expected=1
+B clear 00000000: a5 a5 a5 a5 40 20 10 ff 40 20 10 ff a5 a5 a5 a5
+B clear 00000010: a5 a5 a5 a5 40 20 10 ff 40 20 10 ff a5 a5 a5 a5
+B neighbor length=32 exact_expected=1
+B neighbor 00000000: a5 a5 a5 a5 00 80 40 ff 00 80 40 ff a5 a5 a5 a5
+B neighbor 00000010: a5 a5 a5 a5 00 7f 40 ff 00 7f 40 ff a5 a5 a5 a5
+clear_A_B_identical=1
+neighbor_A_B_differences= [(6, 0, 64), (10, 0, 64), (22, 0, 64), (26, 0, 64)]
+result=PASS both regions exact; all guards/padding a5; clear ignores non-full blue mask
