@@ -72,3 +72,25 @@ churn. Future work should use a controlled multi-draw/large-upload benchmark,
 record actual GL upload/state call counts, and then inspect vendor command
 submission. A theoretical reduction in API calls is not itself evidence of
 higher frame rate or lower latency.
+
+## 0.1.26 fixed-state controlled retest: still rejected
+
+After per-submit uploads were validated and released as 0.1.26, the fixed
+depth/cull/blend cache was retested alone on that baseline. Program binding
+remained unconditional. BeginRenderPass and Pipeline destruction invalidated the
+cache; the coherent second-frame test and exact LINEAR `007f22ff` still passed,
+as did three complete vkmark exits.
+
+| Workload | Run | 0.1.26 FPS | Fixed-state FPS | Change | Wins |
+|---|---|---:|---:|---:|---:|
+| 64 draws, 256x256 texture | 1 | 112.939 | 121.504 | +7.58% | 4/5 |
+| same, independent repeat | 2 | 121.601 | 114.095 | -6.17% | 1/7 |
+| one draw, same texture | 1 | 130.293 | 135.764 | +4.20% | 3/5 |
+
+The favorable first result did not reproduce. The candidate library SHA-256 was
+`bfa8773dd00d8736746e341349bbda0894db3f86a0cf896c5d356a1c5ddccfda`; it was
+not installed or packaged. Public source and installed 0.1.26 remain unchanged,
+and there is no 0.1.27 package. Raw evidence:
+`fixed-state-ab-*-0.1.27-rejected.jsonl`,
+`coherent-second-frame-fixed-state-0.1.27-rejected.log`, and
+`sampler-pixel-linear-fixed-state-0.1.27-rejected.log`.

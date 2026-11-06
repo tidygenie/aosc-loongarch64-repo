@@ -72,6 +72,7 @@
 - 按 `vkQueueSubmit` 序号合并 HOST_COHERENT 持久映射上传：Buffer/LINEAR Image 每提交最多上传一次，memory revision 改变仍可在同提交重传。消除原 `mapped || revision changed` 导致的每 draw 全量重传；不是零拷贝声明。
 - 新公开测试在两次提交之间无 Flush/Unmap 改写纹理：0.1.25、0.1.26候选和安装版第二帧均为新像素 `007f40ff`；故意只按 revision 上传的负对照读旧值 `007f00ff` 并失败。
 - 受控256×256持久纹理、每提交64 draw、vertexCount=2：21.683→114.972 FPS（**+430.24%，5/5**），单draw对照仅+1.57%；安装版再次为20.443→123.326（+503.27%，3/3）。结论只限上传密集受控场景，普通vkmark无可重复提速，不外推为全局5倍。
+- 0.1.26之后的独立depth/cull/blend缓存候选：64 draw首轮+7.58%，独立重复−6.17%（1/7），单draw +4.20%（3/5）；第二帧/LINEAR和3次退出虽通过，仍拒绝发布0.1.27。见 [固定状态多draw复测](../scripts/research/lg110/lg110-draw-state-upload-optimization.md)。
 - 完整像素/fence/acquire、5次完整退出和双路径28/4全过。安装库 SHA-256=`f44790263dc31c6ceb909afc0c61d7df3369c3cbaa295d52a47ee27c1036a0db`，deb SHA-256=`81ffef20abcdf2acd529609378999b6597ae1273329426e76e6f36eace500970`；25包发布全过。见 [0.1.26 报告](../scripts/tests/vkgl/vkgl-0.1.26.md)。
 
 ## 0.1.25 实测（2026-11-06）
