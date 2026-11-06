@@ -5,3 +5,5 @@ build/
 *.so
 stage/
 state/
+__pycache__/
+*.pyc
