@@ -8,7 +8,8 @@
 set -uo pipefail
 CI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INFRA="$(dirname "$CI")"
-OUT="$CI/state/deb-updates.txt"
+OUT="$INFRA/state/deb-updates.txt"
+mkdir -p "$(dirname "$OUT")"
 : > "$OUT"
 
 TOKEN_FILE="$INFRA/.secrets/github-token"
@@ -21,13 +22,26 @@ latest_ruby() {
 }
 
 latest_github() {
-  local repo="$1"
-  curl -fsSL --max-time 20 "${AUTH[@]}" "https://api.github.com/repos/$repo/releases/latest" 2>/dev/null \
-    | python3 -c "import json,sys;print(json.load(sys.stdin).get('tag_name','').lstrip('v'))" 2>/dev/null
+  local repo="$1" response
+  response="$(curl -fsSL --max-time 20 "${AUTH[@]}" "https://api.github.com/repos/$repo/releases/latest" 2>/dev/null)" \
+    || response="$(curl -fsSL --max-time 20 "https://api.github.com/repos/$repo/releases/latest" 2>/dev/null)" || return 0
+  python3 -c "import json,sys;print(json.load(sys.stdin).get('tag_name','').lstrip('v'))" <<< "$response" 2>/dev/null
+}
+
+latest_anitya() {
+  local id="$1"
+  curl -fsSL --max-time 20 "https://release-monitoring.org/api/project/$id" 2>/dev/null \
+    | python3 -c "import json,sys;print(json.load(sys.stdin).get('version',''))" 2>/dev/null
+}
+
+latest_kernel() {
+  curl -fsSL --max-time 20 https://www.kernel.org/finger_banner 2>/dev/null \
+    | sed -n 's/^The latest stable version of the Linux kernel is:[[:space:]]*//p' \
+    | head -1
 }
 
 updated=0
-for d in "$INFRA"/pkg/*/; do
+for d in "$INFRA"/packages/*/*/; do
   [[ -f "$d/spec" ]] || continue
   name="$(basename "$d")"
   ver="$(grep -oP '^VER=\K.*' "$d/spec" 2>/dev/null)"
@@ -36,8 +50,11 @@ for d in "$INFRA"/pkg/*/; do
 
   latest=""
   case "$upd" in
+    none) continue ;;
     github::repo=*) latest="$(latest_github "${upd#github::repo=}")" ;;
-    ruby*|anitya*)  latest="$(latest_ruby)" ;;
+    ruby*) latest="$(latest_ruby)" ;;
+    anitya::id=*) latest="$(latest_anitya "${upd#anitya::id=}")" ;;
+    kernel::stable) latest="$(latest_kernel)" ;;
   esac
 
   if [[ -z "$latest" ]]; then

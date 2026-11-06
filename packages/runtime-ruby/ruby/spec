@@ -1,4 +1,4 @@
 VER=4.0.9
 SRCS="file::https://cache.ruby-lang.org/pub/ruby/4.0/ruby-${VER}.tar.gz"
 CHKSUMS="SKIP"
-CHKUPDATE="anitya::id=3062"
+CHKUPDATE="ruby"
