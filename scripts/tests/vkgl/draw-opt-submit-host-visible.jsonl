@@ -1,0 +1,14 @@
+{"round": 1, "scene": "vertex:device-local=false", "variant": "base", "rc": 0, "elapsed_s": 3.112, "fps": 242}
+{"round": 1, "scene": "vertex:device-local=false", "variant": "candidate", "rc": 0, "elapsed_s": 3.196, "fps": 240}
+{"round": 2, "scene": "vertex:device-local=false", "variant": "candidate", "rc": 0, "elapsed_s": 3.218, "fps": 246}
+{"round": 2, "scene": "vertex:device-local=false", "variant": "base", "rc": 0, "elapsed_s": 3.182, "fps": 238}
+{"round": 3, "scene": "vertex:device-local=false", "variant": "base", "rc": 0, "elapsed_s": 3.239, "fps": 242}
+{"round": 3, "scene": "vertex:device-local=false", "variant": "candidate", "rc": 0, "elapsed_s": 3.219, "fps": 242}
+{"round": 4, "scene": "vertex:device-local=false", "variant": "candidate", "rc": 0, "elapsed_s": 3.213, "fps": 239}
+{"round": 4, "scene": "vertex:device-local=false", "variant": "base", "rc": 0, "elapsed_s": 3.196, "fps": 236}
+{"round": 5, "scene": "vertex:device-local=false", "variant": "base", "rc": 0, "elapsed_s": 3.215, "fps": 243}
+{"round": 5, "scene": "vertex:device-local=false", "variant": "candidate", "rc": 0, "elapsed_s": 3.204, "fps": 240}
+{"round": 6, "scene": "vertex:device-local=false", "variant": "candidate", "rc": 0, "elapsed_s": 3.205, "fps": 242}
+{"round": 6, "scene": "vertex:device-local=false", "variant": "base", "rc": 0, "elapsed_s": 3.214, "fps": 243}
+{"round": 7, "scene": "vertex:device-local=false", "variant": "base", "rc": 0, "elapsed_s": 3.231, "fps": 241}
+{"round": 7, "scene": "vertex:device-local=false", "variant": "candidate", "rc": 0, "elapsed_s": 3.226, "fps": 241}
