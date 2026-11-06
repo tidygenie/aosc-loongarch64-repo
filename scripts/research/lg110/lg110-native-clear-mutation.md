@@ -4,6 +4,10 @@ This is a bounded reverse-engineering experiment, **not a native Vulkan driver**
 and not a performance claim. It establishes one causal field in the exact
 native GSPKT clear stream produced by the installed vendor stack.
 
+Follow-up: [clear RGBA field causality](lg110-clear-color-fields.md) adds
+independent green/blue proofs and an offscreen RGBA alpha proof, with separate
+stream signatures and guard-rejection evidence.
+
 ## Method
 
 `lg110-native-mutation.c` is separate from the passive tracer. Mutation is off

@@ -151,8 +151,9 @@
   [`scripts/research/lg110`](../scripts/research/lg110/)。
 - 实测厂商 GEM_VA 使用 `0xc0286448`（IOWR），公开 1.0.2 头为 `0x40286448`（IOW）；payload 相同，tracer 兼容匹配但不改原 ioctl。
 - `vktest-clear` 样本 4/4 次 CS 成功、4/4 个 576 字节 IB 均完成 32-dword dump，并带 FENCE chunk；首字包含未知 opcode `0x88`，后续出现公开头注释为 DRAW 的 `0x89`。
-- 独立 opt-in pre-CS 实验已在精确 15 词签名、完整可写映射与 word87=0 的条件下，仅将 clear IB 的 word87 改为 `0x3f800000`。400 个 dword 只有该词变化，真实像素从 `66 33 00 ff` 变为 `66 33 ff ff`，其余通道不变；公开源码重建后新 A/B 重复成功。见 [原生 clear 字段因果报告](../scripts/research/lg110/lg110-native-clear-mutation.md)。
-- 这是 clear-red 字段的因果证据，仍不是完整 0x88/0x89 包语义、shader ISA、独立 replay 或原生 Vulkan；不能复用 AMD PM4/RADV 代替。
+- 独立 opt-in pre-CS 实验在完整可写映射、流长度/签名和原始值防护下，分别只修改 clear IB 的一个 dword。400-word swapchain 流中 red/green/blue=word87/88/89，raw 分别从 `663300ff` 到 `6633ffff`/`66ff00ff`/`ff3300ff`，每次只有一个对应像素通道变化。
+- alpha=word90 不能由 swapchain 直接证明：主动写入与被动 alpha=0.5 都只改该词但读回固定 `ff`。独立 272-word 离屏 optimal RGBA 流可保留 alpha；word90 `1.0→0.5` 主动实验得到 `003366ff→00336680`，完整 IB 和像素均只有对应一项变化。公开源码重建重复 green/offscreen-alpha，离屏 red 请求零写入。见 [clear RGBA 因果报告](../scripts/research/lg110/lg110-clear-color-fields.md)。
+- 这些仅是特定 clear 流的 RGBA 字段因果证据，仍不是完整 0x88/0x89 包语义、draw/shader ISA、独立 replay 或原生 Vulkan；不能复用 AMD PM4/RADV 代替。
 
 ## 测试
 

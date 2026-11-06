@@ -1,0 +1,2 @@
+GPU0 type=2 name=LoongGPU LG110 (vkgl GLES2)
+offscreen clear alpha=0.5 expected_alpha=0.5 expected=00336680 actual=00336680 pixels_valid=1 sentinel_unchanged=0

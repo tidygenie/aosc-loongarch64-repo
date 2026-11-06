@@ -1,0 +1,7 @@
+base=0
+red=0
+green=0
+blue=0
+alpha=1_expected_opaque_readback
+alpha-passive=1_expected_opaque_readback
+offscreen-alpha-passive=0

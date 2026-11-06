@@ -1,0 +1,6 @@
+clear-only readback: field=green red=0 green=255 blue=102 alpha=255
+GPU0 type=2 name=LoongGPU LG110 (vkgl GLES2)
+surface format=44
+swapchain images=2
+readback center=(320,240) expected=66ff00ff actual=66ff00ff pixels_valid=1 sentinel_unchanged=0
+PASS vktest-clear-color-readback
