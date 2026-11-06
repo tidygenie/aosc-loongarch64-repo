@@ -1,0 +1,6 @@
+comparison=padded-dev frame-matched GFX seq3-121
+pairs=119 dwords_per_pair=400 complete_pairs=119 truncated_pairs=0
+equal_dwords=47600 different_dwords=0
+A_sha256=04ed5b028b951ea6da35e8945c8963005c712f59e4116bc3e1412f210803dc1d
+B_sha256=04ed5b028b951ea6da35e8945c8963005c712f59e4116bc3e1412f210803dc1d
+result=IDENTICAL

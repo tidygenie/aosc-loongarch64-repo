@@ -1,0 +1,5 @@
+complete_gfx_pairs=120 dwords_per_seq2=672 dwords_per_steady=400
+equal=48272 different=0 truncated=0
+A_sha256=7430660bf066aa62c359ea8ed343d54a6ea0234e2e3d60da079d10f76ffff535
+B_sha256=7430660bf066aa62c359ea8ed343d54a6ea0234e2e3d60da079d10f76ffff535
+PASS complete A/B GFX IB comparison

@@ -21,7 +21,7 @@
 |---|---|
 | Instance/Device/Queue | 单设备，EGL/GBM 上下文懒创建 |
 | Memory | CPU shadow + GL buffer/texture；Memory 全局代次跟踪写入，未映射且未修改的静态 Buffer/线性 Image 跳过重复上传 |
-| `CopyImageToBuffer` | 当前 2D color mip0/单层、B8/R8 RGBA8 与 tightly-packed 区域从实际 FBO `glReadPixels`，转换 Y 方向并检查边界；不宣称 depth/多层/padded 支持 |
+| `CopyImageToBuffer` | 当前 2D color mip0/单层、B8/R8 RGBA8 与 tight/`bufferRowLength` padded 区域从实际 FBO `glReadPixels`，转换 Y 方向并检查溢出/边界；不宣称 depth/多层支持 |
 | Render pass / Framebuffer | FBO（颜色纹理 + 深度纹理） |
 | Pipeline | SPIR-V → GLSL 1.20（SPIRV-Cross），UBO 扁平化成 `uniform vec4 name[N]` |
 | Vertex input | `glBindAttribLocation` + `glVertexAttribPointer` |
@@ -58,6 +58,14 @@
 - 640×480 FIFO vkmark 五场景：dmabuf **120/132/101/61/120 FPS**，wl_shm **77/82/69/57/74 FPS**。
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
+
+## 0.1.17 实测（2026-11-06）
+
+- `CopyImageToBuffer` 增加 `bufferRowLength`：0 保持 tight；非零按 `rowLength*4` 写目标行，空间需求为 `(height-1)*stride + width*4`，包含整数溢出和 memory/buffer 边界检查。
+- 合法的 2×2、rowLength=4、bufferOffset=4、32-byte buffer A/B 在安装版逐字节等于期望：4 个像素正确，8-byte 行间 padding 与首尾 guard 全部保持 `a5`；A→B 仅四个 red 字节由 0 增至 64，未使用或放宽容差。
+- 只读 tracer 的独立 1024-dword 变体补齐安装版 0.1.16 的首个 readback IB：120 组 GFX 中 seq2 为 672/672，其余为 400/400；共 **48,272 dword 全同、0 截断**，A/B SHA-256 均为 `7430660bf066aa62c359ea8ed343d54a6ea0234e2e3d60da079d10f76ffff535`。
+- 0.1.17 安装库与 padded dev 库 SHA-256 均为 `213e68397bba7d5839a477e77e7e65fb594f83fdc45de5754e7538dbb3712490`；安装版 tight/padded A/B 与 dmabuf/wl_shm **5/5、0 validation errors、GPU-only** 全部通过。无性能宣称。
+- 公式、精确 hexdump、patch 与原始 buffer 见 [padded readback 报告](../scripts/research/lg110/vkgl-buffer-row-length-readback-dev.md)。
 
 ## 0.1.16 实测（2026-11-06）
 

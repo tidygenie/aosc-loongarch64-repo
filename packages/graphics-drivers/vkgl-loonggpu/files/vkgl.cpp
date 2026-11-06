@@ -1682,9 +1682,10 @@ static void execute_cmds(CommandBuffer *c) {
          if (im && im->format == VK_FORMAT_B8G8R8A8_UNORM) read_format = GL_BGRA_EXT;
          else if (im && im->format == VK_FORMAT_R8G8B8A8_UNORM) read_format = GL_RGBA;
          uint64_t width = r.imageExtent.width, height = r.imageExtent.height;
-         uint64_t row_bytes = width * 4, total = row_bytes * height;
-         bool valid = im && buf && buf->mem && read_format && width && height &&
-            r.bufferRowLength == 0 && (r.bufferImageHeight == 0 || r.bufferImageHeight >= height) &&
+         uint64_t row_texels = r.bufferRowLength ? r.bufferRowLength : width;
+         uint64_t row_bytes = 0, stride = 0, pixels_size = 0, required = 0;
+         bool valid = im && buf && buf->mem && read_format && width && height && row_texels >= width &&
+            (r.bufferImageHeight == 0 || r.bufferImageHeight >= height) &&
             r.imageSubresource.aspectMask == VK_IMAGE_ASPECT_COLOR_BIT &&
             r.imageSubresource.mipLevel == 0 && r.imageSubresource.baseArrayLayer == 0 &&
             r.imageSubresource.layerCount == 1 && r.imageExtent.depth == 1 && r.imageOffset.z == 0 &&
@@ -1692,16 +1693,29 @@ static void execute_cmds(CommandBuffer *c) {
             (uint64_t)r.imageOffset.x + width <= im->extent.width &&
             (uint64_t)r.imageOffset.y + height <= im->extent.height;
          if (valid) {
+            if (width > UINT64_MAX / 4 || row_texels > UINT64_MAX / 4) valid = false;
+            else {
+               row_bytes = width * 4;
+               stride = row_texels * 4;
+               if (height > UINT64_MAX / row_bytes ||
+                   height - 1 > (UINT64_MAX - row_bytes) / stride) valid = false;
+               else {
+                  pixels_size = height * row_bytes;
+                  required = (height - 1) * stride + row_bytes;
+               }
+            }
+         }
+         if (valid) {
             const auto &shadow = buf->mem->shadow;
-            valid = r.bufferOffset <= buf->size && total <= buf->size - r.bufferOffset &&
+            valid = r.bufferOffset <= buf->size && required <= buf->size - r.bufferOffset &&
                buf->mem_offset <= shadow.size() && r.bufferOffset <= shadow.size() - buf->mem_offset &&
-               total <= shadow.size() - buf->mem_offset - r.bufferOffset;
+               required <= shadow.size() - buf->mem_offset - r.bufferOffset;
          }
          if (!valid) {
             VKGL_LOG("CopyImageToBuffer rejected unsupported or out-of-bounds region\n");
             break;
          }
-         std::vector<uint8_t> pixels((size_t)total);
+         std::vector<uint8_t> pixels((size_t)pixels_size);
          ensure_fbo(im);
          glBindFramebuffer(GL_FRAMEBUFFER, im->fbo);
          glPixelStorei(GL_PACK_ALIGNMENT, 4);
@@ -1711,7 +1725,7 @@ static void execute_cmds(CommandBuffer *c) {
          glBindFramebuffer(GL_FRAMEBUFFER, 0);
          uint8_t *dst = buf->mem->shadow.data() + buf->mem_offset + r.bufferOffset;
          for (uint64_t y = 0; y < height; y++)
-            memcpy(dst + y * row_bytes, pixels.data() + (height - 1 - y) * row_bytes, (size_t)row_bytes);
+            memcpy(dst + y * stride, pixels.data() + (height - 1 - y) * row_bytes, (size_t)row_bytes);
          buf->mem->revision++;
          break;
       }

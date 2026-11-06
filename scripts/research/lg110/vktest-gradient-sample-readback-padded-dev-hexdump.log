@@ -1,0 +1,8 @@
+A length=32
+A 00000000: a5 a5 a5 a5 00 80 00 ff 00 80 00 ff a5 a5 a5 a5
+A 00000010: a5 a5 a5 a5 00 7f 00 ff 00 7f 00 ff a5 a5 a5 a5
+B length=32
+B 00000000: a5 a5 a5 a5 00 80 40 ff 00 80 40 ff a5 a5 a5 a5
+B 00000010: a5 a5 a5 a5 00 7f 40 ff 00 7f 40 ff a5 a5 a5 a5
+A/B differences (offset,A,B): [(6, 0, 64), (10, 0, 64), (22, 0, 64), (26, 0, 64)]
+result=PASS exact expected bytes; all guards/padding a5; only four red bytes +64
