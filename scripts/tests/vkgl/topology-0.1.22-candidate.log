@@ -1,0 +1,9 @@
+PASS vktest-draw-count-readback variant=A pixels_valid=1
+PASS vktest-draw-count-readback variant=A pixels_valid=1
+PASS vktest-draw-count-readback variant=A pixels_valid=1
+PASS vktest-draw-count-readback variant=A pixels_valid=1
+PASS vktest-draw-count-readback variant=A pixels_valid=1
+PASS vktest-draw-count-readback variant=A pixels_valid=1
+PASS unsupported-topology topology=adjacency result=-8
+PASS unsupported-topology topology=patch result=-8
+FORMAT CANDIDATE TOPOLOGY MATRIX PASS

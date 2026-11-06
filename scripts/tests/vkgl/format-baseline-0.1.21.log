@@ -1,0 +1,18 @@
+MISSING color/linear-filter/transfer bits: B8A8_UNORM
+MISSING color/linear-filter/transfer bits: R8A8_UNORM
+MISSING color/linear-filter/transfer bits: B8A8_SRGB
+MISSING color/linear-filter/transfer bits: R8A8_SRGB
+MISSING vertex-buffer bit: R32F
+MISSING vertex-buffer bit: R32G32F
+MISSING vertex-buffer bit: R32G32B32F
+MISSING vertex-buffer bit: R32G32B32A32F
+FAIL format-properties failures=9
+FORMAT name=B8A8_UNORM format=44 linear=0x0000c081 optimal=0x0000c081 buffer=0x00000000
+FORMAT name=R8A8_UNORM format=37 linear=0x0000c081 optimal=0x0000c081 buffer=0x00000000
+FORMAT name=B8A8_SRGB format=50 linear=0x0000c081 optimal=0x0000c081 buffer=0x00000000
+FORMAT name=R8A8_SRGB format=43 linear=0x0000c081 optimal=0x0000c081 buffer=0x00000000
+FORMAT name=R32F format=100 linear=0x00000001 optimal=0x00000001 buffer=0x00000000
+FORMAT name=R32G32F format=103 linear=0x00000001 optimal=0x00000001 buffer=0x00000000
+FORMAT name=R32G32B32F format=106 linear=0x00000001 optimal=0x00000001 buffer=0x00000000
+FORMAT name=R32G32B32A32F format=109 linear=0x00000001 optimal=0x00000001 buffer=0x00000000
+FORMAT2 buffer=0x00000000

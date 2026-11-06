@@ -21,6 +21,7 @@
 |---|---|
 | Instance/Device/Queue | 单设备，EGL/GBM 上下文懒创建 |
 | Memory | CPU shadow + GL buffer/texture；Memory 全局代次跟踪写入，未映射且未修改的静态 Buffer/线性 Image 跳过重复上传 |
+| Format capabilities | RGBA8 UNORM/SRGB 声明实际 sampled linear-filter/color-blend/transfer；R32 一至四分量 SFLOAT 声明 vertex-buffer；core FormatProperties2 一致，不扩大未验证格式 |
 | `ClearAttachments` | 活跃 render pass 内 color attachment0 的受限矩形/多层拒绝；用 `glScissor + glClear` 直接 GPU 清除，保存恢复 FBO/scissor/clear color/color mask |
 | `CopyImage` | 不同 2D color、同 B8/R8 UNORM、mip0/单层、未映射 dst 的受限区域，从 src FBO 用 `glCopyTexSubImage2D` 直接复制到 dst texture；无 vkgl CPU 像素中转 |
 | `CopyImageToBuffer` | 当前 2D color mip0/单层、B8/R8 RGBA8 与 tight/`bufferRowLength` padded 区域从实际 FBO `glReadPixels`，转换 Y 方向并检查溢出/边界；不宣称 depth/多层支持 |
@@ -63,6 +64,12 @@
 - 640×480 FIFO vkmark 五场景：dmabuf **120/132/101/61/120 FPS**，wl_shm **77/82/69/57/74 FPS**。
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
+
+## 0.1.22 实测（2026-11-06）
+
+- 修正格式能力查询：RGBA8 UNORM/SRGB 增加实际已支持的 linear-filter 与 color-attachment-blend 位，R32 一至四分量 SFLOAT 增加 vertex-buffer 位，core FormatProperties2 返回一致结果。未借机声明未验证格式或功能。
+- 同一公开 validation 烟雾脚本在 dmabuf/wl_shm 均从 **59→28 个 events、8→4 类 VUID**，精确消除 vertex-format、renderPass/blend、magFilter 四类共31项；剩余计数不变且无新类。仍未 clean：optimal+PREINITIALIZED、anisotropy 16>当前上限1、queue/acquire binary semaphore 留作后续，不通过过滤或虚报能力掩盖。
+- 公开同一 format 测试在0.1.21失败、安装0.1.22通过；完整像素、tight/fence/acquire、六topology及不支持模式回归全过。安装库 SHA-256=`759dadbb7de2b44ed7cd01fefb9ed2c092e26e84b779bc247afa5d8f393195d2`，deb SHA-256=`74316cc6d4574cef6e62584cee567ee4bdbf8aef0078c27f5e4d57eb3ef5d72f`；21包索引/签名/HTTPS/隔离apt/远端字节全过，无性能宣称。见 [0.1.22 报告](../scripts/tests/vkgl/vkgl-0.1.22.md)。
 
 ## 0.1.21 实测（2026-11-06）
 

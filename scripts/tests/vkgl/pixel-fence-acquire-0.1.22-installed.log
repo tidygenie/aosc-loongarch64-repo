@@ -1,0 +1,21 @@
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+PASS vktest-tight-upload
+clear-only readback: expected red=0 green=0.2 blue=0.4 alpha=1
+GPU0 type=2 name=LoongGPU LG110 (vkgl GLES2)
+surface format=44
+swapchain images=2
+PASS new/reset fence status and zero-timeout wait
+PASS first real submission waitAll and signaled status
+PASS reset/reused real submission waitAny and signaled status
+readback center=(320,240) expected=663300ff actual=663300ff pixels_valid=1 sentinel_unchanged=0
+PASS vktest-submit-fence-gpu
+PASS vktest-acquire (2 exclusive images, fence signaled, release reacquired)
+PASS vktest-acquire (2 exclusive images, fence signaled, release reacquired)
+759dadbb7de2b44ed7cd01fefb9ed2c092e26e84b779bc247afa5d8f393195d2  /usr/lib/vkgl/libvkgl.so
