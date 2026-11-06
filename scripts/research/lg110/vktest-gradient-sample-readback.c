@@ -50,9 +50,34 @@ int main(void) {
       fprintf(stderr, "set LG110_TEXTURE_VARIANT=A or B\n"); return 1;
    }
    int nonzero = !strcmp(mode, "B");
+   const char *filter_mode = getenv("LG110_SAMPLER_FILTER");
+   if (!filter_mode) filter_mode = "nearest";
+   if (strcmp(filter_mode, "nearest") && strcmp(filter_mode, "linear")) {
+      fprintf(stderr, "LG110_SAMPLER_FILTER must be nearest or linear\n"); return 1;
+   }
+   int linear = !strcmp(filter_mode, "linear");
+   const char *pattern = getenv("LG110_SAMPLER_PATTERN");
+   int split = pattern && !strcmp(pattern, "split");
+   if (pattern && !split) { fprintf(stderr, "LG110_SAMPLER_PATTERN must be split\n"); return 1; }
+   const char *fragment_shader = getenv("LG110_FRAGMENT_SHADER");
+   if (split && !fragment_shader) {
+      fprintf(stderr, "split pattern requires LG110_FRAGMENT_SHADER with UV=0.2505\n"); return 1;
+   }
+   const char *wrap_mode = getenv("LG110_SAMPLER_WRAP");
+   if (!wrap_mode) wrap_mode = "clamp";
+   VkSamplerAddressMode wrap;
+   if (!strcmp(wrap_mode, "clamp")) wrap = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+   else if (!strcmp(wrap_mode, "repeat")) wrap = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+   else if (!strcmp(wrap_mode, "mirrored")) wrap = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+   else { fprintf(stderr, "LG110_SAMPLER_WRAP must be clamp/repeat/mirrored\n"); return 1; }
+   const char *frame_env = getenv("LG110_FRAME_LIMIT");
+   int frame_limit = frame_env ? atoi(frame_env) : 120;
+   if (frame_limit < 1 || frame_limit > 120) { fprintf(stderr, "invalid LG110_FRAME_LIMIT\n"); return 1; }
    const char *pixel_path = getenv("LG110_READBACK_PIXEL");
    if (!pixel_path) { fprintf(stderr, "set LG110_READBACK_PIXEL\n"); return 1; }
    printf("texture variant: %s red=%u other=0\n", mode, nonzero ? 255u : 0u);
+   printf("sampler filter=%s pattern=%s wrap=%s frames=%d\n",
+          filter_mode, split ? "split" : "uniform", wrap_mode, frame_limit);
    dpy = wl_display_connect(NULL);
    if (!dpy) { fprintf(stderr, "no wayland display\n"); return 1; }
    struct wl_registry *reg = wl_display_get_registry(dpy);
@@ -132,7 +157,7 @@ int main(void) {
 
    size_t vsz=0, fsz=0;
    unsigned char *vs = load_file("grad.vert.spv", &vsz);
-   unsigned char *fs = load_file("vktest-gradient-sample-readback.frag.spv", &fsz);
+   unsigned char *fs = load_file(fragment_shader ? fragment_shader : "vktest-gradient-sample-readback.frag.spv", &fsz);
    VkShaderModuleCreateInfo smci={.sType=VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
    VkShaderModule vsm, fsm;
    smci.codeSize=vsz; smci.pCode=(const uint32_t*)vs; CK(vkCreateShaderModule(dev,&smci,NULL,&vsm));
@@ -171,13 +196,17 @@ int main(void) {
    void *tptr; CK(vkMapMemory(dev,texmem,0,tmr.size,0,&tptr));
    for (int y=0;y<64;y++) for (int x=0;x<64;x++) {
       unsigned char *p=(unsigned char*)tptr+(y*64+x)*4;
-      p[0]=nonzero ? 255 : 0; p[1]=0; p[2]=0; p[3]=0;
+      p[0]=split ? (x < 16 ? 0 : 255) : (nonzero ? 255 : 0); p[1]=0; p[2]=0; p[3]=0;
    }
    VkImageViewCreateInfo tvci={.sType=VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,.image=teximg,
       .viewType=VK_IMAGE_VIEW_TYPE_2D,.format=VK_FORMAT_R8G8B8A8_UNORM,
       .subresourceRange={VK_IMAGE_ASPECT_COLOR_BIT,0,1,0,1}};
    VkImageView texview; CK(vkCreateImageView(dev,&tvci,NULL,&texview));
-   VkSamplerCreateInfo tsci={.sType=VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,.magFilter=VK_FILTER_NEAREST,.minFilter=VK_FILTER_NEAREST};
+   VkSamplerCreateInfo tsci={.sType=VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+      .magFilter=linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST,
+      .minFilter=linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST,
+      .addressModeU=wrap,.addressModeV=wrap,.addressModeW=wrap,
+      .anisotropyEnable=VK_FALSE,.maxAnisotropy=1.0f};
    VkSampler texsam; CK(vkCreateSampler(dev,&tsci,NULL,&texsam));
    VkDescriptorPoolSize dps={.type=VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,.descriptorCount=1};
    VkDescriptorPoolCreateInfo dpci={.sType=VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,.maxSets=1,.poolSizeCount=1,.pPoolSizes=&dps};
@@ -211,7 +240,7 @@ int main(void) {
    VkFence readback_fence; CK(vkCreateFence(dev,&fci,NULL,&readback_fence));
 
    const int expected_green=(int)(240.5/480.0*255.0+0.5);
-   const int expected_red=nonzero ? 64 : 0;
+   const int expected_red=split ? (linear ? 34 : 64) : (nonzero ? 64 : 0);
    unsigned char expected[4];
    if (fmts[0].format==VK_FORMAT_B8G8R8A8_UNORM) {
       expected[0]=0; expected[1]=(unsigned char)expected_green;
@@ -228,7 +257,7 @@ int main(void) {
    VkSemaphoreCreateInfo semci={.sType=VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
    VkSemaphore acquire, done; CK(vkCreateSemaphore(dev,&semci,NULL,&acquire)); CK(vkCreateSemaphore(dev,&semci,NULL,&done));
 
-   for (int frame=0; frame<120; frame++) {
+   for (int frame=0; frame<frame_limit; frame++) {
       uint32_t idx=0;
       CK(vkAcquireNextImageKHR(dev,sc,~0ull,acquire,VK_NULL_HANDLE,&idx));
       VkCommandBufferBeginInfo bbi={.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};

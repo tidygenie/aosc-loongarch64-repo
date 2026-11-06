@@ -1,0 +1,6 @@
+{"round": 1, "scene": "vertex", "variant": "base", "rc": 0, "elapsed_s": 3.204, "fps": 164, "frame_ms": 6.098}
+{"round": 1, "scene": "vertex", "variant": "candidate", "rc": 0, "elapsed_s": 3.2, "fps": 189, "frame_ms": 5.291}
+{"round": 2, "scene": "vertex", "variant": "candidate", "rc": 0, "elapsed_s": 3.213, "fps": 153, "frame_ms": 6.536}
+{"round": 2, "scene": "vertex", "variant": "base", "rc": 0, "elapsed_s": 3.195, "fps": 154, "frame_ms": 6.494}
+{"round": 3, "scene": "vertex", "variant": "base", "rc": 0, "elapsed_s": 3.237, "fps": 152, "frame_ms": 6.579}
+{"round": 3, "scene": "vertex", "variant": "candidate", "rc": 0, "elapsed_s": 3.284, "fps": 163, "frame_ms": 6.135}

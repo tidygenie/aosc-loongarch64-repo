@@ -1,0 +1,14 @@
+FAIL unsupported sampler compare returned 0
+FAIL unsupported sampler unnormalized returned 0
+FAIL unsupported sampler lod-bias returned 0
+FAIL unsupported sampler clamp-border returned 0
+FAIL unsupported sampler mirror-clamp returned 0
+FAIL unsupported sampler cubic-filter returned 0
+FAIL sampler-create failures=6
+SAMPLER device=LoongGPU LG110 (vkgl GLES2) feature=0 maxAnisotropy=1.0
+REJECT name=compare result=0
+REJECT name=unnormalized result=0
+REJECT name=lod-bias result=0
+REJECT name=clamp-border result=0
+REJECT name=mirror-clamp result=0
+REJECT name=cubic-filter result=0

@@ -31,6 +31,7 @@
 | Pipeline | SPIR-V → GLSL 1.20（SPIRV-Cross），UBO 扁平化成 `uniform vec4 name[N]` |
 | Draw topology | point/line/line-strip/triangle/triangle-strip/triangle-fan 映射真实 GL mode，indexed/non-indexed 共用；adjacency/PATCH 返回 `VK_ERROR_FEATURE_NOT_PRESENT`，不再硬编码 triangles |
 | Vertex input | `glBindAttribLocation` + `glVertexAttribPointer` |
+| Sampler | 单级2D NEAREST/LINEAR 与 repeat/mirrored/clamp 真实应用；按 Image 当前 GL 状态值去重；compare、unnormalized、非零 LOD bias、border/mirror-clamp、cubic 显式拒绝 |
 | `gl_VertexID` | 绑定 0..N-1 的 float 属性，索引取值即 index |
 | Swapchain | GBM linear BO → EGLImage → GL texture；优先 `zwp_linux_dmabuf_v1` 零拷贝呈现，逐图像保留 `wl_shm` 回退 |
 | 呈现同步 | dmabuf 与 wl_shm 共用独立 `wl_event_queue`，只分发 buffer release；两种路径都等待 compositor release，避免 acquire 内重入默认队列的 configure/swapchain 重建 |
@@ -51,6 +52,7 @@
 
 - 不支持 compute、多渲染目标、实例化、时间戳查询；
 - 纹理仅支持常见 8bit 格式与线性 tiling 上传；
+- anisotropy 仍为 feature=0/max=1：硬件虽暴露扩展和16上限，但16×原型在放大采样中产生错误像素，未通过启用门槛；多级 LOD 亦不宣称；
 - dmabuf 使用线性 `XR24` 和 `DRM_FORMAT_MOD_INVALID`；KWin 在本机上拒绝 modifier 0 的导入，
   而接受 `0x00ffffffffffffff`。单个图像导入/FBO 失败时只回退该图像到 `wl_shm`；
 - `VKGL_NO_DMABUF=1` 可强制旧的 `glReadPixels` + `wl_shm` 路径用于对照；
@@ -64,6 +66,12 @@
 - 640×480 FIFO vkmark 五场景：dmabuf **120/132/101/61/120 FPS**，wl_shm **77/82/69/57/74 FPS**。
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
+
+## 0.1.23 实测（2026-11-06）
+
+- 不再丢弃 `VkSamplerCreateInfo`：单级2D combined sampler 真实应用 NEAREST/LINEAR 与三种 U/V wrap，Image 按实际 GL 状态值去重；六类未支持状态返回 `VK_ERROR_FEATURE_NOT_PRESENT`。公开 split-texture 对照中0.1.22请求LINEAR仍为64，0.1.23 NEAREST=64/LINEAR=34；三draw三次绑定仅一次状态提交。
+- anisotropy **没有启用**：硬件扩展/16上限虽存在，但原型使放大LINEAR像素34错误变为64，故保持feature=0/max=1并公开负证据。validation 两路径仍为28 events/4类，与0.1.22逐项一致，不伪装减量。
+- 完整像素/tight/fence/acquire与两路径烟雾全过。安装库 SHA-256=`1a2ee24ee1add7a39c78b1d52ea8615bd76d1c49b336f58eadc9e4d11e11e0be`，deb SHA-256=`444d76daf4b4fd7229d1410285b18ad192f175828fda8623eeace73a163b76f7`；22包索引/签名/HTTPS/隔离apt/远端字节全过。高负载配对FPS与同字节噪声数据一并公开，不作性能提升或稳定回归归因。见 [0.1.23 报告](../scripts/tests/vkgl/vkgl-0.1.23.md)和[anisotropy负证据](../scripts/research/lg110/lg110-sampler-anisotropy.md)。
 
 ## 0.1.22 实测（2026-11-06）
 

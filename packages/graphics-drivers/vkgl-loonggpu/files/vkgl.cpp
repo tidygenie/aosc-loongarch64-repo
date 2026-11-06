@@ -286,11 +286,20 @@ struct Image : Obj {
    GLenum gl_format = GL_RGBA;
    GLenum gl_type = GL_UNSIGNED_BYTE;
    uint64_t uploaded_revision = 0;
+   GLenum sampler_mag = GL_NEAREST, sampler_min = GL_NEAREST;
+   GLenum sampler_wrap_s = GL_CLAMP_TO_EDGE, sampler_wrap_t = GL_CLAMP_TO_EDGE;
 };
 
 struct ImageView : Obj {
    Image *image = nullptr;
    VkFormat format = VK_FORMAT_UNDEFINED;
+};
+
+struct Sampler : Obj {
+   VkFilter mag_filter = VK_FILTER_NEAREST;
+   VkFilter min_filter = VK_FILTER_NEAREST;
+   VkSamplerAddressMode address_u = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+   VkSamplerAddressMode address_v = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 };
 
 struct RenderPass : Obj {
@@ -1060,19 +1069,46 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_DestroyImageView(VkDevice, VkImageView v,
    delete from_handle<ImageView>((uint64_t)v);
 }
 
+static bool sampler_address_to_gl(VkSamplerAddressMode mode, GLenum *out) {
+   switch (mode) {
+   case VK_SAMPLER_ADDRESS_MODE_REPEAT: *out = GL_REPEAT; return true;
+   case VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT: *out = GL_MIRRORED_REPEAT; return true;
+   case VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE: *out = GL_CLAMP_TO_EDGE; return true;
+   default: return false;
+   }
+}
+
+static bool sampler_filter_to_gl(VkFilter filter, GLenum *out) {
+   if (filter == VK_FILTER_NEAREST) { *out = GL_NEAREST; return true; }
+   if (filter == VK_FILTER_LINEAR) { *out = GL_LINEAR; return true; }
+   return false;
+}
+
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSampler(VkDevice, const VkSamplerCreateInfo *ci,
                                                          const VkAllocationCallbacks *, VkSampler *out) {
-   auto *s = new Obj();
+   GLenum ignored;
+   if (ci->compareEnable || ci->unnormalizedCoordinates || ci->mipLodBias != 0.0f ||
+       !sampler_address_to_gl(ci->addressModeU, &ignored) ||
+       !sampler_address_to_gl(ci->addressModeV, &ignored) ||
+       !sampler_filter_to_gl(ci->magFilter, &ignored) ||
+       !sampler_filter_to_gl(ci->minFilter, &ignored))
+      return VK_ERROR_FEATURE_NOT_PRESENT;
+   auto *s = new Sampler();
    s->type = VK_OBJECT_TYPE_SAMPLER;
+   s->mag_filter = ci->magFilter;
+   s->min_filter = ci->minFilter;
+   s->address_u = ci->addressModeU;
+   s->address_v = ci->addressModeV;
    *out = (VkSampler)to_handle(s);
    reg(s, *out);
-   (void)ci;
+   VKGL_LOG("sampler mag=%d min=%d wrap=%d/%d\n",
+            s->mag_filter, s->min_filter, s->address_u, s->address_v);
    return VK_SUCCESS;
 }
 
 static VKAPI_ATTR void VKAPI_CALL vkgl_DestroySampler(VkDevice, VkSampler s, const VkAllocationCallbacks *) {
    unreg((uint64_t)s);
-   delete from_handle<Obj>((uint64_t)s);
+   delete from_handle<Sampler>((uint64_t)s);
 }
 
 // ---------------------------------------------------------------------------
@@ -3024,6 +3060,37 @@ static GLenum compare_op_to_gl(VkCompareOp op) {
    }
 }
 
+static void apply_sampler(Image *image, Sampler *s) {
+   GLenum mag = GL_NEAREST, min = GL_NEAREST;
+   GLenum wrap_s = GL_CLAMP_TO_EDGE, wrap_t = GL_CLAMP_TO_EDGE;
+   if (s) {
+      sampler_filter_to_gl(s->mag_filter, &mag);
+      sampler_filter_to_gl(s->min_filter, &min);
+      sampler_address_to_gl(s->address_u, &wrap_s);
+      sampler_address_to_gl(s->address_v, &wrap_t);
+   }
+   if (image->sampler_mag == mag && image->sampler_min == min &&
+       image->sampler_wrap_s == wrap_s && image->sampler_wrap_t == wrap_t) return;
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint)mag);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint)min);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (GLint)wrap_s);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (GLint)wrap_t);
+   image->sampler_mag = mag;
+   image->sampler_min = min;
+   image->sampler_wrap_s = wrap_s;
+   image->sampler_wrap_t = wrap_t;
+   static int sampler_log = 0;
+   if (getenv("VKGL_DEBUG") && sampler_log++ < 16) {
+      GLint actual_mag = 0, actual_min = 0, actual_s = 0, actual_t = 0;
+      glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, &actual_mag);
+      glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, &actual_min);
+      glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &actual_s);
+      glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &actual_t);
+      VKGL_LOG("sampler applied mag=0x%x min=0x%x wrap=0x%x/0x%x\n",
+               actual_mag, actual_min, actual_s, actual_t);
+   }
+}
+
 void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *vbuf, VkDeviceSize voff,
                        Buffer *ibuf, VkDeviceSize ioff, const Cmd &cmd) {
    if (!p || !p->program) return;
@@ -3124,6 +3191,8 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
                                view->image->mem->shadow.data() + view->image->mem_offset);
                view->image->uploaded_revision = view->image->mem->revision;
             }
+            auto *sm = from_handle<Sampler>((uint64_t)s->images[i].sampler);
+            apply_sampler(view->image, sm);
             glUniform1i(t.loc, unit);
             VKGL_LOG("texture bound binding=%u tex=%u unit=%d loc=%d img=%p\n", t.binding, view->image->tex, unit, t.loc, (void*)view->image);
             unit++;
