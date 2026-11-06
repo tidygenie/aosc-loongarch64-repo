@@ -1,4 +1,4 @@
-VER=0.1.25
+VER=0.1.26
 SRCS="dir::files"
 CHKSUMS="SKIP"
 CHKUPDATE="none"

@@ -273,6 +273,8 @@ struct Memory : Obj {
    uint64_t revision = 1;
 };
 
+static uint64_t g_submit_serial = 0;
+
 struct Buffer : Obj {
    VkDeviceSize size = 0;
    VkBufferUsageFlags usage = 0;
@@ -280,6 +282,7 @@ struct Buffer : Obj {
    VkDeviceSize mem_offset = 0;
    GLuint gl = 0;                 // GL buffer (created on bind)
    uint64_t uploaded_revision = 0;
+   uint64_t uploaded_submit = 0;
 };
 
 struct Image : Obj {
@@ -294,6 +297,7 @@ struct Image : Obj {
    GLenum gl_format = GL_RGBA;
    GLenum gl_type = GL_UNSIGNED_BYTE;
    uint64_t uploaded_revision = 0;
+   uint64_t uploaded_submit = 0;
    GLenum sampler_mag = GL_NEAREST, sampler_min = GL_NEAREST;
    GLenum sampler_wrap_s = GL_CLAMP_TO_EDGE, sampler_wrap_t = GL_CLAMP_TO_EDGE;
 };
@@ -2017,6 +2021,9 @@ static void execute_cmds(CommandBuffer *c) {
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_QueueSubmit(VkQueue, uint32_t n, const VkSubmitInfo *submits, VkFence fence) {
+   /* Coherent persistent mappings may change between submissions, but host
+    * writes cannot require a fresh upload between draws of one submission. */
+   ++g_submit_serial;
    for (uint32_t i = 0; i < n; i++) {
       const auto &s = submits[i];
       for (uint32_t k = 0; k < s.commandBufferCount; k++) {
@@ -3127,9 +3134,11 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
    // vertex buffer content: upload shadow memory
    if (vbuf && vbuf->mem && vbuf->gl) {
       glBindBuffer(GL_ARRAY_BUFFER, vbuf->gl);
-      if (vbuf->mem->mapped || vbuf->uploaded_revision != vbuf->mem->revision) {
+      if (vbuf->uploaded_revision != vbuf->mem->revision ||
+          (vbuf->mem->mapped && vbuf->uploaded_submit != g_submit_serial)) {
          glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)vbuf->size, vbuf->mem->shadow.data() + vbuf->mem_offset);
          vbuf->uploaded_revision = vbuf->mem->revision;
+         vbuf->uploaded_submit = g_submit_serial;
       }
    }
    for (auto &a : p->via) {
@@ -3192,12 +3201,15 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
             if (view->image->tiling == VK_IMAGE_TILING_LINEAR && view->image->mem) {
                ensure_gl_texture(view->image);
                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-               if (view->image->mem->mapped || view->image->uploaded_revision != view->image->mem->revision)
+               if (view->image->uploaded_revision != view->image->mem->revision ||
+                   (view->image->mem->mapped && view->image->uploaded_submit != g_submit_serial)) {
                   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
                                (GLsizei)view->image->extent.width, (GLsizei)view->image->extent.height,
                                view->image->gl_format, view->image->gl_type,
                                view->image->mem->shadow.data() + view->image->mem_offset);
-               view->image->uploaded_revision = view->image->mem->revision;
+                  view->image->uploaded_revision = view->image->mem->revision;
+                  view->image->uploaded_submit = g_submit_serial;
+               }
             }
             auto *sm = from_handle<Sampler>((uint64_t)s->images[i].sampler);
             apply_sampler(view->image, sm);
@@ -3231,9 +3243,11 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
    if (cmd.kind == Cmd::DrawIndexed) {
       if (ibuf && ibuf->gl) {
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuf->gl);
-         if (ibuf->mem->mapped || ibuf->uploaded_revision != ibuf->mem->revision) {
+         if (ibuf->uploaded_revision != ibuf->mem->revision ||
+             (ibuf->mem->mapped && ibuf->uploaded_submit != g_submit_serial)) {
             glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, (GLsizeiptr)ibuf->size, ibuf->mem->shadow.data() + ibuf->mem_offset);
             ibuf->uploaded_revision = ibuf->mem->revision;
+            ibuf->uploaded_submit = g_submit_serial;
          }
          GLenum it = GL_UNSIGNED_SHORT;
          glDrawElements(draw_mode, (GLsizei)cmd.count, it,

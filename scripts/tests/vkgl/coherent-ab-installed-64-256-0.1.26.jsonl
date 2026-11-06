@@ -1,0 +1,6 @@
+{"round": 1, "variant": "base", "rc": 0, "draws_per_frame": 64, "texture_size": 256, "frames": 120, "elapsed_ms": 5836.891, "fps": 20.559, "draws_per_second": 1315.769, "pixels_valid": true}
+{"round": 1, "variant": "candidate", "rc": 0, "draws_per_frame": 64, "texture_size": 256, "frames": 120, "elapsed_ms": 934.713, "fps": 128.382, "draws_per_second": 8216.429, "pixels_valid": true}
+{"round": 2, "variant": "candidate", "rc": 0, "draws_per_frame": 64, "texture_size": 256, "frames": 120, "elapsed_ms": 1041.449, "fps": 115.224, "draws_per_second": 7374.338, "pixels_valid": true}
+{"round": 2, "variant": "base", "rc": 0, "draws_per_frame": 64, "texture_size": 256, "frames": 120, "elapsed_ms": 5869.847, "fps": 20.443, "draws_per_second": 1308.382, "pixels_valid": true}
+{"round": 3, "variant": "base", "rc": 0, "draws_per_frame": 64, "texture_size": 256, "frames": 120, "elapsed_ms": 5953.428, "fps": 20.156, "draws_per_second": 1290.013, "pixels_valid": true}
+{"round": 3, "variant": "candidate", "rc": 0, "draws_per_frame": 64, "texture_size": 256, "frames": 120, "elapsed_ms": 973.028, "fps": 123.326, "draws_per_second": 7892.89, "pixels_valid": true}

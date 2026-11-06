@@ -1,12 +1,18 @@
 # LG110 draw-state and upload optimization experiments (2026-11-06)
 
-## Result: no candidate released
+## Initial result: no candidate released in this experiment round
+
+**Follow-up:** the later public multi-draw/coherence test demonstrated a large
+controlled benefit for the per-submit upload design, which was then released as
+0.1.26. See `../tests/vkgl/vkgl-0.1.26.md`; the tables below remain the initial
+ordinary-vkmark evidence rather than a claim that the design was rejected forever.
 
 Starting from installed vkgl 0.1.25, this round tested smaller GL error handling,
 EGL current-context checks, vendor VAO caching, fixed-state caching, and
 coherent upload coalescing. None produced repeatable balanced FPS improvement.
-The installed driver and public source therefore remain 0.1.25; there is no
-0.1.26 package and no performance-improvement claim.
+At that point the installed driver and public source remained 0.1.25 and no
+0.1.26 had been released. No ordinary-vkmark performance-improvement claim was
+made.
 
 Every percentage below is the candidate/control median from alternating
 three-second 640x480 FIFO runs. Raw JSONL and load records are in

@@ -1,0 +1,286 @@
+== shm installed-0.1.26
+== vulkaninfo without validation (Vulkan 1.0 ICD)
+'DISPLAY' environment variable not set... skipping surface info
+==========
+VULKANINFO
+==========
+
+Vulkan Instance Version: 1.4.363
+
+
+Instance Extensions: count = 10
+-------------------------------
+VK_EXT_debug_report              : extension revision 10
+VK_EXT_debug_utils               : extension revision 2
+VK_EXT_layer_settings            : extension revision 2
+VK_KHR_get_surface_capabilities2 : extension revision 1
+VK_KHR_portability_enumeration   : extension revision 1
+VK_KHR_surface                   : extension revision 25
+VK_KHR_wayland_surface           : extension revision 6
+VK_KHR_xcb_surface               : extension revision 6
+VK_KHR_xlib_surface              : extension revision 6
+VK_LUNARG_direct_driver_loading  : extension revision 1
+
+Instance Layers: count = 7
+--------------------------
+VK_LAYER_KHRONOS_shader_object      Khronos Shader object layer      1.4.363  version 1
+VK_LAYER_KHRONOS_synchronization2   Khronos Synchronization2 layer   1.4.363  version 1
+VK_LAYER_KHRONOS_timeline_semaphore Khronos timeline Semaphore layer 1.4.363  version 1
+VK_LAYER_KHRONOS_validation         Khronos Validation Layer         1.4.363  version 1
+VK_LAYER_MESA_device_select         Linux device selection layer     1.4.303  version 1
+VK_LAYER_MESA_overlay               Mesa Overlay layer               1.4.303  version 1
+VK_LAYER_MESA_screenshot            Mesa Screenshot layer            1.4.303  version 1
+
+Devices:
+========
+GPU0:
+	apiVersion         = 1.0.0
+	driverVersion      = 4194304
+	vendorID           = 0x0014
+	deviceID           = 0x7a25
+	deviceType         = PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
+	deviceName         = LoongGPU LG110 (vkgl GLES2)
+== vkcube 60 frames with validation
+Selected GPU 0: LoongGPU LG110 (vkgl GLES2), type: DiscreteGpu, apiVersion: 4194304 (1.0.0), driverVersion: 4194304 (1.0.0)
+== vkmark five FIFO scenes with validation
+=======================================================
+    vkmark 2025.01
+=======================================================
+    Vendor ID:      0x14
+    Device ID:      0x7A25
+    Device Name:    LoongGPU LG110 (vkgl GLES2)
+    Driver Version: 4194304
+    Device UUID:    4c473131000000000000000000000000
+=======================================================
+[vertex] duration=2:Validation Error: [ VUID-vkQueueSubmit-pSignalSemaphores-00067 ] | MessageID = 0x539277af
+vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0x240000000024) is being signaled by VkQueue 0x5555e5720ae0, but it may still be in use by VkSwapchainKHR 0x30000000003.
+Most recently acquired image indices: [0], 1.
+(Brackets mark the last use of VkSemaphore 0x240000000024 in a presentation operation.)
+Swapchain image 0 was presented but was not re-acquired, so VkSemaphore 0x240000000024 may still be in use and cannot be safely reused with image index 1.
+Hint: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+Objects: 2
+    [0] VkSemaphore 0x240000000024
+    [1] VkQueue 0x5555e5720ae0
+
+Validation Error: [ VUID-vkQueueSubmit-pSignalSemaphores-00067 ] | MessageID = 0x539277af
+vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0x240000000024) is being signaled by VkQueue 0x5555e5720ae0, but it may still be in use by VkSwapchainKHR 0x30000000003.
+Most recently acquired image indices: 0, [1], 2.
+(Brackets mark the last use of VkSemaphore 0x240000000024 in a presentation operation.)
+Swapchain image 1 was presented but was not re-acquired, so VkSemaphore 0x240000000024 may still be in use and cannot be safely reused with image index 2.
+Hint: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+Objects: 2
+    [0] VkSemaphore 0x240000000024
+    [1] VkQueue 0x5555e5720ae0
+
+Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] | MessageID = 0x5717e75b
+vkAcquireNextImageKHR(): Semaphore must not have any pending operations.
+The Vulkan spec states: If semaphore is not VK_NULL_HANDLE, it must not have any uncompleted signal or wait operations pending (https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#VUID-vkAcquireNextImageKHR-semaphore-01779)
+Objects: 1
+    [0] VkSemaphore 0x70000000007
+
+Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] | MessageID = 0x5717e75b
+vkAcquireNextImageKHR(): Semaphore must not have any pending operations.
+The Vulkan spec states: If semaphore is not VK_NULL_HANDLE, it must not have any uncompleted signal or wait operations pending (https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#VUID-vkAcquireNextImageKHR-semaphore-01779)
+Objects: 1
+    [0] VkSemaphore 0x90000000009
+
+Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] | MessageID = 0x5717e75b
+vkAcquireNextImageKHR(): Semaphore must not have any pending operations.
+The Vulkan spec states: If semaphore is not VK_NULL_HANDLE, it must not have any uncompleted signal or wait operations pending (https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#VUID-vkAcquireNextImageKHR-semaphore-01779)
+Objects: 1
+    [0] VkSemaphore 0xb000000000b
+
+Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] | MessageID = 0x5717e75b
+vkAcquireNextImageKHR(): Semaphore must not have any pending operations.
+The Vulkan spec states: If semaphore is not VK_NULL_HANDLE, it must not have any uncompleted signal or wait operations pending (https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#VUID-vkAcquireNextImageKHR-semaphore-01779)
+Objects: 1
+    [0] VkSemaphore 0x70000000007
+
+Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] | MessageID = 0x5717e75b
+vkAcquireNextImageKHR(): Semaphore must not have any pending operations.
+The Vulkan spec states: If semaphore is not VK_NULL_HANDLE, it must not have any uncompleted signal or wait operations pending (https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#VUID-vkAcquireNextImageKHR-semaphore-01779)
+Objects: 1
+    [0] VkSemaphore 0x90000000009
+
+Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] | MessageID = 0x5717e75b
+vkAcquireNextImageKHR(): Semaphore must not have any pending operations.
+The Vulkan spec states: If semaphore is not VK_NULL_HANDLE, it must not have any uncompleted signal or wait operations pending (https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#VUID-vkAcquireNextImageKHR-semaphore-01779)
+Objects: 1
+    [0] VkSemaphore 0xb000000000b
+
+Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] | MessageID = 0x5717e75b
+vkAcquireNextImageKHR(): Semaphore must not have any pending operations.
+The Vulkan spec states: If semaphore is not VK_NULL_HANDLE, it must not have any uncompleted signal or wait operations pending (https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#VUID-vkAcquireNextImageKHR-semaphore-01779)
+Objects: 1
+    [0] VkSemaphore 0x70000000007
+
+Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] | MessageID = 0x5717e75b
+vkAcquireNextImageKHR(): Semaphore must not have any pending operations.
+The Vulkan spec states: If semaphore is not VK_NULL_HANDLE, it must not have any uncompleted signal or wait operations pending (https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#VUID-vkAcquireNextImageKHR-semaphore-01779)
+Objects: 1
+    [0] VkSemaphore 0x90000000009
+
+Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] | MessageID = 0x5717e75b
+vkAcquireNextImageKHR(): Semaphore must not have any pending operations.
+The Vulkan spec states: If semaphore is not VK_NULL_HANDLE, it must not have any uncompleted signal or wait operations pending (https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#VUID-vkAcquireNextImageKHR-semaphore-01779)
+Objects: 1
+    [0] VkSemaphore 0xb000000000b
+
+Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] | MessageID = 0x5717e75b
+(Warning - This VUID has now been reported 10 times, which is the duplicate_message_limit value, this will be the last time reporting it).
+vkAcquireNextImageKHR(): Semaphore must not have any pending operations.
+The Vulkan spec states: If semaphore is not VK_NULL_HANDLE, it must not have any uncompleted signal or wait operations pending (https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#VUID-vkAcquireNextImageKHR-semaphore-01779)
+Objects: 1
+    [0] VkSemaphore 0x70000000007
+
+ FPS: 113 FrameTime: 8.850 ms
+[texture] duration=2:Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-VkSamplerCreateInfo-anisotropyEnable-01071 ] | MessageID = 0x498660fc
+vkCreateSampler(): pCreateInfo->maxAnisotropy is 16.000000 but must be in the range of [1.0, 1.000000] (maxSamplerAnisotropy).
+The Vulkan spec states: If anisotropyEnable is VK_TRUE, maxAnisotropy must be between 1.0 and VkPhysicalDeviceLimits::maxSamplerAnisotropy, inclusive (https://docs.vulkan.org/spec/latest/chapters/samplers.html#VUID-VkSamplerCreateInfo-anisotropyEnable-01071)
+
+Validation Error: [ VUID-vkQueueSubmit-pSignalSemaphores-00067 ] | MessageID = 0x539277af
+vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0x420000000042) is being signaled by VkQueue 0x5555e5720ae0, but it may still be in use by VkSwapchainKHR 0x30000000003.
+Most recently acquired image indices: 0, 1, 2, 0, 1, 2, [0], 1.
+(Brackets mark the last use of VkSemaphore 0x420000000042 in a presentation operation.)
+Swapchain image 0 was presented but was not re-acquired, so VkSemaphore 0x420000000042 may still be in use and cannot be safely reused with image index 1.
+Hint: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+Objects: 2
+    [0] VkSemaphore 0x420000000042
+    [1] VkQueue 0x5555e5720ae0
+
+Validation Error: [ VUID-vkQueueSubmit-pSignalSemaphores-00067 ] | MessageID = 0x539277af
+vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0x420000000042) is being signaled by VkQueue 0x5555e5720ae0, but it may still be in use by VkSwapchainKHR 0x30000000003.
+Most recently acquired image indices: 1, 2, 0, 1, 2, 0, [1], 2.
+(Brackets mark the last use of VkSemaphore 0x420000000042 in a presentation operation.)
+Swapchain image 1 was presented but was not re-acquired, so VkSemaphore 0x420000000042 may still be in use and cannot be safely reused with image index 2.
+Hint: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+Objects: 2
+    [0] VkSemaphore 0x420000000042
+    [1] VkQueue 0x5555e5720ae0
+
+ FPS: 93 FrameTime: 10.753 ms
+[shading] duration=2:Validation Error: [ VUID-vkQueueSubmit-pSignalSemaphores-00067 ] | MessageID = 0x539277af
+vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0x5a000000005a) is being signaled by VkQueue 0x5555e5720ae0, but it may still be in use by VkSwapchainKHR 0x30000000003.
+Most recently acquired image indices: 2, 0, 1, 2, 0, 1, [2], 0.
+(Brackets mark the last use of VkSemaphore 0x5a000000005a in a presentation operation.)
+Swapchain image 2 was presented but was not re-acquired, so VkSemaphore 0x5a000000005a may still be in use and cannot be safely reused with image index 0.
+Hint: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+Objects: 2
+    [0] VkSemaphore 0x5a000000005a
+    [1] VkQueue 0x5555e5720ae0
+
+Validation Error: [ VUID-vkQueueSubmit-pSignalSemaphores-00067 ] | MessageID = 0x539277af
+vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0x5a000000005a) is being signaled by VkQueue 0x5555e5720ae0, but it may still be in use by VkSwapchainKHR 0x30000000003.
+Most recently acquired image indices: 0, 1, 2, 0, 1, 2, [0], 1.
+(Brackets mark the last use of VkSemaphore 0x5a000000005a in a presentation operation.)
+Swapchain image 0 was presented but was not re-acquired, so VkSemaphore 0x5a000000005a may still be in use and cannot be safely reused with image index 1.
+Hint: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+Objects: 2
+    [0] VkSemaphore 0x5a000000005a
+    [1] VkQueue 0x5555e5720ae0
+
+ FPS: 110 FrameTime: 9.091 ms
+[effect2d] duration=2:Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-vkQueueSubmit-pSignalSemaphores-00067 ] | MessageID = 0x539277af
+vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0x750000000075) is being signaled by VkQueue 0x5555e5720ae0, but it may still be in use by VkSwapchainKHR 0x30000000003.
+Most recently acquired image indices: 2, 0, 1, 2, 0, 1, [2], 0.
+(Brackets mark the last use of VkSemaphore 0x750000000075 in a presentation operation.)
+Swapchain image 2 was presented but was not re-acquired, so VkSemaphore 0x750000000075 may still be in use and cannot be safely reused with image index 0.
+Hint: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+Objects: 2
+    [0] VkSemaphore 0x750000000075
+    [1] VkQueue 0x5555e5720ae0
+
+Validation Error: [ VUID-vkQueueSubmit-pSignalSemaphores-00067 ] | MessageID = 0x539277af
+vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0x750000000075) is being signaled by VkQueue 0x5555e5720ae0, but it may still be in use by VkSwapchainKHR 0x30000000003.
+Most recently acquired image indices: 0, 1, 2, 0, 1, 2, [0], 1.
+(Brackets mark the last use of VkSemaphore 0x750000000075 in a presentation operation.)
+Swapchain image 0 was presented but was not re-acquired, so VkSemaphore 0x750000000075 may still be in use and cannot be safely reused with image index 1.
+Hint: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+Objects: 2
+    [0] VkSemaphore 0x750000000075
+    [1] VkQueue 0x5555e5720ae0
+
+ FPS: 57 FrameTime: 17.544 ms
+[desktop] duration=2:Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-vkQueueSubmit-pSignalSemaphores-00067 ] | MessageID = 0x539277af
+vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0xbf00000000bf) is being signaled by VkQueue 0x5555e5720ae0, but it may still be in use by VkSwapchainKHR 0x30000000003.
+Most recently acquired image indices: 1, 2, 0, 1, 2, 0, [1], 2.
+(Brackets mark the last use of VkSemaphore 0xbf00000000bf in a presentation operation.)
+Swapchain image 1 was presented but was not re-acquired, so VkSemaphore 0xbf00000000bf may still be in use and cannot be safely reused with image index 2.
+Hint: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+Objects: 2
+    [0] VkSemaphore 0xbf00000000bf
+    [1] VkQueue 0x5555e5720ae0
+
+Validation Error: [ VUID-vkQueueSubmit-pSignalSemaphores-00067 ] | MessageID = 0x539277af
+(Warning - This VUID has now been reported 10 times, which is the duplicate_message_limit value, this will be the last time reporting it).
+vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0xbf00000000bf) is being signaled by VkQueue 0x5555e5720ae0, but it may still be in use by VkSwapchainKHR 0x30000000003.
+Most recently acquired image indices: 2, 0, 1, 2, 0, 1, [2], 0.
+(Brackets mark the last use of VkSemaphore 0xbf00000000bf in a presentation operation.)
+Swapchain image 2 was presented but was not re-acquired, so VkSemaphore 0xbf00000000bf may still be in use and cannot be safely reused with image index 0.
+Hint: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+Objects: 2
+    [0] VkSemaphore 0xbf00000000bf
+    [1] VkQueue 0x5555e5720ae0
+
+ FPS: 71 FrameTime: 14.085 ms
+=======================================================
+                                   vkmark Score: 88
+=======================================================
