@@ -1,0 +1,261 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 130  of event 'cycles:u'
+# Event count (approx.): 206102354
+#
+# Overhead  Shared Object                Symbol                                                         IPC   [IPC Coverage]
+# ........  ...........................  .............................................................  ....................
+#
+    14.13%  gsgpu_dri.so                 [.] 0x00000000001207e0                                         -      -
+            |
+            ---0x7fff554907e0
+               0x7fff556b676b
+               0x7fff5576593f
+               vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer*, unsigned long, Buffer*, unsigned long, Cmd const&)
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+    12.90%  gsgpu_dri.so                 [.] 0x000000000040a7a0                                         -      -
+            |
+            ---0x7fff5577a7a0
+               0x7fff55777bcb
+               0x7fff556b67eb
+               0x7fff5576593f
+               vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer*, unsigned long, Buffer*, unsigned long, Cmd const&)
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     9.85%  gsgpu_dri.so                 [.] 0x000000000019ef64                                         -      -
+            |
+            ---0x7fff5550ef64
+               0x7fff554e9dfb
+               0x7fff554f27fb
+               0x7fff556b4c43
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     8.61%  gsgpu_dri.so                 [.] 0x000000000019e280                                         -      -
+            |
+            ---0x7fff5550e280
+               0x7fff5550eab7
+               0x7fff554e9dfb
+               0x7fff554f27fb
+               0x7fff556b4c43
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     7.13%  libc.so.6                    [.] getenv                                                     -      -
+            |
+            ---getenv
+               vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer*, unsigned long, Buffer*, unsigned long, Cmd const&)
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     6.46%  gsgpu_dri.so                 [.] 0x0000000000182500                                         -      -
+            |
+            ---0x7fff554f2500
+               0x7fff556b4c43
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     5.53%  gsgpu_dri.so                 [.] 0x000000000017f860                                         -      -
+            |
+            ---0x7fff554ef860
+               0x7fff55507f1b
+               0x7fff556b676b
+               0x7fff5576593f
+               vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer*, unsigned long, Buffer*, unsigned long, Cmd const&)
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+
+     5.07%  gsgpu_dri.so                 [.] 0x0000000000241400                                         -      -
+            |
+            ---0x7fff555b1400
+               0x7fff5554b38b
+               0x7fff557666df
+               vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer*, unsigned long, Buffer*, unsigned long, Cmd const&)
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     4.45%  libc.so.6                    [.] __GI___memmove_lasx                                        -      -
+            |
+            ---__memmove_lasx (inlined)
+               0x7fff554eb17f
+               0x7fff554ec94b
+               0x7fff554e9e5b
+               0x7fff554f27fb
+               0x7fff556b4c43
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     4.05%  gsgpu_dri.so                 [.] 0x0000000000343590                                         -      -
+            |
+            ---0x7fff556b3590
+               0x7fff556b378b
+               0x7fff55537d2b
+               0x7fff55541033
+               0x7fff55541cc7
+               0x7fff5554adeb
+               0x7fff5554b0c3
+               0x7fff5575f167
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     3.74%  gsgpu_dri.so                 [.] 0x000000000017c854                                         -      -
+            |
+            ---0x7fff554ec854
+               0x7fff554e9e5b
+               0x7fff554f27fb
+               0x7fff556b4c43
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     3.63%  gsgpu_dri.so                 [.] 0x0000000000171da8                                         -      -
+            |
+            ---0x7fff554e1da8
+               0x7fff5550824b
+               0x7fff5594a8ab
+               0x7fff5550951f
+               0x7fff5577d0f3
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     3.45%  gsgpu_dri.so                 [.] 0x00000000001c40c8                                         -      -
+            |
+            ---0x7fff555340c8
+               0x7fff5553a563
+               vkgl_QueuePresentKHR(VkQueue_T*, VkPresentInfoKHR const*)
+               SwapchainWindowSystem::present_vulkan_image(VulkanImage const&)
+               0x5555feb7b84b
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     3.21%  libvkgl.so                   [.] vkgl_QueuePresentKHR(VkQueue_T*, VkPresentInfoKHR const*)  -      -
+            |
+            ---vkgl_QueuePresentKHR(VkQueue_T*, VkPresentInfoKHR const*)
+               SwapchainWindowSystem::present_vulkan_image(VulkanImage const&)
+               0x5555feb7b84b
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     3.04%  gsgpu_dri.so                 [.] 0x0000000000419280                                         -      -
+            |
+            ---0x7fff55789280
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     2.57%  libwayland-client.so.0.26.0  [.] 0x0000000000008d40                                         -      -
+            |
+            ---0x7fff561d8d40
+               wl_proxy_marshal_flags
+               vkgl_QueuePresentKHR(VkQueue_T*, VkPresentInfoKHR const*)
+               SwapchainWindowSystem::present_vulkan_image(VulkanImage const&)
+               0x5555feb7b84b
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+     1.63%  gsgpu_dri.so                 [.] 0x000000000019ec30                                         -      -
+            |
+            ---0x7fff5550ec30
+               0x7fff554e9dfb
+               0x7fff554f27fb
+               0x7fff556b4c43
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               0x5555feb667ff
+               0x5555feb7b83f
+               0x5555feae95eb
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               0x5555feaef5df
+
+
+
+#
+# (Tip: Create an archive with symtabs to analyse on other machine: perf archive)
+#

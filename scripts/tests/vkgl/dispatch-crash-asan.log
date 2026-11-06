@@ -1,0 +1,29 @@
+=======================================================
+    vkmark 2025.01
+=======================================================
+    Vendor ID:      0x14
+    Device ID:      0x7A25
+    Device Name:    LoongGPU LG110 (vkgl GLES2)
+    Driver Version: 4194304
+    Device UUID:    4c473131000000000000000000000000
+=======================================================
+[vertex] duration=1:AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==2045043==ERROR: AddressSanitizer: SEGV on unknown address 0x0000000000fd (pc 0x7fff83388838 bp 0x7ffffb900e20 sp 0x7ffffb900630 T0)
+==2045043==The signal is caused by a READ memory access.
+==2045043==Hint: address points to the zero page.
+    #0 0x7fff83388838  (/usr/lib/gcc/loongarch64-aosc-linux-gnu/16/libasan.so+0x118838) (BuildId: 1e4151a7250642c88fdc7e586b824296a7eb1289)
+    #1 0x7fff831d945c  (/usr/lib/libvulkan.so.1+0x2945c) (BuildId: f13d2962625a1de04c8b6859e7029920942045b0)
+    #2 0x7bff7f8643bc in vkgl_FreeCommandBuffers /home/houge/infra/github/aosc-loongarch64-thirdparty/packages/graphics-drivers/vkgl-loonggpu/files/vkgl.cpp:1330
+    #3 0x5555b6720b50  (/usr/bin/vkmark+0x20b50) (BuildId: e3a4467516e1010640b3efffb29182b66dffea60)
+    #4 0x5555b67202ec  (/usr/bin/vkmark+0x202ec) (BuildId: e3a4467516e1010640b3efffb29182b66dffea60)
+    #5 0x5555b67885e8  (/usr/bin/vkmark+0x885e8) (BuildId: e3a4467516e1010640b3efffb29182b66dffea60)
+    #6 0x5555b679b758  (/usr/bin/vkmark+0x9b758) (BuildId: e3a4467516e1010640b3efffb29182b66dffea60)
+    #7 0x5555b67095e8  (/usr/bin/vkmark+0x95e8) (BuildId: e3a4467516e1010640b3efffb29182b66dffea60)
+    #8 0x7fff8238ddcc in __libc_start_call_main (/usr/lib/legacy/glibc/libc.so.6+0x1ddcc) (BuildId: cefeb27836359b559f91be00bc55c68347cc206a)
+    #9 0x7fff8238df34 in __libc_start_main (/usr/lib/legacy/glibc/libc.so.6+0x1df34) (BuildId: cefeb27836359b559f91be00bc55c68347cc206a)
+    #10 0x5555b670f5dc  (/usr/bin/vkmark+0xf5dc) (BuildId: e3a4467516e1010640b3efffb29182b66dffea60)
+
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV (/usr/lib/libvulkan.so.1+0x2945c) (BuildId: f13d2962625a1de04c8b6859e7029920942045b0)
+==2045043==ABORTING

@@ -1,0 +1,150 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/libthread_db.so.1".
+[New Thread 0x7ffff5d7f140 (LWP 2009089)]
+[New Thread 0x7ffff1fff140 (LWP 2009090)]
+[New Thread 0x7ffff17fb140 (LWP 2009091)]
+[New Thread 0x7ffff0ff7140 (LWP 2009092)]
+[New Thread 0x7fffe3fff140 (LWP 2009093)]
+[New Thread 0x7fffe37fb140 (LWP 2009094)]
+[New Thread 0x7fffe2ff7140 (LWP 2009095)]
+[New Thread 0x7fffe27f3140 (LWP 2009096)]
+[New Thread 0x7fffe1fef140 (LWP 2009097)]
+[New Thread 0x7fffe17eb140 (LWP 2009098)]
+[New Thread 0x7fffe0fe7140 (LWP 2009099)]
+=======================================================
+    vkmark 2025.01
+=======================================================
+    Vendor ID:      0x14
+    Device ID:      0x7A25
+    Device Name:    LoongGPU LG110 (vkgl GLES2)
+    Driver Version: 4194304
+    Device UUID:    4c473131000000000000000000000000
+=======================================================
+[vertex] duration=1: FPS: 107 FrameTime: 9.346 ms
+=======================================================
+                                   vkmark Score: 107
+=======================================================
+
+Thread 1 "vkmark" received signal SIGSEGV, Segmentation fault.
+__GI___strcmp_lsx () at ../sysdeps/loongarch/lp64/multiarch/strcmp-lsx.S:37
+warning: 37	../sysdeps/loongarch/lp64/multiarch/strcmp-lsx.S: 没有那个文件或目录
+
+Thread 12 (Thread 0x7fffe0fe7140 (LWP 2009099) "vkmark:shlo3"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993624192, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a8080, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a8080, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a8080, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a8060, mutex=0x5555556a8038, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a8060, mutex=0x5555556a8038) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 11 (Thread 0x7fffe17eb140 (LWP 2009098) "vkmark:shlo2"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993624192, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a8080, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a8080, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a8080, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a8060, mutex=0x5555556a8038, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a8060, mutex=0x5555556a8038) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 10 (Thread 0x7fffe1fef140 (LWP 2009097) "vkmark:shlo1"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993624192, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a8080, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a8080, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a8080, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a8060, mutex=0x5555556a8038, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a8060, mutex=0x5555556a8038) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 9 (Thread 0x7fffe27f3140 (LWP 2009096) "vkmark:shlo0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993624192, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a8080, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a8080, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a8080, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a8060, mutex=0x5555556a8038, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a8060, mutex=0x5555556a8038) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 8 (Thread 0x7fffe2ff7140 (LWP 2009095) "vkmark:sh5"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993622788, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a7b04, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a7ae0, mutex=0x5555556a7ab8, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a7ae0, mutex=0x5555556a7ab8) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 7 (Thread 0x7fffe37fb140 (LWP 2009094) "vkmark:sh4"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993622788, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a7b04, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a7ae0, mutex=0x5555556a7ab8, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a7ae0, mutex=0x5555556a7ab8) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 6 (Thread 0x7fffe3fff140 (LWP 2009093) "vkmark:sh3"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993622788, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a7b04, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a7ae0, mutex=0x5555556a7ab8, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a7ae0, mutex=0x5555556a7ab8) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 5 (Thread 0x7ffff0ff7140 (LWP 2009092) "vkmark:sh2"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993622788, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a7b04, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a7ae0, mutex=0x5555556a7ab8, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a7ae0, mutex=0x5555556a7ab8) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 4 (Thread 0x7ffff17fb140 (LWP 2009091) "vkmark:sh1"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993622788, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a7b04, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a7ae0, mutex=0x5555556a7ab8, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a7ae0, mutex=0x5555556a7ab8) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 3 (Thread 0x7ffff1fff140 (LWP 2009090) "vkmark:sh0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993622788, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a7b04, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a7b04, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a7ae0, mutex=0x5555556a7ab8, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a7ae0, mutex=0x5555556a7ab8) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 2 (Thread 0x7ffff5d7f140 (LWP 2009089) "vkma:gsgpu_cs0"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/loongarch/syscall_cancel.S:46
+#1  0x00007ffff70ccdec in internal_syscall_cancel (a1=93824993620756, a2=393, a3=<optimized out>, a4=0, a5=0, a6=4294967295, nr=98) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  __futex_abstimed_wait_common64 (private=0, futex_word=0x5555556a7314, expected=<optimized out>, op=393, abstime=0x0, cancel=true) at futex-internal.c:57
+#3  __futex_abstimed_wait_common (futex_word=futex_word@entry=0x5555556a7314, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0, cancel=cancel@entry=true) at futex-internal.c:87
+#4  0x00007ffff70cceac in __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x5555556a7314, expected=<optimized out>, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at futex-internal.c:139
+#5  0x00007ffff70d0668 in __pthread_cond_wait_common (cond=0x5555556a72f0, mutex=0x5555556a72c8, clockid=0, abstime=0x0) at pthread_cond_wait.c:421
+#6  ___pthread_cond_wait (cond=0x5555556a72f0, mutex=0x5555556a72c8) at pthread_cond_wait.c:453
+#7  0x00007ffff6614e2c in ?? () from /usr/lib/dri/gsgpu_dri.so
+
+Thread 1 (Thread 0x7ffff7fc1dc0 (LWP 2009087) "vkmark"):
+#0  __GI___strcmp_lsx () at ../sysdeps/loongarch/lp64/multiarch/strcmp-lsx.S:37
+#1  0x00007ffff7ea9460 in ?? () from /usr/lib/libvulkan.so.1
+#2  0x00007ffff6d1066c in vkgl_DestroyDevice(VkDevice_T*, VkAllocationCallbacks const*) [clone .lto_priv.0] () from /tmp/vkgl-hotgetenv-025/libvkgl.so
+#3  0x00007ffff7ea9848 in ?? () from /usr/lib/libvulkan.so.1
+#4  0x00007ffff7ecb89c in vkDestroyDevice () from /usr/lib/libvulkan.so.1
+#5  0x00005555555f3834 in ?? ()
+#6  0x000055555556016c in ?? ()
+#7  0x0000555555560210 in ?? ()

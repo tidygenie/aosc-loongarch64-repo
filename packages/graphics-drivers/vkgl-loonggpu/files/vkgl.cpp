@@ -62,6 +62,14 @@ struct Obj {
    virtual ~Obj() = default;
 };
 
+// Vulkan loaders replace the first word of dispatchable objects with their
+// dispatch table. Never dispatch a C++ virtual destructor through that word.
+template <typename T> static void delete_dispatchable(T *p) {
+   if (!p) return;
+   p->T::~T();
+   ::operator delete(p);
+}
+
 // ---------------------------------------------------------------------------
 // GL context (single global, created lazily on first device use)
 // ---------------------------------------------------------------------------
@@ -595,7 +603,7 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_DestroyInstance(VkInstance inst, const Vk
    unreg((uint64_t)inst);
    g_instances.erase(std::remove(g_instances.begin(), g_instances.end(), i), g_instances.end());
    if (g_instance == i) g_instance = nullptr;
-   delete i;
+   delete_dispatchable(i);
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_EnumerateInstanceVersion(uint32_t *v) {
@@ -908,10 +916,10 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateDevice(VkPhysicalDevice pd, con
 static VKAPI_ATTR void VKAPI_CALL vkgl_DestroyDevice(VkDevice dev, const VkAllocationCallbacks *) {
    VKGL_LOG("DestroyDevice\n");
    auto *d = from_handle<Device>((uint64_t)dev);
-   delete g_queue; g_queue = nullptr;
+   delete_dispatchable(g_queue); g_queue = nullptr;
    if (g_device == d) g_device = nullptr;
    unreg((uint64_t)dev);
-   delete d;
+   delete_dispatchable(d);
 }
 
 static VKAPI_ATTR void VKAPI_CALL vkgl_GetDeviceQueue(VkDevice, uint32_t, uint32_t, VkQueue *q) {
@@ -1323,7 +1331,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_AllocateCommandBuffers(VkDevice, cons
 static VKAPI_ATTR void VKAPI_CALL vkgl_FreeCommandBuffers(VkDevice, VkCommandPool, uint32_t n, const VkCommandBuffer *cbs) {
    for (uint32_t i = 0; i < n; i++) {
       unreg((uint64_t)cbs[i]);
-      delete from_handle<CommandBuffer>((uint64_t)cbs[i]);
+      delete_dispatchable(from_handle<CommandBuffer>((uint64_t)cbs[i]));
    }
 }
 

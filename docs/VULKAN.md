@@ -67,6 +67,12 @@
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
 
+## 0.1.25 实测（2026-11-06）
+
+- 修复 dispatchable 对象生命周期 ABI：loader 会用 dispatch 表覆盖 Instance/Device/Queue/CommandBuffer 首字，普通 C++ 虚析构会把该表误当 vtable。现用限定非虚析构+匹配的全局 operator delete，不改变对象布局；非 dispatchable 不变。
+- 实际渲染下旧式虚析构曾在 FreeCommandBuffers/DestroyDevice 跳入 libvulkan/strcmp 崩溃；gdb 首字和 ASan 证据公开。修复后 ASan 通过，候选及安装版各连续5次完整 vkmark 退出通过，新增64周期公开生命周期测试。最小测试在旧版也通过，不冒充独立负对照。
+- 本轮是**正确性而非性能发布**：最终配对 vertex -3.21%、texture -7.26%、shading +0.67%，不利数据不隐藏；getenv缓存、函数对齐、cold分离组合均未采用。完整像素/fence/acquire及双路径28/4不变。安装库 SHA-256=`00fb9eb672cd9c42a05d94ab4eae6a2637c3cb1fb3555cd746f9dba579747a50`，deb SHA-256=`a630b3b3e6bcefb90c9cd59703d9a0df49327cc824cd1c74b02b9315e322e57e`；24包发布全过。见 [0.1.25 报告](../scripts/tests/vkgl/vkgl-0.1.25.md)。
+
 ## 0.1.24 实测（2026-11-06）
 
 - Vulkan/GL 源码与0.1.23完全相同，仅将 C/C++ 构建改为 GCC16.2 `-O3 -march=loongarch64 -mtune=la664 -flto`。ISA 仍是 loongarch64 基线，LA664 只做调度调优，不是 native/LASX-only 包。

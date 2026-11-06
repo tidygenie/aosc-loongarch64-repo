@@ -1,0 +1,36 @@
+Function "vkgl_FreeCommandBuffers" not defined.
+Breakpoint 1 (vkgl_FreeCommandBuffers) pending.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/libthread_db.so.1".
+[New Thread 0x7ffff5d7f140 (LWP 2106015)]
+[New Thread 0x7ffff1fff140 (LWP 2106025)]
+[New Thread 0x7ffff17fb140 (LWP 2106026)]
+[New Thread 0x7ffff0ff7140 (LWP 2106027)]
+[New Thread 0x7fffe3fff140 (LWP 2106028)]
+[New Thread 0x7fffe37fb140 (LWP 2106029)]
+[New Thread 0x7fffe2ff7140 (LWP 2106031)]
+[New Thread 0x7fffe27f3140 (LWP 2106033)]
+[New Thread 0x7fffe1fef140 (LWP 2106034)]
+[New Thread 0x7fffe17eb140 (LWP 2106035)]
+[New Thread 0x7fffe0fe7140 (LWP 2106036)]
+=======================================================
+    vkmark 2025.01
+=======================================================
+    Vendor ID:      0x14
+    Device ID:      0x7A25
+    Device Name:    LoongGPU LG110 (vkgl GLES2)
+    Driver Version: 4194304
+    Device UUID:    4c473131000000000000000000000000
+=======================================================
+[vertex] duration=1:
+Thread 1 "vkmark" hit Breakpoint 1, 0x00007ffff6d27d60 in vkgl_FreeCommandBuffers(VkDevice_T*, VkCommandPool_T*, unsigned int, VkCommandBuffer_T* const*) () from /tmp/vkgl-hotgetenv-025/libvkgl-o3.so
+a2             0x1                 1
+a3             0x7ffffffcec50      140737488153680
+command_buffer=0x555555a3d9e0
+first_word=0x5555556ba1d0
+No symbol matches $first.
+0x555555a3d9e0:	0x00005555556ba1d0	0x0000000000000006
+0x555555a3d9f0:	0x00005555556b83c0	0x0000000000000100
+0x555555a3da00:	0x0000555555a3fde0	0x0000555555a3ffb8
+0x5555556ba1d0:	0x10aded040410aded	0x00007ffff7ea9410
+0x5555556ba1e0:	0x00007ffff6d295c0	0x00007ffff6d3d060
