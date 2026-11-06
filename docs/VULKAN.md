@@ -67,6 +67,12 @@
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
 
+## 0.1.24 实测（2026-11-06）
+
+- Vulkan/GL 源码与0.1.23完全相同，仅将 C/C++ 构建改为 GCC16.2 `-O3 -march=loongarch64 -mtune=la664 -flto`。ISA 仍是 loongarch64 基线，LA664 只做调度调优，不是 native/LASX-only 包。
+- 五轮正反顺序、640×480 FIFO、当前约8负载下，LTO 相对0.1.23 O2 的 vertex/texture/shading 中位数分别为 **184→197（+7.07%，5/5）**、**120→127（+5.83%，4/5）**、**150→153（+2.00%，4/5）**。纯O3虽shading +10.42%，但vertex -6.15%，故未选择。提升仅限这些小场景与已记录环境，不宣称榨尽硬件或全应用通用。
+- 实测候选、包内、安装库字节一致；完整像素/tight/fence/acquire及安装双路径全过，validation仍28/4。安装库 SHA-256=`f3c17974dc01ac5438a94273f8f5523563b8172f9c69efc3e2eaab67fb061e3a`，deb SHA-256=`7b39464c262fdb3c46bd5bb74202de15706e2fb154321fba67476952c307a00a`；23包发布验证全过。原始O3/LTO JSON与环境记录见 [0.1.24 报告](../scripts/tests/vkgl/vkgl-0.1.24.md)。
+
 ## 0.1.23 实测（2026-11-06）
 
 - 不再丢弃 `VkSamplerCreateInfo`：单级2D combined sampler 真实应用 NEAREST/LINEAR 与三种 U/V wrap，Image 按实际 GL 状态值去重；六类未支持状态返回 `VK_ERROR_FEATURE_NOT_PRESENT`。公开 split-texture 对照中0.1.22请求LINEAR仍为64，0.1.23 NEAREST=64/LINEAR=34；三draw三次绑定仅一次状态提交。

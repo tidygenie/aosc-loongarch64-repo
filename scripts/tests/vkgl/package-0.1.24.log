@@ -1,0 +1,31 @@
+==> vkgl-loonggpu 0.1.24-1 (loongarch64)  [ABTYPE=self]
+[abbs-lite] 执行 build
+lto-wrapper: warning: using serial compilation of 5 LTRANS jobs
+lto-wrapper: note: see the ‘-flto’ option documentation for more information
+install: 正在创建目录 '/home/houge/infra/src/stage/vkgl-loonggpu/usr'
+install: 正在创建目录 '/home/houge/infra/src/stage/vkgl-loonggpu/usr/lib'
+install: 正在创建目录 '/home/houge/infra/src/stage/vkgl-loonggpu/usr/lib/vkgl'
+'/tmp/libvkgl.so' -> '/home/houge/infra/src/stage/vkgl-loonggpu/usr/lib/vkgl/libvkgl.so'
+install: 正在创建目录 '/home/houge/infra/src/stage/vkgl-loonggpu/usr/share'
+install: 正在创建目录 '/home/houge/infra/src/stage/vkgl-loonggpu/usr/share/vulkan'
+install: 正在创建目录 '/home/houge/infra/src/stage/vkgl-loonggpu/usr/share/vulkan/icd.d'
+'/home/houge/infra/github/aosc-loongarch64-thirdparty/packages/graphics-drivers/vkgl-loonggpu/files/vkgl_icd.json' -> '/home/houge/infra/src/stage/vkgl-loonggpu/usr/share/vulkan/icd.d/vkgl_loonggpu.json'
+install: 正在创建目录 '/home/houge/infra/src/stage/vkgl-loonggpu/usr/share/doc'
+install: 正在创建目录 '/home/houge/infra/src/stage/vkgl-loonggpu/usr/share/doc/vkgl-loonggpu'
+'/home/houge/infra/github/aosc-loongarch64-thirdparty/packages/graphics-drivers/vkgl-loonggpu/autobuild/postinst' -> '/home/houge/infra/src/stage/vkgl-loonggpu/DEBIAN/postinst'
+==> 产物: /home/houge/infra/src/build/vkgl-loonggpu_0.1.24-1_loongarch64.deb
+ 新格式的 Debian 软件包，格式版本 2.0。
+ 大小 568260 字节：主控包=912 字节。
+     363 bytes,    10 lines      control
+     134 bytes,     2 lines      md5sums
+     629 字节，   14 行   *  postinst             #!/bin/bash
+ Package: vkgl-loonggpu
+ Version: 0.1.24-1
+ Architecture: loongarch64
+ Maintainer: Local Infra <infra@localhost>
+ Section: libs
+ Priority: optional
+ Depends: loonggl, mesa, wayland, libdrm
+ Homepage: https://github.com/HougeLangley/aosc-loongarch64-thirdparty
+ Installed-Size: 2464
+ Description: Minimal Vulkan ICD for Loongson LG110 backed by the vendor GLES/GL2.1 driver

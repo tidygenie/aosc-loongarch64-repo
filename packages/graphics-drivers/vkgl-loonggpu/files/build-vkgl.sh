@@ -14,12 +14,16 @@ else
   SPV_LIB="$SPV/lib"
 fi
 
+# Keep the loongarch64 ISA baseline; LA664 is scheduling/tuning only.
+# GCC 16 LTO gave balanced paired gains where O3 alone regressed vertex FPS.
+OPT_FLAGS=(-O3 -march=loongarch64 -mtune=la664 -flto)
+
 # Compile the generated protocol as C. If g++ handles the .c file directly,
 # the unreferenced const interface gets internal linkage and disappears.
-gcc -std=c11 -O2 -fPIC -c "$HERE/linux-dmabuf-protocol.c" -o "$OBJ" \
+gcc -std=c11 "${OPT_FLAGS[@]}" -fPIC -c "$HERE/linux-dmabuf-protocol.c" -o "$OBJ" \
   $(pkg-config --cflags wayland-client)
 
-g++ -std=c++17 -O2 -fPIC -shared -o "$OUT" "$HERE/vkgl.cpp" "$OBJ" \
+g++ -std=c++17 "${OPT_FLAGS[@]}" -fPIC -shared -o "$OUT" "$HERE/vkgl.cpp" "$OBJ" \
   -I"$SPV_INCLUDE" \
   $(pkg-config --cflags --libs wayland-client) \
   -lEGL -lGLESv2 -lgbm \

@@ -1,0 +1,6 @@
+1a2ee24ee1add7a39c78b1d52ea8615bd76d1c49b336f58eadc9e4d11e11e0be  /usr/lib/vkgl/libvkgl.so
+2e601b41296307cc6331b4a2210e101f2b5bd9fbba2ca33aefac76a777e7c7b1  /tmp/vkgl-compiler-024/o3/libvkgl.so
+f3c17974dc01ac5438a94273f8f5523563b8172f9c69efc3e2eaab67fb061e3a  /tmp/vkgl-compiler-024/lto/libvkgl.so
+/usr/lib/vkgl/libvkgl.so size=2442040
+/tmp/vkgl-compiler-024/o3/libvkgl.so size=2505568
+/tmp/vkgl-compiler-024/lto/libvkgl.so size=2519008

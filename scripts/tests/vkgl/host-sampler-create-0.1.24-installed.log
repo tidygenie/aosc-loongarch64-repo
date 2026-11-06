@@ -1,0 +1,8 @@
+SAMPLER device=LoongGPU LG110 (vkgl GLES2) feature=0 maxAnisotropy=1.0
+REJECT name=compare result=-8
+REJECT name=unnormalized result=-8
+REJECT name=lod-bias result=-8
+REJECT name=clamp-border result=-8
+REJECT name=mirror-clamp result=-8
+REJECT name=cubic-filter result=-8
+PASS vktest-sampler-create (filter/wrap + 6 explicit rejections)
