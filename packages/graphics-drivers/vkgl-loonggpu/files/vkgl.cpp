@@ -2902,6 +2902,19 @@ static bool build_stage(GLuint *out_shader, GLenum gl_stage, const std::vector<u
    }
 }
 
+static bool gl_topology_for_vk(VkPrimitiveTopology topology, GLenum *mode) {
+   if (!mode) return false;
+   switch (topology) {
+      case VK_PRIMITIVE_TOPOLOGY_POINT_LIST: *mode = GL_POINTS; return true;
+      case VK_PRIMITIVE_TOPOLOGY_LINE_LIST: *mode = GL_LINES; return true;
+      case VK_PRIMITIVE_TOPOLOGY_LINE_STRIP: *mode = GL_LINE_STRIP; return true;
+      case VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST: *mode = GL_TRIANGLES; return true;
+      case VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP: *mode = GL_TRIANGLE_STRIP; return true;
+      case VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN: *mode = GL_TRIANGLE_FAN; return true;
+      default: return false; // Adjacency and patches are not OpenGL 2.1 features.
+   }
+}
+
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateGraphicsPipelines(
    VkDevice, VkPipelineCache, uint32_t count, const VkGraphicsPipelineCreateInfo *ci,
    const VkAllocationCallbacks *, VkPipeline *out) {
@@ -2913,6 +2926,11 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateGraphicsPipelines(
       p->layout = from_handle<PipelineLayout>((uint64_t)ci[n].layout);
       p->rp = from_handle<RenderPass>((uint64_t)ci[n].renderPass);
       p->topology = ci[n].pInputAssemblyState ? ci[n].pInputAssemblyState->topology : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+      GLenum draw_mode;
+      if (!gl_topology_for_vk(p->topology, &draw_mode)) {
+         delete p;
+         return VK_ERROR_FEATURE_NOT_PRESENT;
+      }
       GlCtx::get().make_current();
 
       std::vector<std::pair<std::string, uint32_t>> attribs;
@@ -3120,6 +3138,11 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
       glVertexAttribPointer(15, 1, GL_FLOAT, GL_FALSE, 0, (const void *)0);
    }
 
+   GLenum draw_mode;
+   if (!gl_topology_for_vk(p->topology, &draw_mode)) {
+      VKGL_LOG("unsupported draw topology %d\n", (int)p->topology);
+      return;
+   }
    if (cmd.kind == Cmd::DrawIndexed) {
       if (ibuf && ibuf->gl) {
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuf->gl);
@@ -3128,11 +3151,11 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
             ibuf->uploaded_revision = ibuf->mem->revision;
          }
          GLenum it = GL_UNSIGNED_SHORT;
-         glDrawElements(GL_TRIANGLES, (GLsizei)cmd.count, it,
+         glDrawElements(draw_mode, (GLsizei)cmd.count, it,
                         (const void *)(uintptr_t)(ioff + (VkDeviceSize)cmd.first * (it == GL_UNSIGNED_INT ? 4 : 2)));
       }
    } else {
-      glDrawArrays(GL_TRIANGLES, (GLint)cmd.first, (GLsizei)cmd.count);
+      glDrawArrays(draw_mode, (GLint)cmd.first, (GLsizei)cmd.count);
    }
    static int glerr_log = 0;
    GLenum err = glGetError();

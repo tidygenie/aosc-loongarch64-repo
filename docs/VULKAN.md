@@ -28,6 +28,7 @@
 | Queue submission fence | 运行时探测 `EGL_KHR_fence_sync`，用真实 EGL sync 实现 status/waitAll/waitAny/reset；不可用时保守 `glFinish`，acquire fence 仍为主机事件 |
 | Render pass / Framebuffer | FBO（颜色纹理 + 深度纹理） |
 | Pipeline | SPIR-V → GLSL 1.20（SPIRV-Cross），UBO 扁平化成 `uniform vec4 name[N]` |
+| Draw topology | point/line/line-strip/triangle/triangle-strip/triangle-fan 映射真实 GL mode，indexed/non-indexed 共用；adjacency/PATCH 返回 `VK_ERROR_FEATURE_NOT_PRESENT`，不再硬编码 triangles |
 | Vertex input | `glBindAttribLocation` + `glVertexAttribPointer` |
 | `gl_VertexID` | 绑定 0..N-1 的 float 属性，索引取值即 index |
 | Swapchain | GBM linear BO → EGLImage → GL texture；优先 `zwp_linux_dmabuf_v1` 零拷贝呈现，逐图像保留 `wl_shm` 回退 |
@@ -62,6 +63,13 @@
 - 640×480 FIFO vkmark 五场景：dmabuf **120/132/101/61/120 FPS**，wl_shm **77/82/69/57/74 FPS**。
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
+
+## 0.1.21 实测（2026-11-06）
+
+- 修复 pipeline 已记录 topology、执行却将 indexed/non-indexed 都硬编码为 `GL_TRIANGLES` 的兼容性 bug。六种基础 topology 现在映射真实 GL mode；adjacency/PATCH 在创建 pipeline 时返回 `VK_ERROR_FEATURE_NOT_PRESENT`，不再静默误画。
+- 安装库 SHA-256=`f7452278fcaa6d7bfde600527c523181d87cdd599ee0a7487e135b8f612bb063`；deb SHA-256=`ec99119b9bb4aaa4ce44dfcc357d3fe14fda0de32049c1ef1c624bf2ad979bed`。候选、包内和安装库字节一致；20 包索引、签名、HTTPS、隔离 apt、远端 deb 均通过，0.1.21-1 为源中最高版本。
+- 六种 topology 的真实像素和完整 native IB 均验证，主动 triangle→point 仅修改 word268 并复现 passive point；count 回归和旧值拒绝通过。A/B gradient/padded/CopyImage/ClearAttachments、tight/fence/acquire 全部通过。
+- **不宣称 validation clean**：同一公开脚本下，0.1.20 与 0.1.21 在 dmabuf/wl_shm 各报告 59 个 diagnostics、8 类 VUID，逐类计数完全一致，属于既有兼容债而非本版新增。渲染均使用 LG110，无 llvmpipe；本版无性能提升宣称。详见 [0.1.21 报告](../scripts/tests/vkgl/vkgl-0.1.21.md)。
 
 ## 0.1.20 实测（2026-11-06）
 
@@ -154,6 +162,7 @@
 - 独立 opt-in pre-CS 实验在完整可写映射、流长度/签名和原始值防护下，分别只修改 clear IB 的一个 dword。400-word swapchain 流中 red/green/blue=word87/88/89，raw 分别从 `663300ff` 到 `6633ffff`/`66ff00ff`/`ff3300ff`，每次只有一个对应像素通道变化。
 - alpha=word90 不能由 swapchain 直接证明：主动写入与被动 alpha=0.5 都只改该词但读回固定 `ff`。独立 272-word 离屏 optimal RGBA 流可保留 alpha；word90 `1.0→0.5` 主动实验得到 `003366ff→00336680`，完整 IB 和像素均只有对应一项变化。公开源码重建重复 green/offscreen-alpha，离屏 red 请求零写入。见 [clear RGBA 因果报告](../scripts/research/lg110/lg110-clear-color-fields.md)。
 - draw3/draw2 被动差分的 XDMA 全同，672-word GFX 仅 word270 `3→2`、word276 `2→1`，中心由 `007f00ff` 变为 clear `663300ff`。主动实验仅改 word270、保持 word276=2，仍精确抑制三角形并复现 draw2 raw；已是 draw2 的输入被旧值防护拒绝且零 IB 差异。公开严格重建复现全部四项。这证明该流 word270 的 vertex-count 因果，word276 不命名。见 [draw-count 报告](../scripts/research/lg110/lg110-draw-count-field.md)。
+- 0.1.20 的 point 请求因 vkgl 硬编码 triangles 而与 triangle 完全同 IB；修复后六种 topology 仅在 word268 呈现 `0/1/3/4/5/6 << 8` 对应值，其余 GFX 不变。主动 triangle→point 只改 word268 `0x40000400→0x40000000` 即精确复现 point clear raw，count 回归与 point 旧值拒绝通过；word273 不随 topology 改变，已更正为未命名字段。见 [draw-topology 报告](../scripts/research/lg110/lg110-draw-topology-field.md)。
 - 这些仅是特定 clear/draw 流的字段因果证据，仍不是完整 0x88/0x89 包语义、完整 draw/shader ISA、地址/tile、独立 replay 或原生 Vulkan；不能复用 AMD PM4/RADV 代替。
 
 ## 测试

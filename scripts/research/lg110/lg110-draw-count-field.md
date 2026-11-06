@@ -33,7 +33,7 @@ assume that either word's name or that both were required.
 - one GFX ring0 IB with exactly 672 dwords;
 - a fully covered, aligned, `PROT_WRITE` tracked mapping;
 - a fixed signature covering the known clear state and draw descriptor,
-  including nonselected word276=2 and topology word273=3;
+  including nonselected word276=2 and unassigned word273=3;
 - original word270=3 and word276=2;
 - at most one mutation per process, immediately before the unchanged original
   CS ioctl, followed by a readback check requiring `observed=2` and `patched=1`.

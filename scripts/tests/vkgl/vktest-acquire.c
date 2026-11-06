@@ -35,7 +35,10 @@ static void top_configure(void *data, struct xdg_toplevel *top, int32_t width,
    (void)data; (void)top; (void)width; (void)height; (void)states;
 }
 static void top_close(void *data, struct xdg_toplevel *top) { (void)data; (void)top; }
-static const struct xdg_toplevel_listener top_listener = {top_configure, top_close};
+static const struct xdg_toplevel_listener top_listener = {
+   .configure = top_configure,
+   .close = top_close,
+};
 
 #define CK(x) do { VkResult r_ = (x); if (r_ != VK_SUCCESS) { \
    fprintf(stderr, "FAIL line %d: %s = %d\n", __LINE__, #x, r_); exit(1); } } while (0)

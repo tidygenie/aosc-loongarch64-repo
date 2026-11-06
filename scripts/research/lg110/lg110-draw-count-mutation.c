@@ -1,10 +1,10 @@
 #define _GNU_SOURCE
 
 /*
- * Bounded LG110 tracer with an explicitly opt-in draw-count experiment.
- * Passive by default. LG110_MUTATE_DRAW_FIELD=count changes only word270
- * from 3 to 2. The exact 672-dword draw signature, old values, writable mapping,
- * and post-store readback are mandatory. No ioctl or BO layout is changed.
+ * Bounded LG110 tracer with explicitly opt-in draw-field experiments.
+ * Passive by default. =count changes only word270 from 3 to 2; =topology
+ * changes only word268 from 0x40000400 to 0x40000000. Exact stream signatures,
+ * old values, writable mappings, and post-store readback are mandatory.
  */
 
 #include <dlfcn.h>
@@ -115,6 +115,8 @@ static void configure(void)
     if (draw_value) {
         if (strcmp(draw_value, "count") == 0)
             mutate_draw_mode = 1;
+        else if (strcmp(draw_value, "topology") == 0)
+            mutate_draw_mode = 2;
         else {
             fprintf(stderr, "LG110DRAWMUTATE invalid field; passive only\n");
         }
@@ -661,7 +663,8 @@ static void trace_cs_locked(unsigned int sequence, int fd,
 
 static int draw_word_selected(unsigned int index)
 {
-    return index == 270U && mutate_draw_mode == 1;
+    return (index == 270U && mutate_draw_mode == 1) ||
+           (index == 268U && mutate_draw_mode == 2);
 }
 
 static int draw_signature_matches(const uint32_t *words)
@@ -731,18 +734,29 @@ static void maybe_mutate_draw_ib(int fd, const struct drm_loonggpu_cs_in *input)
             if (read_user(source.user_address, words, sizeof(words)))
                 memcpy(words, (const void *)source.user_address, sizeof(words));
             if (draw_signature_matches(words) &&
-                words[270] == 3U && words[276] == 2U) {
+                words[270] == 3U && words[276] == 2U &&
+                (mutate_draw_mode == 1 || words[268] == 0x40000400U)) {
                 uint32_t *target = (uint32_t *)source.user_address;
                 uint32_t observed;
                 int patched;
 
-                target[270] = 2U;
-                __sync_synchronize();
-                observed = target[270];
-                patched = observed == 2U;
-                log_line("LG110DRAWMUTATE mode=count word=270 old=0x00000003 "
-                         "new=0x00000002 observed=0x%08x patched=%d",
-                         observed, patched ? 1 : 0);
+                if (mutate_draw_mode == 1) {
+                    target[270] = 2U;
+                    __sync_synchronize();
+                    observed = target[270];
+                    patched = observed == 2U;
+                    log_line("LG110DRAWMUTATE mode=count word=270 old=0x00000003 "
+                             "new=0x00000002 observed=0x%08x patched=%d",
+                             observed, patched ? 1 : 0);
+                } else {
+                    target[268] = 0x40000000U;
+                    __sync_synchronize();
+                    observed = target[268];
+                    patched = observed == 0x40000000U;
+                    log_line("LG110DRAWMUTATE mode=topology word=268 old=0x40000400 "
+                             "new=0x40000000 observed=0x%08x patched=%d",
+                             observed, patched ? 1 : 0);
+                }
                 mutation_done = 1;
             }
         }

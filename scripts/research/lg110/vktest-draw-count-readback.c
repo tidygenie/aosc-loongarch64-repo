@@ -46,6 +46,24 @@ static const struct xdg_toplevel_listener top_listener = {.configure=top_configu
 
 #define CK(x) do { VkResult r_=(x); if(r_!=VK_SUCCESS){fprintf(stderr,"FAIL %s:%d %s = %d\n",__FILE__,__LINE__,#x,r_);exit(1);} } while(0)
 
+static VkPrimitiveTopology topology_from_name(const char *name) {
+   if (!strcmp(name, "point")) return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+   if (!strcmp(name, "line")) return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+   if (!strcmp(name, "line-strip")) return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+   if (!strcmp(name, "triangle")) return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+   if (!strcmp(name, "triangle-strip")) return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+   if (!strcmp(name, "triangle-fan")) return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+   if (!strcmp(name, "adjacency")) return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY;
+   if (!strcmp(name, "patch")) return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
+   return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+}
+
+static int topology_clear_at_center(VkPrimitiveTopology topology) {
+   return topology == VK_PRIMITIVE_TOPOLOGY_POINT_LIST ||
+          topology == VK_PRIMITIVE_TOPOLOGY_LINE_LIST ||
+          topology == VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+}
+
 int main(void) {
    const char *mode = getenv("LG110_TEXTURE_VARIANT");
    if (!mode || (strcmp(mode, "A") && strcmp(mode, "B"))) {
@@ -56,20 +74,38 @@ int main(void) {
    if (!pixel_path) { fprintf(stderr, "set LG110_READBACK_PIXEL\n"); return 1; }
    const char *draw_text = getenv("LG110_DRAW_VERTEX_COUNT");
    const char *expected_draw_text = getenv("LG110_EXPECT_DRAW_COUNT");
+   const char *topology_text = getenv("LG110_DRAW_TOPOLOGY");
+   const char *expected_topology_text = getenv("LG110_EXPECT_TOPOLOGY");
    const char *frame_text = getenv("LG110_FRAME_LIMIT");
    if (!draw_text) draw_text = "3";
    if (!expected_draw_text) expected_draw_text = draw_text;
+   if (!topology_text) topology_text = "triangle";
+   if (!expected_topology_text) expected_topology_text = topology_text;
    if (!frame_text) frame_text = "120";
+   int expect_unsupported = getenv("LG110_EXPECT_UNSUPPORTED") &&
+                            !strcmp(getenv("LG110_EXPECT_UNSUPPORTED"), "1");
    if ((strcmp(draw_text, "3") && strcmp(draw_text, "2")) ||
        (strcmp(expected_draw_text, "3") && strcmp(expected_draw_text, "2")) ||
+       topology_from_name(topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
+       topology_from_name(expected_topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        (strcmp(frame_text, "120") && strcmp(frame_text, "1"))) {
-      fprintf(stderr, "draw counts must be 3|2 and frame limit must be 120|1\n"); return 1;
+      fprintf(stderr, "draw=3|2 topology=point|line|line-strip|triangle|triangle-strip|triangle-fan|adjacency|patch frames=120|1\n"); return 1;
    }
    int draw_count = draw_text[0] - '0';
    int expected_draw_count = expected_draw_text[0] - '0';
+   VkPrimitiveTopology topology = topology_from_name(topology_text);
+   VkPrimitiveTopology expected_topology = topology_from_name(expected_topology_text);
+   int unsupported_topology = topology == VK_PRIMITIVE_TOPOLOGY_PATCH_LIST ||
+                              topology == VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY;
+   if (unsupported_topology != expect_unsupported ||
+       (expect_unsupported && expected_topology != topology)) {
+      fprintf(stderr, "adjacency/patch require LG110_EXPECT_UNSUPPORTED=1 and matching expectation\n");
+      return 1;
+   }
    int frame_limit = frame_text[0] == '1' && !frame_text[1] ? 1 : 120;
-   printf("texture variant: %s red=%u other=0 draw=%d expected_draw=%d frames=%d\n",
-          mode, nonzero ? 255u : 0u, draw_count, expected_draw_count, frame_limit);
+   printf("texture variant: %s red=%u other=0 draw=%d expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
+          mode, nonzero ? 255u : 0u, draw_count, expected_draw_count,
+          topology_text, expected_topology_text, frame_limit);
    dpy = wl_display_connect(NULL);
    if (!dpy) { fprintf(stderr, "no wayland display\n"); return 1; }
    struct wl_registry *reg = wl_display_get_registry(dpy);
@@ -158,7 +194,7 @@ int main(void) {
       {.sType=VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,.stage=VK_SHADER_STAGE_VERTEX_BIT,.module=vsm,.pName="main"},
       {.sType=VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,.stage=VK_SHADER_STAGE_FRAGMENT_BIT,.module=fsm,.pName="main"}};
    VkPipelineVertexInputStateCreateInfo vici={.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
-   VkPipelineInputAssemblyStateCreateInfo iaci={.sType=VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,.topology=VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST};
+   VkPipelineInputAssemblyStateCreateInfo iaci={.sType=VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,.topology=topology};
    VkViewport vp={0,0,640,480,0,1};
    VkRect2D scissor={.offset={0,0},.extent={640,480}};
    VkPipelineViewportStateCreateInfo vsci={.sType=VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,.viewportCount=1,.pViewports=&vp,.scissorCount=1,.pScissors=&scissor};
@@ -208,7 +244,17 @@ int main(void) {
    VkGraphicsPipelineCreateInfo gpci={.sType=VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,.stageCount=2,.pStages=stages,
       .pVertexInputState=&vici,.pInputAssemblyState=&iaci,.pViewportState=&vsci,.pRasterizationState=&rsci,
       .pMultisampleState=&msci,.pColorBlendState=&cbci,.layout=playout,.renderPass=rp};
-   VkPipeline pipe; CK(vkCreateGraphicsPipelines(dev,VK_NULL_HANDLE,1,&gpci,NULL,&pipe));
+   VkPipeline pipe;
+   VkResult pipeline_result = vkCreateGraphicsPipelines(dev,VK_NULL_HANDLE,1,&gpci,NULL,&pipe);
+   if (expect_unsupported) {
+      if (pipeline_result == VK_ERROR_FEATURE_NOT_PRESENT) {
+         printf("PASS unsupported-topology topology=%s result=%d\n", topology_text, pipeline_result);
+         return 0;
+      }
+      fprintf(stderr, "FAIL unsupported topology=%s result=%d\n", topology_text, pipeline_result);
+      return 1;
+   }
+   CK(pipeline_result);
 
    VkCommandPoolCreateInfo cpci={.sType=VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,.flags=VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT};
    VkCommandPool cp; CK(vkCreateCommandPool(dev,&cpci,NULL,&cp));
@@ -237,7 +283,7 @@ int main(void) {
       expected[0]=(unsigned char)expected_red; expected[1]=(unsigned char)expected_green;
       expected[2]=0; expected[3]=255;
    } else { fprintf(stderr,"unsupported readback format %d\n",fmts[0].format); return 1; }
-   if (expected_draw_count == 2) {
+   if (expected_draw_count == 2 || topology_clear_at_center(expected_topology)) {
       if (fmts[0].format==VK_FORMAT_B8G8R8A8_UNORM) {
          expected[0]=102; expected[1]=51; expected[2]=0; expected[3]=255;
       } else {

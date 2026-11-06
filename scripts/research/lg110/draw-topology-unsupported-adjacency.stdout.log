@@ -1,0 +1,6 @@
+texture variant: A red=0 other=0 draw=3 expected_draw=3 topology=adjacency expected_topology=adjacency frames=1
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+PASS unsupported-topology topology=adjacency result=-8

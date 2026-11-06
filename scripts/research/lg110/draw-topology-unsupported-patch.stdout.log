@@ -1,0 +1,6 @@
+texture variant: A red=0 other=0 draw=3 expected_draw=3 topology=patch expected_topology=patch frames=1
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+PASS unsupported-topology topology=patch result=-8
