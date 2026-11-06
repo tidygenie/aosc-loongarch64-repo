@@ -21,6 +21,7 @@
 |---|---|
 | Instance/Device/Queue | 单设备，EGL/GBM 上下文懒创建 |
 | Memory | CPU shadow + GL buffer/texture；Memory 全局代次跟踪写入，未映射且未修改的静态 Buffer/线性 Image 跳过重复上传 |
+| `CopyImageToBuffer` | 当前 2D color mip0/单层、B8/R8 RGBA8 与 tightly-packed 区域从实际 FBO `glReadPixels`，转换 Y 方向并检查边界；不宣称 depth/多层/padded 支持 |
 | Render pass / Framebuffer | FBO（颜色纹理 + 深度纹理） |
 | Pipeline | SPIR-V → GLSL 1.20（SPIRV-Cross），UBO 扁平化成 `uniform vec4 name[N]` |
 | Vertex input | `glBindAttribLocation` + `glVertexAttribPointer` |
@@ -57,6 +58,13 @@
 - 640×480 FIFO vkmark 五场景：dmabuf **120/132/101/61/120 FPS**，wl_shm **77/82/69/57/74 FPS**。
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
+
+## 0.1.16 实测（2026-11-06）
+
+- 实现此前空缺的 `Cmd::CopyImageToBuffer`：从实际 draw 的 FBO 读回，而非复制可能过期的 image host shadow；当前限 2D color mip0/单层、B8/R8 RGBA8 UNORM、offset/extent 与 tightly-packed 输出。dmabuf present 零拷贝分支未改。
+- 相同 shader/命令的纹理 A/B 在安装版得到真实中心像素：A=`00 7f 00 ff`，B=`00 7f 40 ff`，仅 red 增加 64，符合 `0.25*255`；绿色与理想值差 1 LSB 由 GL 行 239 的坐标转换解释。119 组稳态 GFX IB 共 47,600 dword 完全相同；首个含 readback 的 672-dword IB 因 512 捕获上限被明确排除。
+- 安装库与测试 dev 库 SHA-256 均为 `025f5cff6c68a436fc299fcf81caf24364c453128a35d17329d4da9068e4b39a`；安装后的 dmabuf/wl_shm 均为 **5/5、0 validation errors、GPU-only**。这是兼容性修复，不宣称性能提升。
+- 源码、patch、原始像素和报告见 [`scripts/research/lg110`](../scripts/research/lg110/)，详细结果见 [CopyImageToBuffer 报告](../scripts/research/lg110/vkgl-copy-image-to-buffer-dev.md)。
 
 ## 0.1.15 实测（2026-11-05）
 
