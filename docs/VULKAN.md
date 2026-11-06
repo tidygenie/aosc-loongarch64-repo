@@ -21,6 +21,7 @@
 |---|---|
 | Instance/Device/Queue | 单设备，EGL/GBM 上下文懒创建 |
 | Memory | CPU shadow + GL buffer/texture；Memory 全局代次跟踪写入，未映射且未修改的静态 Buffer/线性 Image 跳过重复上传 |
+| `CopyImage` | 不同 2D color、同 B8/R8 UNORM、mip0/单层、未映射 dst 的受限区域，从 src FBO 用 `glCopyTexSubImage2D` 直接复制到 dst texture；无 vkgl CPU 像素中转 |
 | `CopyImageToBuffer` | 当前 2D color mip0/单层、B8/R8 RGBA8 与 tight/`bufferRowLength` padded 区域从实际 FBO `glReadPixels`，转换 Y 方向并检查溢出/边界；不宣称 depth/多层支持 |
 | Render pass / Framebuffer | FBO（颜色纹理 + 深度纹理） |
 | Pipeline | SPIR-V → GLSL 1.20（SPIRV-Cross），UBO 扁平化成 `uniform vec4 name[N]` |
@@ -33,9 +34,9 @@
 
 ## 已知边界
 
-- 118 个尚未实现的核心入口点注册为 **no-op 桩**（返回 `VK_SUCCESS`），保证 loader 不返回
+- 117 个尚未实现的核心入口点注册为 **no-op 桩**（返回 `VK_SUCCESS`），保证 loader 不返回
   NULL、应用不崩，但语义未实现。影响较大的包括：`vkCmdClearAttachments`、
-  `vkCmdBlitImage`、`vkCmdCopyImage`、`vkCmdResolveImage`、`vkCmdBeginQuery`/`EndQuery`、
+  `vkCmdBlitImage`、`vkCmdResolveImage`、`vkCmdBeginQuery`/`EndQuery`、
   `vkCmdWriteTimestamp`、`vkCreateBufferView`、`vkQueueBindSparse`。
 
 
@@ -58,6 +59,14 @@
 - 640×480 FIFO vkmark 五场景：dmabuf **120/132/101/61/120 FPS**，wl_shm **77/82/69/57/74 FPS**。
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
+
+## 0.1.18 实测（2026-11-06）
+
+- 实现原先完全 no-op 的 `vkCmdCopyImage` 记录与执行：不同 2D color、同 B8/R8 UNORM、mip0/单层、depth1、合法 transfer usage 和完整边界；dst 必须 bound 且未映射。src FBO 通过 `glCopyTexSubImage2D` 直接复制到 dst texture，无 vkgl CPU 像素中转；FBO/texture 绑定恢复，present dmabuf 未改。
+- 真实链路为 `src draw → 64×64 offscreen dst clear(a5) → CopyImage (320,239)→(7,9) → dst padded readback`。安装版 A/B 的 32 字节均与期望完全相同，4 像素有效、guard/padding 不变，仅四个 red 字节由 0 增至 64。
+- 初次 1024 tracer 发现 seq2 实际 800 dwords，但 8192-byte 日志行只序列化 733 个，未将其算作完整。full-line 变体扩大行缓冲后，120 组 GFX 全完整：seq2=800/800，其余 400/400；共 **48,400 dword 全同、0 截断**，A/B SHA-256 均为 `c1b0cb49f9d2cb2d024bb65204f7436466c4fddcd7bacc8c99d974f70be7a95e`。
+- 安装库/dev SHA-256 均为 `adf5baef948c65191180fc93124741101ae7de26af4e4bed86050297e568783d`；安装版 tight/padded/CopyImage A/B 与 dmabuf/wl_shm **5/5、0 validation errors、GPU-only** 全部通过。公开相对路径 CopyImage 源码也重新构建并通过安装版 A/B。无性能或完整 Vulkan 合规宣称。
+- 实现、坐标、代次限制、raw buffer 与完整日志索引见 [CopyImage 报告](../scripts/research/lg110/vkgl-copy-image-dev.md)。
 
 ## 0.1.17 实测（2026-11-06）
 

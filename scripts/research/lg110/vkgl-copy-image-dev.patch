@@ -1,0 +1,91 @@
+--- a/vkgl.cpp
++++ b/vkgl.cpp
+@@ -299,7 +299,7 @@
+    enum Kind {
+       BeginRenderPass, EndRenderPass, BindPipeline, BindVertexBuffer, BindIndexBuffer,
+       BindDescriptorSet, SetViewport, SetScissor, Draw, DrawIndexed, ClearColorImage,
+-      CopyBuffer, CopyBufferToImage, CopyImageToBuffer, UpdateBuffer, Barrier, PipelineBarrier,
++      CopyBuffer, CopyBufferToImage, CopyImageToBuffer, CopyImage, UpdateBuffer, Barrier, PipelineBarrier,
+       DrawIndirect, DrawIndexedIndirect, FillBuffer, ExecuteCommands,
+    } kind;
+    Framebuffer *fb = nullptr;
+@@ -317,6 +317,8 @@
+    VkClearColorValue cc = {};
+    VkImageSubresourceRange range = {};
+    VkBufferImageCopy region = {};
++   Image *src_img = nullptr;
++   VkImageCopy image_region = {};
+    Buffer *src = nullptr;
+    std::vector<VkBufferCopy> copies;
+    uint32_t fill_value = 0;
+@@ -1729,6 +1731,50 @@
+          buf->mem->revision++;
+          break;
+       }
++      case Cmd::CopyImage: {
++         Image *src = cmd.src_img, *dst = cmd.img;
++         const VkImageCopy &r = cmd.image_region;
++         uint64_t width = r.extent.width, height = r.extent.height;
++         bool supported_format = src && dst &&
++            (src->format == VK_FORMAT_B8G8R8A8_UNORM || src->format == VK_FORMAT_R8G8B8A8_UNORM);
++         bool valid = src && dst && src != dst && supported_format && src->format == dst->format &&
++            width && height && src->extent.depth == 1 && dst->extent.depth == 1 &&
++            (src->usage & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) && (dst->usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
++            dst->mem && !dst->mem->mapped &&
++            r.srcSubresource.aspectMask == VK_IMAGE_ASPECT_COLOR_BIT &&
++            r.dstSubresource.aspectMask == VK_IMAGE_ASPECT_COLOR_BIT &&
++            r.srcSubresource.mipLevel == 0 && r.dstSubresource.mipLevel == 0 &&
++            r.srcSubresource.baseArrayLayer == 0 && r.dstSubresource.baseArrayLayer == 0 &&
++            r.srcSubresource.layerCount == 1 && r.dstSubresource.layerCount == 1 &&
++            r.extent.depth == 1 && r.srcOffset.z == 0 && r.dstOffset.z == 0 &&
++            r.srcOffset.x >= 0 && r.srcOffset.y >= 0 && r.dstOffset.x >= 0 && r.dstOffset.y >= 0 &&
++            (uint64_t)r.srcOffset.x + width <= src->extent.width &&
++            (uint64_t)r.srcOffset.y + height <= src->extent.height &&
++            (uint64_t)r.dstOffset.x + width <= dst->extent.width &&
++            (uint64_t)r.dstOffset.y + height <= dst->extent.height;
++         if (!valid) {
++            VKGL_LOG("CopyImage rejected unsupported or out-of-bounds region\n");
++            break;
++         }
++         GLint previous_fbo = 0, previous_texture = 0;
++         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previous_fbo);
++         glGetIntegerv(GL_TEXTURE_BINDING_2D, &previous_texture);
++         ensure_fbo(src);
++         ensure_fbo(dst);
++         GLint src_y = (GLint)(src->extent.height - r.srcOffset.y - height);
++         GLint dst_y = (GLint)(dst->extent.height - r.dstOffset.y - height);
++         glBindFramebuffer(GL_FRAMEBUFFER, src->fbo);
++         glBindTexture(GL_TEXTURE_2D, dst->tex);
++         glCopyTexSubImage2D(GL_TEXTURE_2D, 0, (GLint)r.dstOffset.x, dst_y,
++                             (GLint)r.srcOffset.x, src_y, (GLsizei)width, (GLsizei)height);
++         glBindTexture(GL_TEXTURE_2D, previous_texture);
++         glBindFramebuffer(GL_FRAMEBUFFER, previous_fbo);
++         /* The GPU texture is newer than its unchanged host shadow.  Align the
++          * upload generation without incrementing the shadow revision, or a
++          * later linear-image sampling pass could overwrite this GPU copy. */
++         dst->uploaded_revision = dst->mem->revision;
++         break;
++      }
+       case Cmd::UpdateBuffer:
+          break;
+       case Cmd::ClearColorImage:
+@@ -2218,7 +2264,18 @@
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdClearDepthStencilImage(void *a1, ...) { (void)a1; { } }
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyBuffer2(void *a1, ...) { (void)a1; { } }
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyBufferToImage2(void *a1, ...) { (void)a1; { } }
+-static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyImage(void *a1, ...) { (void)a1; { } }
++static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyImage(VkCommandBuffer cb, VkImage src_image, VkImageLayout,
++                                                     VkImage dst_image, VkImageLayout, uint32_t region_count,
++                                                     const VkImageCopy *regions) {
++   auto *c = from_handle<CommandBuffer>((uint64_t)cb);
++   for (uint32_t i = 0; i < region_count; i++) {
++      Cmd cmd{}; cmd.kind = Cmd::CopyImage;
++      cmd.src_img = from_handle<Image>((uint64_t)src_image);
++      cmd.img = from_handle<Image>((uint64_t)dst_image);
++      cmd.image_region = regions[i];
++      c->cmds.push_back(cmd);
++   }
++}
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyImage2(void *a1, ...) { (void)a1; { } }
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyImageToBuffer2(void *a1, ...) { (void)a1; { } }
+ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyQueryPoolResults(void *a1, ...) { (void)a1; { } }

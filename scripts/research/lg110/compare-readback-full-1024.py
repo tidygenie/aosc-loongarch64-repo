@@ -32,6 +32,9 @@ def parse(path):
     return cs, ib_bytes, dumps
 
 
+if len(sys.argv) not in (3, 4):
+    raise SystemExit(f"usage: {sys.argv[0]} A.log B.log [first_gfx_dwords=672]")
+first_dwords = int(sys.argv[3]) if len(sys.argv) == 4 else 672
 a = parse(sys.argv[1])
 b = parse(sys.argv[2])
 for name, trace in zip(("A", "B"), (a, b)):
@@ -45,7 +48,7 @@ pairs = equal = different = truncated = 0
 ha, hb = hashlib.sha256(), hashlib.sha256()
 for seq in range(2, 122):
     wa, wb = a[2][seq], b[2][seq]
-    expected = 672 if seq == 2 else 400
+    expected = first_dwords if seq == 2 else 400
     if len(wa) != expected or len(wb) != expected:
         raise SystemExit(f"seq {seq}: expected {expected} dwords, got {len(wa)}/{len(wb)}")
     if a[1][seq] != expected * 4 or b[1][seq] != expected * 4:
@@ -61,7 +64,7 @@ for seq in range(2, 122):
     for words, h in ((wa, ha), (wb, hb)):
         h.update(b"".join(x.to_bytes(4, "little") for x in words))
 
-print(f"complete_gfx_pairs={pairs} dwords_per_seq2=672 dwords_per_steady=400")
+print(f"complete_gfx_pairs={pairs} dwords_per_seq2={first_dwords} dwords_per_steady=400")
 print(f"equal={equal} different={different} truncated={truncated}")
 print(f"A_sha256={ha.hexdigest()}")
 print(f"B_sha256={hb.hexdigest()}")

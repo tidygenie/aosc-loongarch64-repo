@@ -131,7 +131,7 @@ int main(void) {
 
    size_t vsz=0, fsz=0;
    unsigned char *vs = load_file("grad.vert.spv", &vsz);
-   unsigned char *fs = load_file("/home/houge/infra/research/lg110/vktest-gradient-sample-readback-padded.frag.spv", &fsz);
+   unsigned char *fs = load_file("vktest-gradient-sample-readback-padded.frag.spv", &fsz);
    VkShaderModuleCreateInfo smci={.sType=VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
    VkShaderModule vsm, fsm;
    smci.codeSize=vsz; smci.pCode=(const uint32_t*)vs; CK(vkCreateShaderModule(dev,&smci,NULL,&vsm));
