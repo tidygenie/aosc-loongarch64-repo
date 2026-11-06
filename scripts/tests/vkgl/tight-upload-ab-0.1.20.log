@@ -1,0 +1,290 @@
+
+===== round=1 variant=baseline =====
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+BENCH_BEGIN mode=tight-row-zero width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=tight-row-zero round=0 seconds=0.672879909 MiB_per_s=380.454
+BENCH_ROUND mode=tight-row-zero round=1 seconds=0.662157695 MiB_per_s=386.615
+BENCH_ROUND mode=tight-row-zero round=2 seconds=0.693193430 MiB_per_s=369.305
+BENCH_ROUND mode=tight-row-zero round=3 seconds=0.675889496 MiB_per_s=378.760
+BENCH_ROUND mode=tight-row-zero round=4 seconds=0.661677258 MiB_per_s=386.896
+BENCH_ROUND mode=tight-row-zero round=5 seconds=0.657144466 MiB_per_s=389.564
+BENCH_ROUND mode=tight-row-zero round=6 seconds=0.660359787 MiB_per_s=387.667
+BENCH_MEDIAN mode=tight-row-zero seconds=0.662157695 MiB_per_s=386.615
+BENCH_BEGIN mode=padded-reference width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=padded-reference round=0 seconds=0.658286576 MiB_per_s=388.888
+BENCH_ROUND mode=padded-reference round=1 seconds=0.662242110 MiB_per_s=386.566
+BENCH_ROUND mode=padded-reference round=2 seconds=0.652064572 MiB_per_s=392.599
+BENCH_ROUND mode=padded-reference round=3 seconds=0.646414777 MiB_per_s=396.031
+BENCH_ROUND mode=padded-reference round=4 seconds=0.636947574 MiB_per_s=401.917
+BENCH_ROUND mode=padded-reference round=5 seconds=0.626793733 MiB_per_s=408.428
+BENCH_ROUND mode=padded-reference round=6 seconds=0.650587853 MiB_per_s=393.490
+BENCH_MEDIAN mode=padded-reference seconds=0.650587853 MiB_per_s=393.490
+PASS vktest-tight-upload (correctness and benchmark)
+
+===== round=1 variant=tight =====
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+BENCH_BEGIN mode=tight-row-zero width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=tight-row-zero round=0 seconds=0.611917741 MiB_per_s=418.357
+BENCH_ROUND mode=tight-row-zero round=1 seconds=0.620548773 MiB_per_s=412.538
+BENCH_ROUND mode=tight-row-zero round=2 seconds=0.609785877 MiB_per_s=419.819
+BENCH_ROUND mode=tight-row-zero round=3 seconds=0.643538257 MiB_per_s=397.801
+BENCH_ROUND mode=tight-row-zero round=4 seconds=0.603230936 MiB_per_s=424.381
+BENCH_ROUND mode=tight-row-zero round=5 seconds=0.622743274 MiB_per_s=411.084
+BENCH_ROUND mode=tight-row-zero round=6 seconds=0.614517494 MiB_per_s=416.587
+BENCH_MEDIAN mode=tight-row-zero seconds=0.614517494 MiB_per_s=416.587
+BENCH_BEGIN mode=padded-reference width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=padded-reference round=0 seconds=0.653841923 MiB_per_s=391.532
+BENCH_ROUND mode=padded-reference round=1 seconds=0.641201368 MiB_per_s=399.251
+BENCH_ROUND mode=padded-reference round=2 seconds=0.646706292 MiB_per_s=395.852
+BENCH_ROUND mode=padded-reference round=3 seconds=0.642034280 MiB_per_s=398.733
+BENCH_ROUND mode=padded-reference round=4 seconds=0.657412898 MiB_per_s=389.405
+BENCH_ROUND mode=padded-reference round=5 seconds=0.641115831 MiB_per_s=399.304
+BENCH_ROUND mode=padded-reference round=6 seconds=0.644549622 MiB_per_s=397.177
+BENCH_MEDIAN mode=padded-reference seconds=0.644549622 MiB_per_s=397.177
+PASS vktest-tight-upload (correctness and benchmark)
+
+===== round=2 variant=baseline =====
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+BENCH_BEGIN mode=tight-row-zero width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=tight-row-zero round=0 seconds=0.653073802 MiB_per_s=391.992
+BENCH_ROUND mode=tight-row-zero round=1 seconds=0.662681368 MiB_per_s=386.309
+BENCH_ROUND mode=tight-row-zero round=2 seconds=0.649273585 MiB_per_s=394.287
+BENCH_ROUND mode=tight-row-zero round=3 seconds=0.646632941 MiB_per_s=395.897
+BENCH_ROUND mode=tight-row-zero round=4 seconds=0.646660589 MiB_per_s=395.880
+BENCH_ROUND mode=tight-row-zero round=5 seconds=0.657201917 MiB_per_s=389.530
+BENCH_ROUND mode=tight-row-zero round=6 seconds=0.645416110 MiB_per_s=396.643
+BENCH_MEDIAN mode=tight-row-zero seconds=0.649273585 MiB_per_s=394.287
+BENCH_BEGIN mode=padded-reference width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=padded-reference round=0 seconds=0.660419496 MiB_per_s=387.632
+BENCH_ROUND mode=padded-reference round=1 seconds=0.652622537 MiB_per_s=392.263
+BENCH_ROUND mode=padded-reference round=2 seconds=0.641396622 MiB_per_s=399.129
+BENCH_ROUND mode=padded-reference round=3 seconds=0.630623730 MiB_per_s=405.947
+BENCH_ROUND mode=padded-reference round=4 seconds=0.640351219 MiB_per_s=399.781
+BENCH_ROUND mode=padded-reference round=5 seconds=0.639838496 MiB_per_s=400.101
+BENCH_ROUND mode=padded-reference round=6 seconds=0.649820535 MiB_per_s=393.955
+BENCH_MEDIAN mode=padded-reference seconds=0.641396622 MiB_per_s=399.129
+PASS vktest-tight-upload (correctness and benchmark)
+
+===== round=2 variant=tight =====
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+BENCH_BEGIN mode=tight-row-zero width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=tight-row-zero round=0 seconds=0.602535861 MiB_per_s=424.871
+BENCH_ROUND mode=tight-row-zero round=1 seconds=0.597970489 MiB_per_s=428.115
+BENCH_ROUND mode=tight-row-zero round=2 seconds=0.599381252 MiB_per_s=427.107
+BENCH_ROUND mode=tight-row-zero round=3 seconds=0.600051047 MiB_per_s=426.630
+BENCH_ROUND mode=tight-row-zero round=4 seconds=0.591269088 MiB_per_s=432.967
+BENCH_ROUND mode=tight-row-zero round=5 seconds=0.599173712 MiB_per_s=427.255
+BENCH_ROUND mode=tight-row-zero round=6 seconds=0.589448547 MiB_per_s=434.304
+BENCH_MEDIAN mode=tight-row-zero seconds=0.599173712 MiB_per_s=427.255
+BENCH_BEGIN mode=padded-reference width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=padded-reference round=0 seconds=0.645047014 MiB_per_s=396.870
+BENCH_ROUND mode=padded-reference round=1 seconds=0.642313670 MiB_per_s=398.559
+BENCH_ROUND mode=padded-reference round=2 seconds=0.631474004 MiB_per_s=405.401
+BENCH_ROUND mode=padded-reference round=3 seconds=0.643946441 MiB_per_s=397.549
+BENCH_ROUND mode=padded-reference round=4 seconds=0.647303207 MiB_per_s=395.487
+BENCH_ROUND mode=padded-reference round=5 seconds=0.642330061 MiB_per_s=398.549
+BENCH_ROUND mode=padded-reference round=6 seconds=0.652592392 MiB_per_s=392.282
+BENCH_MEDIAN mode=padded-reference seconds=0.643946441 MiB_per_s=397.549
+PASS vktest-tight-upload (correctness and benchmark)
+
+===== round=3 variant=baseline =====
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+BENCH_BEGIN mode=tight-row-zero width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=tight-row-zero round=0 seconds=0.646888434 MiB_per_s=395.741
+BENCH_ROUND mode=tight-row-zero round=1 seconds=0.628747142 MiB_per_s=407.159
+BENCH_ROUND mode=tight-row-zero round=2 seconds=0.648983509 MiB_per_s=394.463
+BENCH_ROUND mode=tight-row-zero round=3 seconds=0.638572988 MiB_per_s=400.894
+BENCH_ROUND mode=tight-row-zero round=4 seconds=0.643098261 MiB_per_s=398.073
+BENCH_ROUND mode=tight-row-zero round=5 seconds=0.638950817 MiB_per_s=400.657
+BENCH_ROUND mode=tight-row-zero round=6 seconds=0.645997468 MiB_per_s=396.286
+BENCH_MEDIAN mode=tight-row-zero seconds=0.643098261 MiB_per_s=398.073
+BENCH_BEGIN mode=padded-reference width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=padded-reference round=0 seconds=0.643711712 MiB_per_s=397.694
+BENCH_ROUND mode=padded-reference round=1 seconds=0.634483843 MiB_per_s=403.478
+BENCH_ROUND mode=padded-reference round=2 seconds=0.640286394 MiB_per_s=399.821
+BENCH_ROUND mode=padded-reference round=3 seconds=0.636325521 MiB_per_s=402.310
+BENCH_ROUND mode=padded-reference round=4 seconds=0.632776348 MiB_per_s=404.566
+BENCH_ROUND mode=padded-reference round=5 seconds=0.642639080 MiB_per_s=398.357
+BENCH_ROUND mode=padded-reference round=6 seconds=0.634335929 MiB_per_s=403.572
+BENCH_MEDIAN mode=padded-reference seconds=0.636325521 MiB_per_s=402.310
+PASS vktest-tight-upload (correctness and benchmark)
+
+===== round=3 variant=tight =====
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+BENCH_BEGIN mode=tight-row-zero width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=tight-row-zero round=0 seconds=0.594971923 MiB_per_s=430.272
+BENCH_ROUND mode=tight-row-zero round=1 seconds=0.602696517 MiB_per_s=424.758
+BENCH_ROUND mode=tight-row-zero round=2 seconds=0.618376682 MiB_per_s=413.987
+BENCH_ROUND mode=tight-row-zero round=3 seconds=0.600879303 MiB_per_s=426.042
+BENCH_ROUND mode=tight-row-zero round=4 seconds=0.592901199 MiB_per_s=431.775
+BENCH_ROUND mode=tight-row-zero round=5 seconds=0.609177404 MiB_per_s=420.239
+BENCH_ROUND mode=tight-row-zero round=6 seconds=0.597847317 MiB_per_s=428.203
+BENCH_MEDIAN mode=tight-row-zero seconds=0.600879303 MiB_per_s=426.042
+BENCH_BEGIN mode=padded-reference width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=padded-reference round=0 seconds=0.641286218 MiB_per_s=399.198
+BENCH_ROUND mode=padded-reference round=1 seconds=0.639038806 MiB_per_s=400.602
+BENCH_ROUND mode=padded-reference round=2 seconds=0.637404809 MiB_per_s=401.629
+BENCH_ROUND mode=padded-reference round=3 seconds=0.643900509 MiB_per_s=397.577
+BENCH_ROUND mode=padded-reference round=4 seconds=0.642377066 MiB_per_s=398.520
+BENCH_ROUND mode=padded-reference round=5 seconds=0.641596338 MiB_per_s=399.005
+BENCH_ROUND mode=padded-reference round=6 seconds=0.644313602 MiB_per_s=397.322
+BENCH_MEDIAN mode=padded-reference seconds=0.641596338 MiB_per_s=399.005
+PASS vktest-tight-upload (correctness and benchmark)
+
+===== round=4 variant=baseline =====
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+BENCH_BEGIN mode=tight-row-zero width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=tight-row-zero round=0 seconds=0.643870286 MiB_per_s=397.596
+BENCH_ROUND mode=tight-row-zero round=1 seconds=0.638983553 MiB_per_s=400.636
+BENCH_ROUND mode=tight-row-zero round=2 seconds=0.649508396 MiB_per_s=394.144
+BENCH_ROUND mode=tight-row-zero round=3 seconds=0.636217277 MiB_per_s=402.378
+BENCH_ROUND mode=tight-row-zero round=4 seconds=0.631106595 MiB_per_s=405.637
+BENCH_ROUND mode=tight-row-zero round=5 seconds=0.635693994 MiB_per_s=402.709
+BENCH_ROUND mode=tight-row-zero round=6 seconds=0.634704038 MiB_per_s=403.338
+BENCH_MEDIAN mode=tight-row-zero seconds=0.636217277 MiB_per_s=402.378
+BENCH_BEGIN mode=padded-reference width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=padded-reference round=0 seconds=0.635914355 MiB_per_s=402.570
+BENCH_ROUND mode=padded-reference round=1 seconds=0.648356732 MiB_per_s=394.844
+BENCH_ROUND mode=padded-reference round=2 seconds=0.638301734 MiB_per_s=401.064
+BENCH_ROUND mode=padded-reference round=3 seconds=0.640351569 MiB_per_s=399.780
+BENCH_ROUND mode=padded-reference round=4 seconds=0.638964536 MiB_per_s=400.648
+BENCH_ROUND mode=padded-reference round=5 seconds=0.650975441 MiB_per_s=393.256
+BENCH_ROUND mode=padded-reference round=6 seconds=0.638385396 MiB_per_s=401.012
+BENCH_MEDIAN mode=padded-reference seconds=0.638964536 MiB_per_s=400.648
+PASS vktest-tight-upload (correctness and benchmark)
+
+===== round=4 variant=tight =====
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+BENCH_BEGIN mode=tight-row-zero width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=tight-row-zero round=0 seconds=0.610555680 MiB_per_s=419.290
+BENCH_ROUND mode=tight-row-zero round=1 seconds=0.615006064 MiB_per_s=416.256
+BENCH_ROUND mode=tight-row-zero round=2 seconds=0.602739426 MiB_per_s=424.727
+BENCH_ROUND mode=tight-row-zero round=3 seconds=0.588549159 MiB_per_s=434.968
+BENCH_ROUND mode=tight-row-zero round=4 seconds=0.587083456 MiB_per_s=436.054
+BENCH_ROUND mode=tight-row-zero round=5 seconds=0.601606909 MiB_per_s=425.527
+BENCH_ROUND mode=tight-row-zero round=6 seconds=0.594163366 MiB_per_s=430.858
+BENCH_MEDIAN mode=tight-row-zero seconds=0.601606909 MiB_per_s=425.527
+BENCH_BEGIN mode=padded-reference width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=padded-reference round=0 seconds=0.629706804 MiB_per_s=406.538
+BENCH_ROUND mode=padded-reference round=1 seconds=0.631879010 MiB_per_s=405.141
+BENCH_ROUND mode=padded-reference round=2 seconds=0.639792222 MiB_per_s=400.130
+BENCH_ROUND mode=padded-reference round=3 seconds=0.643610782 MiB_per_s=397.756
+BENCH_ROUND mode=padded-reference round=4 seconds=0.627781548 MiB_per_s=407.785
+BENCH_ROUND mode=padded-reference round=5 seconds=0.641721973 MiB_per_s=398.927
+BENCH_ROUND mode=padded-reference round=6 seconds=0.632658758 MiB_per_s=404.642
+BENCH_MEDIAN mode=padded-reference seconds=0.632658758 MiB_per_s=404.642
+PASS vktest-tight-upload (correctness and benchmark)
+
+===== round=5 variant=baseline =====
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+BENCH_BEGIN mode=tight-row-zero width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=tight-row-zero round=0 seconds=0.638803109 MiB_per_s=400.749
+BENCH_ROUND mode=tight-row-zero round=1 seconds=0.641550607 MiB_per_s=399.033
+BENCH_ROUND mode=tight-row-zero round=2 seconds=0.630135513 MiB_per_s=406.262
+BENCH_ROUND mode=tight-row-zero round=3 seconds=0.636123956 MiB_per_s=402.437
+BENCH_ROUND mode=tight-row-zero round=4 seconds=0.637091898 MiB_per_s=401.826
+BENCH_ROUND mode=tight-row-zero round=5 seconds=0.633192118 MiB_per_s=404.301
+BENCH_ROUND mode=tight-row-zero round=6 seconds=0.648678047 MiB_per_s=394.649
+BENCH_MEDIAN mode=tight-row-zero seconds=0.637091898 MiB_per_s=401.826
+BENCH_BEGIN mode=padded-reference width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=padded-reference round=0 seconds=0.620653680 MiB_per_s=412.468
+BENCH_ROUND mode=padded-reference round=1 seconds=0.627713655 MiB_per_s=407.829
+BENCH_ROUND mode=padded-reference round=2 seconds=0.649313367 MiB_per_s=394.263
+BENCH_ROUND mode=padded-reference round=3 seconds=0.636163688 MiB_per_s=402.412
+BENCH_ROUND mode=padded-reference round=4 seconds=0.641754475 MiB_per_s=398.906
+BENCH_ROUND mode=padded-reference round=5 seconds=0.633140334 MiB_per_s=404.334
+BENCH_ROUND mode=padded-reference round=6 seconds=0.626912276 MiB_per_s=408.351
+BENCH_MEDIAN mode=padded-reference seconds=0.633140334 MiB_per_s=404.334
+PASS vktest-tight-upload (correctness and benchmark)
+
+===== round=5 variant=tight =====
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS case=optimal-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=optimal-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS case=linear-padded-reference bufferRowLength=24 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-zero bufferRowLength=0 bufferOffset=16 imageOffset=5,7
+PASS case=linear-tight-row-width bufferRowLength=17 bufferOffset=16 imageOffset=5,7
+PASS tight-vs-padded pixel comparison
+BENCH_BEGIN mode=tight-row-zero width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=tight-row-zero round=0 seconds=0.595199212 MiB_per_s=430.108
+BENCH_ROUND mode=tight-row-zero round=1 seconds=0.601182454 MiB_per_s=425.827
+BENCH_ROUND mode=tight-row-zero round=2 seconds=0.600349339 MiB_per_s=426.418
+BENCH_ROUND mode=tight-row-zero round=3 seconds=0.604417010 MiB_per_s=423.549
+BENCH_ROUND mode=tight-row-zero round=4 seconds=0.598233781 MiB_per_s=427.926
+BENCH_ROUND mode=tight-row-zero round=5 seconds=0.592100014 MiB_per_s=432.359
+BENCH_ROUND mode=tight-row-zero round=6 seconds=0.613464758 MiB_per_s=417.302
+BENCH_MEDIAN mode=tight-row-zero seconds=0.600349339 MiB_per_s=426.418
+BENCH_BEGIN mode=padded-reference width=1024 height=1024 uploads=64 rounds=7 bytes=268435456
+BENCH_ROUND mode=padded-reference round=0 seconds=0.639296438 MiB_per_s=400.440
+BENCH_ROUND mode=padded-reference round=1 seconds=0.639470835 MiB_per_s=400.331
+BENCH_ROUND mode=padded-reference round=2 seconds=0.627161393 MiB_per_s=408.188
+BENCH_ROUND mode=padded-reference round=3 seconds=0.641056702 MiB_per_s=399.341
+BENCH_ROUND mode=padded-reference round=4 seconds=0.636450725 MiB_per_s=402.231
+BENCH_ROUND mode=padded-reference round=5 seconds=0.635843308 MiB_per_s=402.615
+BENCH_ROUND mode=padded-reference round=6 seconds=0.625446800 MiB_per_s=409.307
+BENCH_MEDIAN mode=padded-reference seconds=0.636450725 MiB_per_s=402.231
+PASS vktest-tight-upload (correctness and benchmark)

@@ -43,7 +43,11 @@
 #include <string>
 #include <algorithm>
 #include <array>
+#include <chrono>
+#include <new>
+#include <thread>
 #include <utility>
+#include "submit-fence.hpp"
 
 #define VKGL_LOG(...) do { if (getenv("VKGL_DEBUG")) fprintf(stderr, "vkgl: " __VA_ARGS__); } while (0)
 
@@ -61,6 +65,15 @@ struct Obj {
 // ---------------------------------------------------------------------------
 // GL context (single global, created lazily on first device use)
 // ---------------------------------------------------------------------------
+static bool has_egl_extension(const char *extensions, const char *name) {
+   if (!extensions) return false;
+   const size_t len = strlen(name);
+   for (const char *p = extensions; (p = strstr(p, name)) != nullptr; p += len) {
+      if ((p == extensions || p[-1] == ' ') && (p[len] == '\0' || p[len] == ' ')) return true;
+   }
+   return false;
+}
+
 struct GlCtx {
    int drm_fd = -1;
    gbm_device *gbm = nullptr;
@@ -69,6 +82,13 @@ struct GlCtx {
    EGLContext ctx = EGL_NO_CONTEXT;
    EGLSurface surf = EGL_NO_SURFACE;
    bool ok = false;
+   PFNEGLCREATESYNCKHRPROC create_sync = nullptr;
+   PFNEGLCLIENTWAITSYNCKHRPROC client_wait_sync = nullptr;
+   PFNEGLDESTROYSYNCKHRPROC destroy_sync = nullptr;
+
+   bool fence_sync_available() const {
+      return create_sync && client_wait_sync && destroy_sync;
+   }
 
    static GlCtx &get() {
       static GlCtx g;
@@ -120,8 +140,20 @@ struct GlCtx {
       ctx = eglCreateContext(dpy, cfg, EGL_NO_CONTEXT, ca);
       if (ctx == EGL_NO_CONTEXT) { fprintf(stderr, "vkgl: eglCreateContext failed 0x%x\n", eglGetError()); return; }
       if (!eglMakeCurrent(dpy, surf, surf, ctx)) { fprintf(stderr, "vkgl: eglMakeCurrent failed 0x%x\n", eglGetError()); return; }
+      if (has_egl_extension(eglQueryString(dpy, EGL_EXTENSIONS), "EGL_KHR_fence_sync")) {
+         create_sync = (PFNEGLCREATESYNCKHRPROC)eglGetProcAddress("eglCreateSyncKHR");
+         client_wait_sync = (PFNEGLCLIENTWAITSYNCKHRPROC)eglGetProcAddress("eglClientWaitSyncKHR");
+         destroy_sync = (PFNEGLDESTROYSYNCKHRPROC)eglGetProcAddress("eglDestroySyncKHR");
+         if (!fence_sync_available()) {
+            create_sync = nullptr;
+            client_wait_sync = nullptr;
+            destroy_sync = nullptr;
+            VKGL_LOG("EGL_KHR_fence_sync advertised without all entry points; using glFinish\n");
+         }
+      }
       ok = true;
-      VKGL_LOG("GL %s / %s\n", glGetString(GL_VERSION), glGetString(GL_RENDERER));
+      VKGL_LOG("GL %s / %s; EGL_KHR_fence_sync=%d\n", glGetString(GL_VERSION), glGetString(GL_RENDERER),
+               fence_sync_available() ? 1 : 0);
    }
 
    void make_current() {
@@ -139,6 +171,62 @@ struct GlCtx {
          }
          if (surf != EGL_NO_SURFACE) eglMakeCurrent(dpy, surf, surf, ctx);
       }
+   }
+};
+
+struct EglFenceBackend {
+   void *create_sync() {
+      GlCtx &g = GlCtx::get();
+      g.make_current();
+      if (!g.ok || !g.fence_sync_available()) return nullptr;
+      const EGLint attribs[] = {
+         EGL_SYNC_CONDITION_KHR, EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR, EGL_NONE,
+      };
+      EGLSyncKHR sync = g.create_sync(g.dpy, EGL_SYNC_FENCE_KHR, attribs);
+      if (sync == EGL_NO_SYNC_KHR) {
+         VKGL_LOG("eglCreateSyncKHR failed 0x%x; using glFinish\n", eglGetError());
+         return nullptr;
+      }
+      return sync;
+   }
+
+   void flush_commands() {
+      GlCtx::get().make_current();
+      glFlush();
+   }
+
+   void finish_commands() {
+      GlCtx::get().make_current();
+      glFinish();
+   }
+
+   vkgl_fence::Result wait_sync(void *handle, uint64_t timeout_ns) {
+      GlCtx &g = GlCtx::get();
+      if (!handle || !g.client_wait_sync) return vkgl_fence::Result::Error;
+      const EGLTimeKHR timeout = timeout_ns == vkgl_fence::infinite_timeout
+         ? EGL_FOREVER_KHR : (EGLTimeKHR)timeout_ns;
+      EGLint status = g.client_wait_sync(g.dpy, handle, 0, timeout);
+      if (status == EGL_CONDITION_SATISFIED_KHR) return vkgl_fence::Result::Signaled;
+      if (status == EGL_TIMEOUT_EXPIRED_KHR) return vkgl_fence::Result::Timeout;
+      VKGL_LOG("eglClientWaitSyncKHR failed: status=0x%x error=0x%x\n", status, eglGetError());
+      return vkgl_fence::Result::Error;
+   }
+
+   void destroy_sync(void *handle) {
+      GlCtx &g = GlCtx::get();
+      if (handle && g.destroy_sync && !g.destroy_sync(g.dpy, handle))
+         VKGL_LOG("eglDestroySyncKHR failed 0x%x\n", eglGetError());
+   }
+
+   void sleep_for(uint64_t timeout_ns) {
+      std::this_thread::sleep_for(std::chrono::nanoseconds(timeout_ns));
+   }
+};
+
+struct FenceClock {
+   uint64_t now_ns() const {
+      return (uint64_t)std::chrono::duration_cast<std::chrono::nanoseconds>(
+         std::chrono::steady_clock::now().time_since_epoch()).count();
    }
 };
 
@@ -345,7 +433,7 @@ struct CommandBuffer : Obj {
 };
 
 struct Semaphore : Obj {};
-struct Fence : Obj { bool signaled = true; };
+struct Fence : Obj { vkgl_fence::State state; };
 
 struct Surface : Obj {
    wl_display *display = nullptr;
@@ -1404,26 +1492,49 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateFence(VkDevice, const VkFenceCr
                                                        const VkAllocationCallbacks *, VkFence *out) {
    auto *f = new Fence();
    f->type = VK_OBJECT_TYPE_FENCE;
-   f->signaled = ci && (ci->flags & VK_FENCE_CREATE_SIGNALED_BIT);
+   f->state.signaled = ci && (ci->flags & VK_FENCE_CREATE_SIGNALED_BIT);
    *out = (VkFence)to_handle(f);
    reg(f, *out);
    return VK_SUCCESS;
 }
 static VKAPI_ATTR void VKAPI_CALL vkgl_DestroyFence(VkDevice, VkFence f, const VkAllocationCallbacks *) {
    unreg((uint64_t)f);
-   delete from_handle<Fence>((uint64_t)f);
+   auto *fence = from_handle<Fence>((uint64_t)f);
+   EglFenceBackend backend;
+   vkgl_fence::clear_sync(fence->state, backend);
+   delete fence;
+}
+static VkResult fence_status_result(vkgl_fence::Result result, VkResult not_signaled) {
+   if (result == vkgl_fence::Result::Signaled) return VK_SUCCESS;
+   if (result == vkgl_fence::Result::Timeout) return not_signaled;
+   return VK_ERROR_DEVICE_LOST;
 }
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_GetFenceStatus(VkDevice, VkFence f) {
-   return from_handle<Fence>((uint64_t)f)->signaled ? VK_SUCCESS : VK_NOT_READY;
+   EglFenceBackend backend;
+   auto &state = from_handle<Fence>((uint64_t)f)->state;
+   return fence_status_result(vkgl_fence::observe(state, backend), VK_NOT_READY);
 }
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_ResetFences(VkDevice, uint32_t n, const VkFence *fs) {
-   for (uint32_t i = 0; i < n; i++) from_handle<Fence>((uint64_t)fs[i])->signaled = false;
+   EglFenceBackend backend;
+   for (uint32_t i = 0; i < n; i++)
+      vkgl_fence::reset(from_handle<Fence>((uint64_t)fs[i])->state, backend);
    return VK_SUCCESS;
 }
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_WaitForFences(VkDevice, uint32_t n, const VkFence *fs,
-                                                         VkBool32, uint64_t) {
-   for (uint32_t i = 0; i < n; i++) from_handle<Fence>((uint64_t)fs[i])->signaled = true;
-   return VK_SUCCESS;
+                                                         VkBool32 wait_all, uint64_t timeout) {
+   std::vector<vkgl_fence::State *> states;
+   try {
+      states.reserve(n);
+      for (uint32_t i = 0; i < n; i++)
+         states.push_back(&from_handle<Fence>((uint64_t)fs[i])->state);
+   } catch (const std::bad_alloc &) {
+      return VK_ERROR_OUT_OF_HOST_MEMORY;
+   }
+   EglFenceBackend backend;
+   FenceClock clock;
+   vkgl_fence::Result result = vkgl_fence::wait(states.data(), states.size(),
+                                                wait_all != VK_FALSE, timeout, backend, clock);
+   return fence_status_result(result, VK_TIMEOUT);
 }
 static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateSemaphore(VkDevice, const VkSemaphoreCreateInfo *,
                                                            const VkAllocationCallbacks *, VkSemaphore *out) {
@@ -1681,8 +1792,13 @@ static void execute_cmds(CommandBuffer *c) {
                row_texels >= width &&
                (uint64_t)r.imageOffset.x + width <= cmd.img->extent.width &&
                (uint64_t)r.imageOffset.y + height <= cmd.img->extent.height;
+            // Keep the packed snapshot if a linear destination aliases the
+            // source allocation; shadow updates must not overwrite later input.
+            const bool direct = row_texels == width &&
+               (!linear || cmd.buf->mem != cmd.img->mem);
+            const uint8_t *pixels = nullptr;
             std::vector<uint8_t> packed;
-            if (valid) packed.resize((size_t)(row_bytes * height));
+            if (valid && !direct) packed.resize((size_t)(row_bytes * height));
             for (uint64_t y = 0; valid && y < height; y++) {
                uint64_t src_rel = r.bufferOffset + y * row_texels * bpp;
                uint64_t dst_rel = ((uint64_t)r.imageOffset.y + y) * cmd.img->extent.width * bpp +
@@ -1694,7 +1810,12 @@ static void execute_cmds(CommandBuffer *c) {
                   valid = false;
                   break;
                }
-               memcpy(packed.data() + y * row_bytes, src_shadow.data() + cmd.buf->mem_offset + src_rel, (size_t)row_bytes);
+               const uint8_t *src = src_shadow.data() + cmd.buf->mem_offset + src_rel;
+               if (direct) {
+                  if (y == 0) pixels = src;
+               } else {
+                  memcpy(packed.data() + y * row_bytes, src, (size_t)row_bytes);
+               }
                if (linear) {
                   const auto &dst_shadow = cmd.img->mem->shadow;
                   if (cmd.img->mem_offset > dst_shadow.size() || dst_rel > dst_shadow.size() - cmd.img->mem_offset ||
@@ -1705,19 +1826,20 @@ static void execute_cmds(CommandBuffer *c) {
                VKGL_LOG("CopyBufferToImage rejected unsupported or out-of-bounds region\n");
                break;
             }
+            if (!direct) pixels = packed.data();
             if (linear) {
                uint8_t *dst = cmd.img->mem->shadow.data() + cmd.img->mem_offset;
                uint64_t image_pitch = (uint64_t)cmd.img->extent.width * bpp;
                for (uint64_t y = 0; y < height; y++)
                   memcpy(dst + ((uint64_t)r.imageOffset.y + y) * image_pitch + (uint64_t)r.imageOffset.x * bpp,
-                         packed.data() + y * row_bytes, (size_t)row_bytes);
+                         pixels + y * row_bytes, (size_t)row_bytes);
             }
             ensure_gl_texture(cmd.img);
             glBindTexture(GL_TEXTURE_2D, cmd.img->tex);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTexSubImage2D(GL_TEXTURE_2D, 0, (GLint)r.imageOffset.x, (GLint)r.imageOffset.y,
                             (GLsizei)width, (GLsizei)height,
-                            cmd.img->gl_format, cmd.img->gl_type, packed.data());
+                            cmd.img->gl_format, cmd.img->gl_type, pixels);
             if (linear) {
                cmd.img->mem->revision++;
                cmd.img->uploaded_revision = cmd.img->mem->revision;
@@ -1850,7 +1972,10 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_QueueSubmit(VkQueue, uint32_t n, cons
          if (c) execute_cmds(c);
       }
    }
-   if (fence) from_handle<Fence>((uint64_t)fence)->signaled = true;
+   if (fence) {
+      EglFenceBackend backend;
+      vkgl_fence::submit(from_handle<Fence>((uint64_t)fence)->state, backend);
+   }
    return VK_SUCCESS;
 }
 
@@ -2214,7 +2339,10 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_AcquireNextImageKHR(VkDevice, VkSwapc
    }
    if (idx < 0) return VK_TIMEOUT;
    sc->releases[idx]->acquired = true;
-   if (fence) from_handle<Fence>((uint64_t)fence)->signaled = true;
+   if (fence) {
+      EglFenceBackend backend;
+      vkgl_fence::signal_host(from_handle<Fence>((uint64_t)fence)->state, backend);
+   }
    *index = (uint32_t)idx;
    sc->current = ((uint32_t)idx + 1) % sc->count;
    VKGL_LOG("acquire sc=%p idx=%d dmabuf=%d after_wait=%d\n", (void*)sc, idx,

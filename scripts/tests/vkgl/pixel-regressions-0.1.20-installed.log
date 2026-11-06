@@ -1,0 +1,114 @@
+
+===== gradient-copy-image-A.log =====
+texture variant: A red=0 other=0
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+copy-image src=(320,239) dst=(7,9) extent=2x2 offscreen=64x64 format=44
+readback dst_origin=(7,9) extent=2x2 row_length=4 buffer_offset=4 size=32 format=44 tolerance=2
+readback expected32=a5a5a5a5008000ff008000ffa5a5a5a5a5a5a5a5007f00ff007f00ffa5a5a5a5
+readback actual32=a5a5a5a5008000ff008000ffa5a5a5a5a5a5a5a5007f00ff007f00ffa5a5a5a5
+readback pixels_valid=4 guards_padding_ok=1 sentinel_unchanged=0
+PASS vktest-gradient-copy-image variant=A pixels_valid=4
+
+===== gradient-copy-image-B.log =====
+texture variant: B red=255 other=0
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+copy-image src=(320,239) dst=(7,9) extent=2x2 offscreen=64x64 format=44
+readback dst_origin=(7,9) extent=2x2 row_length=4 buffer_offset=4 size=32 format=44 tolerance=2
+readback expected32=a5a5a5a5008040ff008040ffa5a5a5a5a5a5a5a5007f40ff007f40ffa5a5a5a5
+readback actual32=a5a5a5a5008040ff008040ffa5a5a5a5a5a5a5a5007f40ff007f40ffa5a5a5a5
+readback pixels_valid=4 guards_padding_ok=1 sentinel_unchanged=0
+PASS vktest-gradient-copy-image variant=B pixels_valid=4
+
+===== gradient-sample-readback-A.log =====
+texture variant: A red=0 other=0
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+readback center=(320,240) format=44 tolerance=2 expected_bytes=008000ff
+readback actual_bytes=007f00ff pixels_valid=1 sentinel_unchanged=0
+PASS vktest-gradient-sample-readback variant=A pixels_valid=1
+
+===== gradient-sample-readback-B.log =====
+texture variant: B red=255 other=0
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+readback center=(320,240) format=44 tolerance=2 expected_bytes=008040ff
+readback actual_bytes=007f40ff pixels_valid=1 sentinel_unchanged=0
+PASS vktest-gradient-sample-readback variant=B pixels_valid=1
+
+===== gradient-sample-readback-padded-A.log =====
+texture variant: A red=0 other=0
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+readback origin=(320,239) extent=2x2 row_length=4 buffer_offset=4 size=32 format=44 tolerance=2
+readback expected32=a5a5a5a5008000ff008000ffa5a5a5a5a5a5a5a5007f00ff007f00ffa5a5a5a5
+readback actual32=a5a5a5a5008000ff008000ffa5a5a5a5a5a5a5a5007f00ff007f00ffa5a5a5a5
+readback pixels_valid=4 guards_padding_ok=1 sentinel_unchanged=0
+PASS vktest-gradient-sample-readback-padded variant=A pixels_valid=4
+
+===== gradient-sample-readback-padded-B.log =====
+texture variant: B red=255 other=0
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+readback origin=(320,239) extent=2x2 row_length=4 buffer_offset=4 size=32 format=44 tolerance=2
+readback expected32=a5a5a5a5008040ff008040ffa5a5a5a5a5a5a5a5007f40ff007f40ffa5a5a5a5
+readback actual32=a5a5a5a5008040ff008040ffa5a5a5a5a5a5a5a5007f40ff007f40ffa5a5a5a5
+readback pixels_valid=4 guards_padding_ok=1 sentinel_unchanged=0
+PASS vktest-gradient-sample-readback-padded variant=B pixels_valid=4
+
+===== clear-attachments-A.log =====
+texture variant: A red=0 other=0
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+clear rect=(320,239) neighbor=(324,239) extent=2x2 row_length=4 buffer_offset=4 size=32 format=44 tolerance=2
+clear expected32=a5a5a5a5402010ff402010ffa5a5a5a5a5a5a5a5402010ff402010ffa5a5a5a5
+neighbor expected32=a5a5a5a5008000ff008000ffa5a5a5a5a5a5a5a5007f00ff007f00ffa5a5a5a5
+clear actual32=a5a5a5a5402010ff402010ffa5a5a5a5a5a5a5a5402010ff402010ffa5a5a5a5
+neighbor actual32=a5a5a5a5008000ff008000ffa5a5a5a5a5a5a5a5007f00ff007f00ffa5a5a5a5
+clear pixels_valid=4 guards_padding_ok=1
+neighbor pixels_valid=4 guards_padding_ok=1
+PASS vktest-clear-attachments variant=A clear_pixels=4 neighbor_pixels=4
+
+===== clear-attachments-B.log =====
+texture variant: B red=255 other=0
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+clear rect=(320,239) neighbor=(324,239) extent=2x2 row_length=4 buffer_offset=4 size=32 format=44 tolerance=2
+clear expected32=a5a5a5a5402010ff402010ffa5a5a5a5a5a5a5a5402010ff402010ffa5a5a5a5
+neighbor expected32=a5a5a5a5008040ff008040ffa5a5a5a5a5a5a5a5007f40ff007f40ffa5a5a5a5
+clear actual32=a5a5a5a5402010ff402010ffa5a5a5a5a5a5a5a5402010ff402010ffa5a5a5a5
+neighbor actual32=a5a5a5a5008040ff008040ffa5a5a5a5a5a5a5a5007f40ff007f40ffa5a5a5a5
+clear pixels_valid=4 guards_padding_ok=1
+neighbor pixels_valid=4 guards_padding_ok=1
+PASS vktest-clear-attachments variant=B clear_pixels=4 neighbor_pixels=4
+
+===== acquire-dmabuf.log =====
+PASS vktest-acquire (2 exclusive images, fence signaled, release reacquired)
+
+===== acquire-shm.log =====
+PASS vktest-acquire (2 exclusive images, fence signaled, release reacquired)
+
+===== copy-dmabuf-pixels.log =====
+red=153600 blue=153600
+PASS: copied linear texture and padded rows are correct
+
+===== copy-shm-pixels.log =====
+red=153600 blue=153600
+PASS: copied linear texture and padded rows are correct

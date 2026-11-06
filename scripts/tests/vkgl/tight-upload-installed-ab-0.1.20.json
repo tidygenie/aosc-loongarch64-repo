@@ -1,0 +1,46 @@
+{
+  "tight-row-zero": [
+    {
+      "baseline": 0.699071361,
+      "installed": 0.624983494
+    },
+    {
+      "baseline": 0.682755353,
+      "installed": 0.652035757
+    },
+    {
+      "baseline": 0.692541042,
+      "installed": 0.647991361
+    },
+    {
+      "baseline": 0.673908133,
+      "installed": 0.640047151
+    },
+    {
+      "baseline": 0.644260491,
+      "installed": 0.600216773
+    }
+  ],
+  "padded-reference": [
+    {
+      "baseline": 0.694269383,
+      "installed": 0.700799831
+    },
+    {
+      "baseline": 0.69194657,
+      "installed": 0.713983525
+    },
+    {
+      "baseline": 0.685325511,
+      "installed": 0.688964799
+    },
+    {
+      "baseline": 0.671532184,
+      "installed": 0.674592741
+    },
+    {
+      "baseline": 0.627866851,
+      "installed": 0.638028495
+    }
+  ]
+}

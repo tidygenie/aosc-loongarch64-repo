@@ -13,6 +13,8 @@ parser.add_argument("--base", required=True, help="ICD JSON for the control")
 parser.add_argument("--candidate", required=True, help="ICD JSON for the candidate")
 parser.add_argument("--rounds", type=int, default=6)
 parser.add_argument("--duration", type=int, default=5)
+parser.add_argument("--scenes", default="vertex,texture,shading",
+                    help="comma-separated vkmark scenes (default: vertex,texture,shading)")
 parser.add_argument("--size", default="640x480", help="vkmark window size, for example 1920x1080")
 parser.add_argument("--output", type=Path)
 args = parser.parse_args()
@@ -20,10 +22,14 @@ if args.rounds < 1 or args.duration < 1:
     parser.error("rounds and duration must be positive")
 if not re.fullmatch(r"[1-9][0-9]{0,3}x[1-9][0-9]{0,3}", args.size):
     parser.error("size must be WIDTHxHEIGHT")
+scenes = tuple(scene.strip() for scene in args.scenes.split(",") if scene.strip())
+allowed_scenes = {"vertex", "texture", "shading", "effect2d", "desktop"}
+if not scenes or any(scene not in allowed_scenes for scene in scenes):
+    parser.error("scenes must be a nonempty comma-separated subset of vertex,texture,shading,effect2d,desktop")
 
 rows = []
 for round_no in range(1, args.rounds + 1):
-    for scene in ("vertex", "texture", "shading"):
+    for scene in scenes:
         order = ("base", "candidate") if round_no % 2 else ("candidate", "base")
         for variant in order:
             env = os.environ.copy()

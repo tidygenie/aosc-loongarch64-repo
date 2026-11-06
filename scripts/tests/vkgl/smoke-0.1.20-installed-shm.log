@@ -1,0 +1,18 @@
+== environment
+== 1. device enumeration
+  ✅ vulkaninfo sees LoongGPU LG110 (vkgl GLES2)
+== 2. vkcube renders
+  ✅ vkcube completed 60 frames
+== 3. vkmark scenes
+  ✅ vkmark: 5/5 scenes rendered
+     [vertex] duration=2: FPS: 112 FrameTime: 8.929 ms
+     [texture] duration=2: FPS: 98 FrameTime: 10.204 ms
+     [shading] duration=2: FPS: 113 FrameTime: 8.850 ms
+     [effect2d] duration=2: FPS: 57 FrameTime: 17.544 ms
+     [desktop] duration=2: FPS: 74 FrameTime: 13.514 ms
+== 4. validation layers clean
+  ✅ 0 validation errors
+== 5. no llvmpipe in the渲染 process
+  ✅ GPU-only (no llvmpipe)
+
+== result: 5 passed, 0 failed

@@ -24,6 +24,8 @@
 | `ClearAttachments` | 活跃 render pass 内 color attachment0 的受限矩形/多层拒绝；用 `glScissor + glClear` 直接 GPU 清除，保存恢复 FBO/scissor/clear color/color mask |
 | `CopyImage` | 不同 2D color、同 B8/R8 UNORM、mip0/单层、未映射 dst 的受限区域，从 src FBO 用 `glCopyTexSubImage2D` 直接复制到 dst texture；无 vkgl CPU 像素中转 |
 | `CopyImageToBuffer` | 当前 2D color mip0/单层、B8/R8 RGBA8 与 tight/`bufferRowLength` padded 区域从实际 FBO `glReadPixels`，转换 Y 方向并检查溢出/边界；不宣称 depth/多层支持 |
+| `CopyBufferToImage` | tight 行（rowLength=0/width）在完整校验后直接引用源 shadow，避免额外 CPU packed copy；padded 与 linear 同 allocation 保留 packed snapshot |
+| Queue submission fence | 运行时探测 `EGL_KHR_fence_sync`，用真实 EGL sync 实现 status/waitAll/waitAny/reset；不可用时保守 `glFinish`，acquire fence 仍为主机事件 |
 | Render pass / Framebuffer | FBO（颜色纹理 + 深度纹理） |
 | Pipeline | SPIR-V → GLSL 1.20（SPIRV-Cross），UBO 扁平化成 `uniform vec4 name[N]` |
 | Vertex input | `glBindAttribLocation` + `glVertexAttribPointer` |
@@ -60,6 +62,14 @@
 - 640×480 FIFO vkmark 五场景：dmabuf **120/132/101/61/120 FPS**，wl_shm **77/82/69/57/74 FPS**。
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
+
+## 0.1.20 实测（2026-11-06）
+
+- tight `CopyBufferToImage` 在 rowLength=0/width 时不再分配并填充额外 CPU packed snapshot；完整边界校验、padded 路径和 linear 同 allocation 防覆盖 snapshot 均保留。精确 0.1.19 deb 与已安装 0.1.20 使用同一公开测试二进制，五组正反顺序配对、每次七批 64 个 1024² RGBA optimal-tiling 上传：tight 中位时间 `0.682755353→0.640047151 s`，对应吞吐 **+6.67%，5/5 对更快**；padded 对照 **-0.53%，0/5**。仅限该 microbenchmark，不外推 vkmark FPS。
+- 队列提交 fence 从“flush 后直接置 bool”改为运行时探测的真实 `EGL_KHR_fence_sync`；支持 status、waitAll/waitAny、reset、共享 deadline 和未提交零超时，缺少能力时保守 `glFinish`。acquire fence 仍是 host signal，dmabuf present `glFinish` 未改。
+- 安装版实测 vendor `EGL_KHR_fence_sync=1`；0.1.19 未提交零等待错误返回成功可复现，0.1.20 返回 `VK_TIMEOUT`，真实 waitAll/waitAny、Reset 后重提交和 `663300ff` 像素读回全通过。11 个 deterministic host 用例也通过。
+- 安装库 SHA-256=`d9aad6dea8cb6b39e538722cb8b1fccb8f3bc9aa44380dc5944725d0eea0067d`；deb SHA-256=`1665530c2b600172cbd2ee00ed882f92bb10458078a36265d2357e9d404184a7`。安装 dmabuf/wl_shm 均 **5/5、0 validation、GPU-only**，六组 tight/padded 对照、公开四类像素 A/B、acquire 与两路径各 153600红+153600蓝截屏全部通过。19 包索引、签名、HTTPS、隔离 apt 与远端 deb 字节全部验证。
+- 完整数据见 [0.1.20 发布报告](../scripts/tests/vkgl/vkgl-0.1.20.md)。本版仍是 Vulkan-over-GL，不是 native Vulkan。
 
 ## 0.1.19 实测（2026-11-06）
 
@@ -135,13 +145,14 @@
   零拷贝有明确收益，但约 20 FPS 仍不等于大型 3D 应用可流畅运行；
 - 调试日志：`VKGL_DEBUG=1`；发布时普通运行不打印逐帧日志。
 
-## 原生 GSPKT 追踪（2026-11-05）
+## 原生 GSPKT 追踪与字段因果（2026-11-06）
 
 - 只读 `LD_PRELOAD` tracer 已能关联 GEM/VA/mmap 与 CS，并恢复真实厂商 GL 提交的 IB 内容；源码和样本见
   [`scripts/research/lg110`](../scripts/research/lg110/)。
 - 实测厂商 GEM_VA 使用 `0xc0286448`（IOWR），公开 1.0.2 头为 `0x40286448`（IOW）；payload 相同，tracer 兼容匹配但不改原 ioctl。
 - `vktest-clear` 样本 4/4 次 CS 成功、4/4 个 576 字节 IB 均完成 32-dword dump，并带 FENCE chunk；首字包含未知 opcode `0x88`，后续出现公开头注释为 DRAW 的 `0x89`。
-- 这只是后续 clear/draw 差分和独立 winsys 研究的起点，**不是原生 Vulkan 已实现**。下一步必须确认包语义与 shader ISA，不能复用 AMD PM4/RADV 代替。
+- 独立 opt-in pre-CS 实验已在精确 15 词签名、完整可写映射与 word87=0 的条件下，仅将 clear IB 的 word87 改为 `0x3f800000`。400 个 dword 只有该词变化，真实像素从 `66 33 00 ff` 变为 `66 33 ff ff`，其余通道不变；公开源码重建后新 A/B 重复成功。见 [原生 clear 字段因果报告](../scripts/research/lg110/lg110-native-clear-mutation.md)。
+- 这是 clear-red 字段的因果证据，仍不是完整 0x88/0x89 包语义、shader ISA、独立 replay 或原生 Vulkan；不能复用 AMD PM4/RADV 代替。
 
 ## 测试
 
