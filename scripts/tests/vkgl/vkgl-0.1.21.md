@@ -43,7 +43,7 @@ Logs: `package-0.1.21.log`, `publish-0.1.21.log`.
   differentials isolated word268; active triangle→point changed exactly that
   dword and reproduced passive point pixels. Count mutation regression and
   already-point rejection passed. Adjacency/PATCH both returned -8 with no
-  draw/readback. See `../research/lg110/lg110-draw-topology-field.md` and raw
+  draw/readback. See `../../research/lg110/lg110-draw-topology-field.md` and raw
   `draw-topology-*` evidence.
 - Candidate A/B gradient, padded readback, CopyImage, ClearAttachments,
   clear-only, real submission fence, six tight/padded upload cases, and dmabuf
