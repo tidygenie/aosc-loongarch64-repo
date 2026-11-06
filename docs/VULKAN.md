@@ -153,7 +153,8 @@
 - `vktest-clear` 样本 4/4 次 CS 成功、4/4 个 576 字节 IB 均完成 32-dword dump，并带 FENCE chunk；首字包含未知 opcode `0x88`，后续出现公开头注释为 DRAW 的 `0x89`。
 - 独立 opt-in pre-CS 实验在完整可写映射、流长度/签名和原始值防护下，分别只修改 clear IB 的一个 dword。400-word swapchain 流中 red/green/blue=word87/88/89，raw 分别从 `663300ff` 到 `6633ffff`/`66ff00ff`/`ff3300ff`，每次只有一个对应像素通道变化。
 - alpha=word90 不能由 swapchain 直接证明：主动写入与被动 alpha=0.5 都只改该词但读回固定 `ff`。独立 272-word 离屏 optimal RGBA 流可保留 alpha；word90 `1.0→0.5` 主动实验得到 `003366ff→00336680`，完整 IB 和像素均只有对应一项变化。公开源码重建重复 green/offscreen-alpha，离屏 red 请求零写入。见 [clear RGBA 因果报告](../scripts/research/lg110/lg110-clear-color-fields.md)。
-- 这些仅是特定 clear 流的 RGBA 字段因果证据，仍不是完整 0x88/0x89 包语义、draw/shader ISA、独立 replay 或原生 Vulkan；不能复用 AMD PM4/RADV 代替。
+- draw3/draw2 被动差分的 XDMA 全同，672-word GFX 仅 word270 `3→2`、word276 `2→1`，中心由 `007f00ff` 变为 clear `663300ff`。主动实验仅改 word270、保持 word276=2，仍精确抑制三角形并复现 draw2 raw；已是 draw2 的输入被旧值防护拒绝且零 IB 差异。公开严格重建复现全部四项。这证明该流 word270 的 vertex-count 因果，word276 不命名。见 [draw-count 报告](../scripts/research/lg110/lg110-draw-count-field.md)。
+- 这些仅是特定 clear/draw 流的字段因果证据，仍不是完整 0x88/0x89 包语义、完整 draw/shader ISA、地址/tile、独立 replay 或原生 Vulkan；不能复用 AMD PM4/RADV 代替。
 
 ## 测试
 
