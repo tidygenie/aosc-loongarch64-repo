@@ -1,0 +1,4 @@
+2026-11-07T21:11:26+08:00
+Linux aosc-loongarch64 7.3.1-mainline-16k-rt-clang-lto #1 SMP PREEMPT_RT Wed Nov  4 21:11:59 CST 2026 loongarch64 GNU/Linux
+5ad81dfb43c85a39439130fb46d770a698228c5618a66feb8e2fb4361ab13614  /usr/lib/vkgl/libvkgl.so
+bebbb931fa10f79ad90b6b8a80dbe6296f5ebeaaf961bd29bccf9c48a62acdab  /tmp/vkgl-public-030/libvkgl.so

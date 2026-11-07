@@ -77,6 +77,8 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 
 0.1.29修复signed vertexOffset被忽略：正偏移与负偏移抵消在0.1.28直接/间接均失败，firstIndex控制原本正确。新版仅在非零偏移时调用已确认存在且硬件声明的glDrawElementsBaseVertex。UINT16/32×直接/间接×base/positive/negative/firstIndex共16项安装后全过、validation=0，旧16项实例/位宽矩阵也过。原生269获firstIndex因果，274获正/负base vertex因果，错误输入保护零修改。两组性能绝对值与方向不一致，不归因提升或回退；签名源30项、HTTPS/服务器字节一致。详见 [`vkgl-0.1.29.md`](../scripts/tests/vkgl/vkgl-0.1.29.md)。
 
+0.1.30修复多顶点binding相互覆盖：Pipeline和执行器现保存16组独立VBO/offset/stride，每个attribute按自身binding上传与取址。双binding位置offset8/stride8、UV stride16的四种indexed/indirect组合安装后全为gradient且validation=0；旧32项功能及21项原生回归通过。普通场景小样本vertex/shading均值-1.85%/-0.38%，不归因回退。原生trace只见独立XDMA，两个VBO base VA均未字面出现在GFX中，不虚构地址字段。签名源31项、HTTPS/服务器字节一致。详见 [`vkgl-0.1.30.md`](../scripts/tests/vkgl/vkgl-0.1.30.md)。
+
 # 2026-11-07 Homebrew与系统维护
 
 - APT元数据刷新后可更新包为0；第三方更新检查确认ruby 4.0.9、v2raya 2.5.13、zerotier-one 1.16.2均为当前最新，没有为本轮盲目升级图形组件。

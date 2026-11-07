@@ -1,0 +1,12 @@
+{"round": 1, "scene": "vertex", "variant": "base", "rc": 0, "elapsed_s": 5.137, "fps": 245, "frame_ms": 4.082}
+{"round": 1, "scene": "vertex", "variant": "candidate", "rc": 0, "elapsed_s": 5.228, "fps": 243, "frame_ms": 4.115}
+{"round": 1, "scene": "shading", "variant": "base", "rc": 0, "elapsed_s": 5.25, "fps": 197, "frame_ms": 5.076}
+{"round": 1, "scene": "shading", "variant": "candidate", "rc": 0, "elapsed_s": 5.245, "fps": 191, "frame_ms": 5.236}
+{"round": 2, "scene": "vertex", "variant": "candidate", "rc": 0, "elapsed_s": 5.271, "fps": 230, "frame_ms": 4.348}
+{"round": 2, "scene": "vertex", "variant": "base", "rc": 0, "elapsed_s": 5.2, "fps": 234, "frame_ms": 4.274}
+{"round": 2, "scene": "shading", "variant": "candidate", "rc": 0, "elapsed_s": 5.237, "fps": 174, "frame_ms": 5.747}
+{"round": 2, "scene": "shading", "variant": "base", "rc": 0, "elapsed_s": 5.26, "fps": 165, "frame_ms": 6.061}
+{"round": 3, "scene": "vertex", "variant": "base", "rc": 0, "elapsed_s": 5.21, "fps": 225, "frame_ms": 4.444}
+{"round": 3, "scene": "vertex", "variant": "candidate", "rc": 0, "elapsed_s": 5.232, "fps": 218, "frame_ms": 4.587}
+{"round": 3, "scene": "shading", "variant": "base", "rc": 0, "elapsed_s": 5.24, "fps": 169, "frame_ms": 5.917}
+{"round": 3, "scene": "shading", "variant": "candidate", "rc": 0, "elapsed_s": 5.226, "fps": 164, "frame_ms": 6.098}

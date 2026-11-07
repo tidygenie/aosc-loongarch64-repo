@@ -1,0 +1,5 @@
+vkgl public candidate sha256=bebbb931fa10f79ad90b6b8a80dbe6296f5ebeaaf961bd29bccf9c48a62acdab
+prior_functional=32/32 PASS validation_events=0
+prior_native_causal_and_guards=21/21 PASS
+two_binding_native=4/4 PASS indirect_gfx_diffs=12_VAs_only
+audit=PASS

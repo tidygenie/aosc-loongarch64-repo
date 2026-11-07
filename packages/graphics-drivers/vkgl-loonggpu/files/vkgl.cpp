@@ -351,7 +351,7 @@ struct Pipeline : Obj {
    VkPipelineBindPoint bind_point = VK_PIPELINE_BIND_POINT_GRAPHICS;
    VkGraphicsPipelineCreateInfo info = {};
    std::vector<ShaderStage> stages;
-   VkVertexInputBindingDescription vib = {};
+   VkVertexInputBindingDescription vibs[16] = {};
    std::vector<VkVertexInputAttributeDescription> via;
    GLuint program = 0;
    bool built = false;
@@ -1640,7 +1640,7 @@ static void execute_cmds(CommandBuffer *c) {
    GlCtx::get().make_current();
    Pipeline *cur_pipe = nullptr;
    std::vector<DescriptorSet *> sets;
-   Buffer *vbuf = nullptr; VkDeviceSize voff = 0;
+   Buffer *vbufs[16] = {}; VkDeviceSize voffs[16] = {};
    Buffer *ibuf = nullptr; VkDeviceSize ioff = 0;
    VkViewport vp = {0, 0, 0, 0, 0, 1};
    VkRect2D sc = {{0, 0}, {0, 0}};
@@ -1711,7 +1711,7 @@ static void execute_cmds(CommandBuffer *c) {
          sets[cmd.first] = cmd.set;
          break;
       case Cmd::BindVertexBuffer:
-         vbuf = cmd.buf; voff = cmd.offset;
+         if (cmd.first < 16) { vbufs[cmd.first] = cmd.buf; voffs[cmd.first] = cmd.offset; }
          break;
       case Cmd::BindIndexBuffer:
          ibuf = cmd.buf; ioff = cmd.offset;
@@ -1782,9 +1782,10 @@ static void execute_cmds(CommandBuffer *c) {
                Cmd sub = cmd; sub.kind = Cmd::Draw;
                sub.first = d->firstVertex; sub.count = d->vertexCount; sub.instances = d->instanceCount;
                 sub.first_instance = d->firstInstance;
-               extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &, Buffer *, VkDeviceSize,
+               extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &,
+                              Buffer *const *, const VkDeviceSize *,
                                              Buffer *, VkDeviceSize, const Cmd &);
-               vkgl_execute_draw(cur_pipe, sets, vbuf, voff, ibuf, ioff, sub);
+               vkgl_execute_draw(cur_pipe, sets, vbufs, voffs, ibuf, ioff, sub);
             }
          }
          break;
@@ -1797,9 +1798,10 @@ static void execute_cmds(CommandBuffer *c) {
                sub.first = d->firstIndex; sub.count = d->indexCount;
                sub.vertex_offset = d->vertexOffset; sub.instances = d->instanceCount;
                 sub.first_instance = d->firstInstance;
-               extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &, Buffer *, VkDeviceSize,
+               extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &,
+                              Buffer *const *, const VkDeviceSize *,
                                              Buffer *, VkDeviceSize, const Cmd &);
-               vkgl_execute_draw(cur_pipe, sets, vbuf, voff, ibuf, ioff, sub);
+               vkgl_execute_draw(cur_pipe, sets, vbufs, voffs, ibuf, ioff, sub);
             }
          }
          break;
@@ -1807,9 +1809,10 @@ static void execute_cmds(CommandBuffer *c) {
       case Cmd::DrawIndexed:
          if (cur_pipe) {
             // draw support is provided by the pipeline module (stage 2)
-            extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &, Buffer *, VkDeviceSize,
+            extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &,
+                              Buffer *const *, const VkDeviceSize *,
                                           Buffer *, VkDeviceSize, const Cmd &);
-            vkgl_execute_draw(cur_pipe, sets, vbuf, voff, ibuf, ioff, cmd);
+            vkgl_execute_draw(cur_pipe, sets, vbufs, voffs, ibuf, ioff, cmd);
          }
          break;
       case Cmd::FillBuffer:
@@ -3075,8 +3078,13 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateGraphicsPipelines(
       if (ci[n].pColorBlendState && ci[n].pColorBlendState->attachmentCount) {
          p->blend = ci[n].pColorBlendState->pAttachments[0].blendEnable;
       }
-      if (ci[n].pVertexInputState && ci[n].pVertexInputState->vertexBindingDescriptionCount)
-         p->vib = ci[n].pVertexInputState->pVertexBindingDescriptions[0];
+      if (ci[n].pVertexInputState) {
+         const auto *vi = ci[n].pVertexInputState;
+         for (uint32_t i = 0; i < vi->vertexBindingDescriptionCount; ++i) {
+            const auto &binding = vi->pVertexBindingDescriptions[i];
+            if (binding.binding < 16) p->vibs[binding.binding] = binding;
+         }
+      }
       if (ci[n].pVertexInputState) {
          auto *via = ci[n].pVertexInputState->pVertexAttributeDescriptions;
          for (uint32_t i = 0; i < ci[n].pVertexInputState->vertexAttributeDescriptionCount; i++)
@@ -3141,7 +3149,8 @@ static void apply_sampler(Image *image, Sampler *s) {
    }
 }
 
-void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *vbuf, VkDeviceSize voff,
+void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets,
+                       Buffer *const *vbufs, const VkDeviceSize *voffs,
                        Buffer *ibuf, VkDeviceSize ioff, const Cmd &cmd) {
    if (!p || !p->program || !cmd.instances) return;
    GlCtx::get().make_current();
@@ -3166,23 +3175,26 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
    if (p->blend) { glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); }
    else glDisable(GL_BLEND);
 
-   // vertex buffer content: upload shadow memory
-   if (vbuf && vbuf->mem && vbuf->gl) {
-      glBindBuffer(GL_ARRAY_BUFFER, vbuf->gl);
-      if (vbuf->uploaded_revision != vbuf->mem->revision ||
-          (vbuf->mem->mapped && vbuf->uploaded_submit != g_submit_serial)) {
-         glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)vbuf->size, vbuf->mem->shadow.data() + vbuf->mem_offset);
-         vbuf->uploaded_revision = vbuf->mem->revision;
-         vbuf->uploaded_submit = g_submit_serial;
-      }
-   }
+   // Select and upload the actual buffer for each independent Vulkan binding.
    for (auto &a : p->via) {
+      if (a.binding >= 16) continue;
+      Buffer *vbuf = vbufs[a.binding];
+      VkDeviceSize voff = voffs[a.binding];
+      if (vbuf && vbuf->mem && vbuf->gl) {
+         glBindBuffer(GL_ARRAY_BUFFER, vbuf->gl);
+         if (vbuf->uploaded_revision != vbuf->mem->revision ||
+             (vbuf->mem->mapped && vbuf->uploaded_submit != g_submit_serial)) {
+            glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)vbuf->size, vbuf->mem->shadow.data() + vbuf->mem_offset);
+            vbuf->uploaded_revision = vbuf->mem->revision;
+            vbuf->uploaded_submit = g_submit_serial;
+         }
+      }
       GLint comps; GLboolean norm;
       GLenum type = gl_type_for_format(a.format, &comps, &norm);
       glEnableVertexAttribArray(a.location);
       glBindBuffer(GL_ARRAY_BUFFER, vbuf ? vbuf->gl : 0);
       glVertexAttribPointer(a.location, comps, type, norm,
-                            (GLsizei)p->vib.stride,
+                            (GLsizei)p->vibs[a.binding].stride,
                             (const void *)(uintptr_t)(voff + a.offset));
    }
 

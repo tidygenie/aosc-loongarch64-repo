@@ -1,0 +1,19 @@
+[publish] 收编 vkgl-loonggpu 0.1.30-1 (loongarch64) -> pool/main/v/vkgl-loonggpu/
+[publish] 重建 dists/stable/main/binary-loongarch64/Packages(.gz)
+[publish] 重新生成 Release 并签名（keyid=E2046CDF0686737D…）
+gpg: 使用 “E2046CDF0686737D2F993DE4B022CC8074439166” 作为默认签名用私钥
+gpg: 使用 “E2046CDF0686737D2F993DE4B022CC8074439166” 作为默认签名用私钥
+[publish] 本地索引重建完成：31 个包
+[publish] 部署到 root@124.156.133.143:/var/www/srv/aosc（顺序：pool → Packages → Release/InRelease）
+[publish] 验证：本地索引一致性
+  ✅ Packages 引用与 MD5 全部吻合
+  ✅ Release 中 Packages(.gz) 校验和正确
+  ✅ InRelease 签名有效
+[publish] 验证：本地 vs 服务器 md5
+  ✅ 三个索引文件 md5 两端一致
+[publish] 验证：HTTPS 可达性（https://homebrewloongarch64.site/aosc）
+  ✅ HTTPS InRelease 200
+  ✅ HTTPS Packages.gz 包数一致（31）
+[publish] 验证：隔离 apt 可见性（不影响系统状态）
+  ✅ apt-get update 通过
+[publish] 全部验证通过 ✅（包数 31）
