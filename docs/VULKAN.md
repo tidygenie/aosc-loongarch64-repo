@@ -67,6 +67,13 @@
   这是小型场景结果，不外推为大型 3D 性能。
 - 保留呈现前 `glFinish`：当前没有可验证的 dma-buf fence 交接，不能用 glFlush 猜测替代。
 
+## vkmark 2025.01-4：验证清零（2026-11-07）
+
+- 责任层在基准程序而非vkgl：上游等待acquire fence却未给后续QueueSubmit配提交fence；render-finished semaphore跨image复用；OPTIMAL纹理误用PREINITIALIZED；anisotropy16未按maxSamplerAnisotropy=1禁用/钳制。
+- 下游补丁增加逐帧提交fence、逐image render-finished semaphore，并修正布局和anisotropy能力判断。未改vkgl代码或屏蔽验证层。
+- 未改上游基线双路径28事件，仅WSI修复后8，完整补丁staged/installed及OS更新后均为**0**；五场景与vkcube均实际运行，不能据此宣称FPS提升。
+- `vkmark 2025.01-4` 保留五种窗口系统插件，deb SHA-256=`5cbda2cb85b902f590b6fdf0d2e8ad4cd1f84887c8f27020b6596d6a5085356a`，27条索引/签名/HTTPS/远端SHA全过。vkgl仍为0.1.26 SHA f4479026。详见 [vkmark验证报告](../scripts/tests/vkgl/vkmark-2025.01-4-wsi-validation.md)。
+
 ## 0.1.26 实测（2026-11-06）
 
 - 按 `vkQueueSubmit` 序号合并 HOST_COHERENT 持久映射上传：Buffer/LINEAR Image 每提交最多上传一次，memory revision 改变仍可在同提交重传。消除原 `mapped || revision changed` 导致的每 draw 全量重传；不是零拷贝声明。

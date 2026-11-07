@@ -1,0 +1,6 @@
+set -euo pipefail
+cd "$SRCDIR"
+meson setup build . --buildtype=release --prefix=/usr --libdir=lib \
+  -Dxcb=true -Dwayland=true -Dkms=true
+meson compile -C build -j "$ABTHREADS"
+meson install -C build --destdir="$PKGDIR"

@@ -1,0 +1,262 @@
+==> vkmark 2025.01-4 (loongarch64)  [ABTYPE=self]
+[abbs-lite] 校验和通过
+[abbs-lite] 解压 83a128d65b1adddfacb4fa2e555a7e90817a7266.tar.gz
+[abbs-lite] 执行 prepare
+patching file src/scenes/clear_scene.cpp
+patching file src/scenes/clear_scene.h
+patching file src/scenes/cube_scene.cpp
+patching file src/scenes/cube_scene.h
+patching file src/scenes/desktop_scene.cpp
+patching file src/scenes/desktop_scene.h
+patching file src/scenes/effect2d_scene.cpp
+patching file src/scenes/effect2d_scene.h
+patching file src/scenes/shading_scene.cpp
+patching file src/scenes/shading_scene.h
+patching file src/scenes/texture_scene.cpp
+patching file src/scenes/texture_scene.h
+patching file src/scenes/vertex_scene.cpp
+patching file src/scenes/vertex_scene.h
+patching file src/vkutil/texture_builder.cpp
+patching file src/ws/swapchain_window_system.cpp
+patching file src/ws/swapchain_window_system.h
+[abbs-lite] 执行 build
+The Meson build system
+Version: 1.12.1
+Source dir: /home/houge/infra/src/vkmark-2025.01/src
+Build dir: /home/houge/infra/src/vkmark-2025.01/src/build
+Build type: native build
+Project name: vkmark
+Project version: 2025.01
+C compiler for the host machine: cc (gcc 16.2.0 "cc (GCC) 16.2.0 20260807 (AOSC OS)")
+C linker for the host machine: cc ld.bfd 2.47.20260726
+C++ compiler for the host machine: c++ (gcc 16.2.0 "c++ (GCC) 16.2.0 20260807 (AOSC OS)")
+C++ linker for the host machine: c++ ld.bfd 2.47.20260726
+Host machine cpu family: loongarch64
+Host machine cpu: loongarch64
+Found pkg-config: YES (/usr/bin/pkg-config) 3.0.8
+Run-time dependency vulkan found: YES 1.4.363
+Library dl found: YES
+Found CMake: /usr/bin/cmake (4.4.5)
+Run-time dependency glm found: YES 1.0.2
+Run-time dependency assimp found: YES 6.0.4
+Run-time dependency xcb found: YES 1.17.0
+Run-time dependency xcb-icccm found: YES 0.4.2
+Run-time dependency wayland-client found: YES 1.26.0
+Run-time dependency wayland-protocols found: YES 1.49
+Run-time dependency wayland-scanner found: YES 1.26.0
+Run-time dependency libdrm found: YES 2.4.134
+Run-time dependency gbm found: YES 26.1.5
+Program python3 found: YES (/usr/bin/python3)
+Program /usr/bin/wayland-scanner found: YES (/usr/bin/wayland-scanner)
+Checking for function "gbm_bo_create_with_modifiers2" with dependency gbm: YES 
+Run-time dependency threads found: YES
+Message: Building with support for the following window systems: headless display wayland xcb kms 
+Build targets in project: 15
+
+vkmark 2025.01
+
+  User defined options
+    buildtype: release
+    kms      : true
+    libdir   : lib
+    prefix   : /usr
+    wayland  : true
+    xcb      : true
+
+Found ninja-1.13.2 at /usr/bin/ninja
+Generating targets:   0%|          | 0/15 eta ?                                               Writing build.ninja:   0%|          | 0/127 eta ?                                                 ninja: Entering directory `/home/houge/infra/src/vkmark-2025.01/src/build'
+[1/91] Generating src/xdg-shell private-code with a custom command
+[2/91] Generating src/xdg-shell client-header with a custom command
+[3/91] Generating src/format_map_gen.h with a custom command
+[4/91] Compiling C++ object src/headless.so.p/ws_headless_window_system_plugin.cpp.o
+[5/91] Compiling C++ object src/headless.so.p/ws_headless_native_system.cpp.o
+[6/91] Precompiling header ../src/pch/cpp_pch.h
+[7/91] Precompiling header ../src/pch/cpp_pch.h
+[8/91] Compiling C++ object src/libvkmark-core.a.p/benchmark.cpp.o
+[9/91] Compiling C++ object src/libvkmark-core.a.p/default_benchmarks.cpp.o
+[10/91] Compiling C++ object src/libvkmark-core.a.p/benchmark_collection.cpp.o
+[11/91] Compiling C++ object src/libvkmark-core.a.p/device_uuid.cpp.o
+[12/91] Precompiling header ../tests/pch/cpp_pch.h
+[13/91] Precompiling header ../tests/pch/cpp_pch.h
+[14/91] Precompiling header ../tests/pch/cpp_pch.h
+[15/91] Precompiling header ../tests/pch/cpp_pch.h
+[16/91] Compiling C++ object src/libvkmark-core.a.p/log.cpp.o
+[17/91] Compiling C++ object src/libvkmark-core.a.p/main_loop.cpp.o
+[18/91] Compiling C++ object src/libvkmark-core.a.p/scene.cpp.o
+[19/91] Compiling C++ object src/libvkmark-core.a.p/model.cpp.o
+[20/91] Compiling C++ object src/libvkmark-core.a.p/scene_collection.cpp.o
+[21/91] Compiling C++ object src/libvkmark-core.a.p/mesh.cpp.o
+[22/91] Compiling C++ object src/libvkmark-core.a.p/options.cpp.o
+[23/91] Compiling C++ object src/vkmark.p/vkutil_copy_buffer.cpp.o
+[24/91] Compiling C++ object src/libvkmark-core.a.p/window_system_loader.cpp.o
+[25/91] Compiling C++ object src/vkmark.p/vkutil_find_matching_memory_type.cpp.o
+[26/91] Compiling C++ object src/vkmark.p/main.cpp.o
+[27/91] Compiling C++ object src/vkmark.p/vkutil_buffer_builder.cpp.o
+[28/91] Compiling C++ object src/vkmark.p/vkutil_framebuffer_builder.cpp.o
+[29/91] Compiling C++ object src/libvkmark-core.a.p/vulkan_state.cpp.o
+../src/vulkan_state.cpp: In member function ‘void VulkanState::create_instance(VulkanWSI&)’:
+../src/vulkan_state.cpp:203:32: warning: ‘vk::DebugUtilsMessengerCreateInfoEXT& vk::DebugUtilsMessengerCreateInfoEXT::setPfnUserCallback(PFN_vkDebugUtilsMessengerCallbackEXT)’ 已被弃用: This setter is deprecated. Use the one taking a function pointer type from the vk-namespace instead. [-Wdeprecated-declarations]
+  195 |         auto const debug_create_info = vk::DebugUtilsMessengerCreateInfoEXT{}
+      |                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  196 |             .setMessageSeverity(vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  197 |                                 vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  198 |                                 vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  199 |                                 vk::DebugUtilsMessageSeverityFlagBitsEXT::eError)
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  200 |             .setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  201 |                             vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  202 |                             vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance)
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  203 |             .setPfnUserCallback(debug_callback);
+      |             ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+In file included from /usr/include/vulkan/vulkan.hpp:11579,
+                 from ../src/pch/cpp_pch.h:1:
+/usr/include/vulkan/vulkan_structs.hpp:42905:40: note: 在此声明
+42905 |     DebugUtilsMessengerCreateInfoEXT & setPfnUserCallback( PFN_vkDebugUtilsMessengerCallbackEXT pfnUserCallback_ ) VULKAN_HPP_NOEXCEPT
+      |                                        ^~~~~~~~~~~~~~~~~~
+[30/91] Compiling C++ object src/vkmark.p/vkutil_descriptor_set_builder.cpp.o
+[31/91] Compiling C++ object src/vkmark.p/vkutil_image_builder.cpp.o
+[32/91] Compiling C++ object src/vkmark.p/vkutil_image_view_builder.cpp.o
+[33/91] Compiling C++ object src/vkmark.p/vkutil_map_memory.cpp.o
+[34/91] Compiling C++ object src/vkmark.p/vkutil_semaphore_builder.cpp.o
+[35/91] Compiling C++ object src/vkmark.p/vkutil_render_pass_builder.cpp.o
+[36/91] Compiling C++ object src/vkmark.p/vkutil_transition_image_layout.cpp.o
+[37/91] Compiling C++ object src/vkmark.p/vkutil_one_time_command_buffer.cpp.o
+[38/91] Compiling C++ object src/vkmark.p/vkutil_pipeline_builder.cpp.o
+[39/91] Compiling C++ object src/vkmark.p/vkutil_texture_builder.cpp.o
+[40/91] Compiling C++ object src/vkmark.p/scenes_default_options_scene.cpp.o
+[41/91] Compiling C++ object src/libvkmark-core.a.p/util.cpp.o
+In file included from ../src/util.cpp:33:
+../src/stb_image.h: In function ‘int stbi__parse_png_file(stbi__png*, int, int)’:
+../src/stb_image.h:4764:56: warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]
+ 4764 |                   for (k = 0; k < s->img_n; ++k) tc[k] = (stbi_uc)(stbi__get16be(s) & 255) * stbi__depth_scale_table[z->depth]; // non 8-bit images will be larger
+      |                                                  ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../src/stb_image.h:4683:25: note: at offset 3 into destination object ‘tc’ of size 3
+ 4683 |    stbi_uc has_trans=0, tc[3];
+      |                         ^~
+[42/91] Linking static target src/libvkmark-core.a
+[43/91] Compiling C++ object src/headless.so.p/ws_swapchain_window_system.cpp.o
+[44/91] Compiling C++ object src/vkmark.p/scenes_clear_scene.cpp.o
+[45/91] Compiling C++ object tests/libvkmark-tests-main.a.p/catch_main.cpp.o
+[46/91] Compiling C++ object src/vkmark.p/scenes_cube_scene.cpp.o
+[47/91] Compiling C++ object src/vkmark.p/scenes_effect2d_scene.cpp.o
+[48/91] Compiling C++ object src/vkmark.p/scenes_shading_scene.cpp.o
+[49/91] Compiling C++ object src/vkmark.p/scenes_desktop_scene.cpp.o
+[50/91] Compiling C++ object src/vkmark.p/scenes_texture_scene.cpp.o
+[51/91] Compiling C object src/wayland.so.p/meson-generated_.._xdg-shell-protocol.c.o
+[52/91] Compiling C++ object src/vkmark.p/scenes_vertex_scene.cpp.o
+[53/91] Compiling C++ object src/display.so.p/ws_display_window_system_plugin.cpp.o
+[54/91] Compiling C++ object src/xcb.so.p/ws_xcb_window_system_plugin.cpp.o
+[55/91] Compiling C++ object src/display.so.p/ws_display_native_system.cpp.o
+[56/91] Compiling C++ object src/xcb.so.p/ws_xcb_native_system.cpp.o
+[57/91] Compiling C++ object src/wayland.so.p/ws_wayland_window_system_plugin.cpp.o
+[58/91] Compiling C++ object tests/testws1.so.p/test_window_system_plugin.cpp.o
+[59/91] Compiling C++ object tests/testws2.so.p/test_window_system_plugin.cpp.o
+[60/91] Compiling C++ object tests/testws3.so.p/test_window_system_plugin.cpp.o
+[61/91] Linking static target tests/libvkmark-tests-main.a
+[62/91] Compiling C++ object tests/vkmark-tests.p/test_scene.cpp.o
+[63/91] Compiling C++ object src/wayland.so.p/ws_wayland_native_system.cpp.o
+[64/91] Compiling C++ object src/kms.so.p/ws_kms_window_system_plugin.cpp.o
+[65/91] Compiling C++ object src/display.so.p/ws_swapchain_window_system.cpp.o
+[66/91] Compiling C++ object tests/vkmark-tests.p/benchmark_collection_test.cpp.o
+[67/91] Compiling C++ object tests/vkmark-tests.p/managed_resource_test.cpp.o
+[68/91] Compiling C++ object src/kms.so.p/ws_atomic_kms_window_system.cpp.o
+[69/91] Compiling C++ object src/xcb.so.p/ws_swapchain_window_system.cpp.o
+[70/91] Compiling C++ object tests/vkmark-tests.p/main_loop_test.cpp.o
+[71/91] Compiling C++ object tests/vkmark-tests.p/scene_option_test.cpp.o
+[72/91] Compiling C++ object tests/vkmark-tests.p/mesh_test.cpp.o
+[73/91] Compiling C++ object tests/vkmark-tests.p/util_data_file_test.cpp.o
+[74/91] Compiling C++ object tests/vkmark-tests.p/scene_collection_test.cpp.o
+[75/91] Compiling C++ object tests/vkmark-tests.p/model_test.cpp.o
+[76/91] Linking target src/headless.so
+[77/91] Linking target src/display.so
+[78/91] Linking target src/vkmark
+[79/91] Linking target tests/testws1.so
+[80/91] Compiling C++ object tests/vkmark-tests.p/util_image_file_test.cpp.o
+[81/91] Linking target tests/testws2.so
+[82/91] Linking target src/xcb.so
+[83/91] Linking target tests/testws3.so
+[84/91] Compiling C++ object tests/vkmark-tests.p/util_split_test.cpp.o
+[85/91] Compiling C++ object tests/vkmark-tests.p/window_system_loader_test.cpp.o
+[86/91] Compiling C++ object src/kms.so.p/ws_kms_window_system.cpp.o
+[87/91] Linking target src/kms.so
+[88/91] Compiling C++ object tests/vkmark-tests.p/options_test.cpp.o
+[89/91] Linking target tests/vkmark-tests
+[90/91] Compiling C++ object src/wayland.so.p/ws_swapchain_window_system.cpp.o
+[91/91] Linking target src/wayland.so
+INFO: autodetecting backend as ninja
+INFO: calculating backend command to run: /usr/bin/ninja -C /home/houge/infra/src/vkmark-2025.01/src/build -j 8
+ninja: Entering directory `/home/houge/infra/src/vkmark-2025.01/src/build'
+ninja: no work to do.
+Installing subdir /home/houge/infra/src/vkmark-2025.01/src/data/shaders to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-basic-tex.frag to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-advanced.vert to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/vkcube.frag to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/effect2d-edge.frag.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-advanced.vert.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-phong.vert to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/effect2d-blur.frag to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/effect2d-none.frag.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/vkcube.vert to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-basic-tex.frag.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-basic.vert to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-basic.vert.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/vkcube.vert.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/desktop.frag to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-phong.frag.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/effect2d-blur.frag.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-basic.frag to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-advanced.frag to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-basic.frag.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-cel.frag.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/desktop.vert.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-basic-tex.vert.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/effect2d.vert to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-phong.vert.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-basic-tex.vert to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/effect2d-edge.frag to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/effect2d-none.frag to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-phong.frag to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/vkcube.frag.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-cel.frag to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/desktop.frag.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/effect2d.vert.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/light-advanced.frag.spv to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/shaders/desktop.vert to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/shaders
+Installing subdir /home/houge/infra/src/vkmark-2025.01/src/data/models to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/models
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/models/kmscube.ply to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/models
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/models/cube.3ds to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/models
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/models/cat.3ds to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/models
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/models/horse.3ds to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/models
+Installing subdir /home/houge/infra/src/vkmark-2025.01/src/data/textures to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/textures
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/textures/desktop-background-800x600.png to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/textures
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/textures/desktop-window.png to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/textures
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/textures/desktop-background-1920x1080.png to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/textures
+Installing /home/houge/infra/src/vkmark-2025.01/src/data/textures/crate-base.jpg to /home/houge/infra/src/stage/vkmark/usr/share/vkmark/textures
+Installing src/vkmark to /home/houge/infra/src/stage/vkmark/usr/bin
+Installing src/headless.so to /home/houge/infra/src/stage/vkmark/usr/lib/vkmark
+Installing src/display.so to /home/houge/infra/src/stage/vkmark/usr/lib/vkmark
+Installing src/xcb.so to /home/houge/infra/src/stage/vkmark/usr/lib/vkmark
+Installing src/wayland.so to /home/houge/infra/src/stage/vkmark/usr/lib/vkmark
+Installing src/kms.so to /home/houge/infra/src/stage/vkmark/usr/lib/vkmark
+Installing /home/houge/infra/src/vkmark-2025.01/src/doc/vkmark.1 to /home/houge/infra/src/stage/vkmark/usr/share/man/man1
+==> 产物: /home/houge/infra/src/build/vkmark_2025.01-4_loongarch64.deb
+ 新格式的 Debian 软件包，格式版本 2.0。
+ 大小 969808 字节：主控包=1804 字节。
+     357 bytes,    10 lines      control
+    3659 bytes,    49 lines      md5sums
+ Package: vkmark
+ Version: 2025.01-4
+ Architecture: loongarch64
+ Maintainer: Local Infra <infra@localhost>
+ Section: graphics
+ Priority: optional
+ Depends: vulkan-loader, libxcb, xcb-util-wm, wayland, mesa, libdrm, assimp
+ Homepage: https://github.com/vkmark/vkmark
+ Installed-Size: 3996
+ Description: Vulkan benchmarking suite with corrected WSI semaphore lifetimes

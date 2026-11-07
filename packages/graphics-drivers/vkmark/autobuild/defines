@@ -1,0 +1,8 @@
+PKGNAME=vkmark
+PKGSEC=graphics
+PKGDEP="vulkan-loader libxcb xcb-util-wm wayland mesa libdrm assimp"
+BUILDDEP="meson ninja vulkan-headers glm wayland libxcb xcb-util-wm libdrm assimp"
+PKGDES="Vulkan benchmarking suite with corrected WSI semaphore lifetimes"
+PKGHOMEPAGE="https://github.com/vkmark/vkmark"
+ABTYPE=self
+REL=4

@@ -53,4 +53,12 @@ GRUB `saved_entry` 保持 gcc-O3，当前运行内核仍为 clang-LTO；维护�
 [`smoke-os-updated-0.1.25-dmabuf.log`](../scripts/tests/vkgl/smoke-os-updated-0.1.25-dmabuf.log) 和
 [`smoke-os-updated-0.1.25-shm.log`](../scripts/tests/vkgl/smoke-os-updated-0.1.25-shm.log)。
 
+## 2026-11-07：6项修订与vkmark构建依赖
+
+隔日检查发现6项升级，模拟无新装/卸载：aosc-aaa 14.0.1、glibc/glibc-dbg 2.44-1、libjpeg-turbo 3.2.1、screen 5.0.2-1、sip 6.17.2。另为 vkmark 同步修复构建新装 glm 1:1.0.2。GCC16.2、Mesa26.1.5、Vulkan loader1.4.363.0和vkgl0.1.26未变；仍不执行autoremove。
+
+更新后 apt 可升级列表为空。三个7.3.1目标initrd均直接确认含 `updates/dkms/loonggpu.ko`，DKMS五目标installed，运行内核仍为clang-LTO，GRUB saved_entry仍为gcc-O3。旧7.0.12继续有缺loonggpu警告；aosc-aaa触发器有 `/var/tmp` 非空提示、ldconfig有libseat非符号链接提示，均记录而不伪称无警告。
+
+vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host format/sampler/fence/dispatch生命周期、LINEAR raw007f22ff全过。证据为 `os-upgrade-2026-11-07.log`、`post-os-2026-11-07-{dmabuf,shm}.log`、`post-os-*-2026-11-07.log`。
+
 升级前后单次烟雾 FPS 有正有负且负载不同，只作为健康检查，不作性能升降宣称。

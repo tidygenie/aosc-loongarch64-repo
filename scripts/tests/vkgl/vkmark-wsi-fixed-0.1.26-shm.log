@@ -1,0 +1,94 @@
+== shm vkmark-wsi-fixed-0.1.26
+== vulkaninfo without validation (Vulkan 1.0 ICD)
+'DISPLAY' environment variable not set... skipping surface info
+==========
+VULKANINFO
+==========
+
+Vulkan Instance Version: 1.4.363
+
+
+Instance Extensions: count = 10
+-------------------------------
+VK_EXT_debug_report              : extension revision 10
+VK_EXT_debug_utils               : extension revision 2
+VK_EXT_layer_settings            : extension revision 2
+VK_KHR_get_surface_capabilities2 : extension revision 1
+VK_KHR_portability_enumeration   : extension revision 1
+VK_KHR_surface                   : extension revision 25
+VK_KHR_wayland_surface           : extension revision 6
+VK_KHR_xcb_surface               : extension revision 6
+VK_KHR_xlib_surface              : extension revision 6
+VK_LUNARG_direct_driver_loading  : extension revision 1
+
+Instance Layers: count = 7
+--------------------------
+VK_LAYER_KHRONOS_shader_object      Khronos Shader object layer      1.4.363  version 1
+VK_LAYER_KHRONOS_synchronization2   Khronos Synchronization2 layer   1.4.363  version 1
+VK_LAYER_KHRONOS_timeline_semaphore Khronos timeline Semaphore layer 1.4.363  version 1
+VK_LAYER_KHRONOS_validation         Khronos Validation Layer         1.4.363  version 1
+VK_LAYER_MESA_device_select         Linux device selection layer     1.4.303  version 1
+VK_LAYER_MESA_overlay               Mesa Overlay layer               1.4.303  version 1
+VK_LAYER_MESA_screenshot            Mesa Screenshot layer            1.4.303  version 1
+
+Devices:
+========
+GPU0:
+	apiVersion         = 1.0.0
+	driverVersion      = 4194304
+	vendorID           = 0x0014
+	deviceID           = 0x7a25
+	deviceType         = PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
+	deviceName         = LoongGPU LG110 (vkgl GLES2)
+== vkcube 60 frames with validation
+Selected GPU 0: LoongGPU LG110 (vkgl GLES2), type: DiscreteGpu, apiVersion: 4194304 (1.0.0), driverVersion: 4194304 (1.0.0) 
+== vkmark five FIFO scenes with validation
+=======================================================
+    vkmark 2025.01
+=======================================================
+    Vendor ID:      0x14
+    Device ID:      0x7A25
+    Device Name:    LoongGPU LG110 (vkgl GLES2)
+    Driver Version: 4194304
+    Device UUID:    4c473131000000000000000000000000
+=======================================================
+[vertex] duration=2: FPS: 95 FrameTime: 10.526 ms
+[texture] duration=2:Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-VkSamplerCreateInfo-anisotropyEnable-01071 ] | MessageID = 0x498660fc
+vkCreateSampler(): pCreateInfo->maxAnisotropy is 16.000000 but must be in the range of [1.0, 1.000000] (maxSamplerAnisotropy).
+The Vulkan spec states: If anisotropyEnable is VK_TRUE, maxAnisotropy must be between 1.0 and VkPhysicalDeviceLimits::maxSamplerAnisotropy, inclusive (https://docs.vulkan.org/spec/latest/chapters/samplers.html#VUID-VkSamplerCreateInfo-anisotropyEnable-01071)
+
+ FPS: 68 FrameTime: 14.706 ms
+[shading] duration=2: FPS: 77 FrameTime: 12.987 ms
+[effect2d] duration=2:Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+ FPS: 42 FrameTime: 23.810 ms
+[desktop] duration=2:Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+Validation Error: [ VUID-VkImageCreateInfo-initialLayout-12478 ] | MessageID = 0x6bf758ed
+vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED but tiling is VK_IMAGE_TILING_OPTIMAL (not LINEAR).
+The Vulkan spec states: If initialLayout is VK_IMAGE_LAYOUT_PREINITIALIZED, tiling must be VK_IMAGE_TILING_LINEAR (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-12478)
+
+ FPS: 55 FrameTime: 18.182 ms
+=======================================================
+                                   vkmark Score: 67
+=======================================================

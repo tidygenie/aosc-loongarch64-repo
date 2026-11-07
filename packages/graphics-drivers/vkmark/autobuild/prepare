@@ -1,0 +1,2 @@
+set -euo pipefail
+patch -p1 < "$PKGDIR_SRC/autobuild/patches/0001-wsi-semaphore-lifetime.patch"

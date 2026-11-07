@@ -21,7 +21,7 @@ for path in dmabuf shm; do
     echo '== vkcube 60 frames with validation'
     timeout 45 vkcube --wsi wayland --c 60 --width 640 --height 480 --gpu_number 0
     echo '== vkmark five FIFO scenes with validation'
-    timeout 90 vkmark --winsys wayland --size 640x480 -p fifo \
+    timeout 90 "${VKMARK_BIN:-vkmark}" --winsys wayland --size 640x480 -p fifo \
       -b vertex:duration=2 -b texture:duration=2 -b shading:duration=2 \
       -b effect2d:duration=2 -b desktop:duration=2
   } >"$log" 2>&1

@@ -1,0 +1,8 @@
+ninja: Entering directory `/home/houge/infra/src/vkmark-2025.01/src/build'
+ninja: no work to do.
+1/1 vkmark:vkmark tests OK              0.03s
+
+Ok:                1   
+Fail:              0   
+
+Full log written to /home/houge/infra/src/vkmark-2025.01/src/build/meson-logs/testlog.txt

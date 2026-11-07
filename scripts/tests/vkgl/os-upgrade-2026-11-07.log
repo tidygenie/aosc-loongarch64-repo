@@ -1,0 +1,118 @@
+正在读取软件包列表...
+正在分析软件包的依赖关系树...
+正在读取状态信息...
+正在计算更新...
+下列软件包是自动安装的并且现在不需要了：
+  appstream-qt c-blosc cgns cldr-emoji-annotation clp cmake coinutils
+  corrosion crypto++ enchant freexl gcc-15 gcc-runtime-15 gdal geos gl2ps glpk
+  hdf5 jsoncpp kdelibs4support kdesignerplugin kdewebkit kemoticons khotkeys
+  kinit kmediaplayer kpeoplevcard libdc1394 libdicom libgeotiff libharu
+  libspatialite llvm llvm-22 miniupnpc muparser netcdf opencv openjdk
+  openjdk-25 openjdk-common openslide osi packagekit packagekit-qt
+  perl-dbd-sqlite podofo proj pugixml pyasn1 pyasn1-modules qhull rhash rttopo
+  rustc scnlib suitesparse tbb toml verdict vtk xerces-c
+使用'sudo apt autoremove'来卸载它(它们)。
+下列软件包将被升级：
+  aosc-aaa glibc glibc-dbg libjpeg-turbo screen sip
+升级了 6 个软件包，新安装了 0 个软件包，要卸载 0 个软件包，有 0 个软件包未被升级。
+需要下载 88.2 MB 的归档。
+解压缩后会消耗 1,876 kB 的额外空间。
+获取:1 https://mirrors.ustc.edu.cn/anthon/debs stable/main loongarch64 aosc-aaa loongarch64 14.0.1 [6,142 B]
+获取:2 https://mirrors.ustc.edu.cn/anthon/debs stable/main loongarch64 glibc-dbg loongarch64 1:2.44-1 [10.3 MB]
+获取:3 https://mirrors.ustc.edu.cn/anthon/debs stable/main loongarch64 glibc loongarch64 1:2.44-1 [74.6 MB]
+获取:4 https://mirrors.ustc.edu.cn/anthon/debs stable/main loongarch64 libjpeg-turbo loongarch64 2:3.2.1 [1,222 kB]
+获取:5 https://mirrors.ustc.edu.cn/anthon/debs stable/main loongarch64 screen loongarch64 5.0.2-1 [663 kB]
+获取:6 https://mirrors.ustc.edu.cn/anthon/debs stable/main all sip all 6.17.2 [1,456 kB]
+debconf: 无法初始化前端界面：Dialog
+debconf: (对话框界面将不能在哑终端上运行，例如 Emacs shell 缓存，或者没有控制终端。)
+debconf: 返回前端界面：Readline
+debconf: 无法初始化前端界面：Readline
+debconf: (这个界面要求可控制的 tty。)
+debconf: 返回前端界面：Teletype
+debconf: 无法初始化前端界面：Teletype
+debconf: (这个界面要求可控制的 tty。)
+debconf: 返回前端界面：Noninteractive
+已下载 88.2 MB，耗时 5秒 (17.1 MB/s)
+(正在读取数据库 ... (正在读取数据库 ... 5%(正在读取数据库 ... 10%(正在读取数据库 ... 15%(正在读取数据库 ... 20%(正在读取数据库 ... 25%(正在读取数据库 ... 30%(正在读取数据库 ... 35%(正在读取数据库 ... 40%(正在读取数据库 ... 45%(正在读取数据库 ... 50%(正在读取数据库 ... 55%(正在读取数据库 ... 60%(正在读取数据库 ... 65%(正在读取数据库 ... 70%(正在读取数据库 ... 75%(正在读取数据库 ... 80%(正在读取数据库 ... 85%(正在读取数据库 ... 90%(正在读取数据库 ... 95%(正在读取数据库 ... 100%(正在读取数据库 ... 系统当前共安装有 572707 个文件和目录。)
+准备解压 .../aosc-aaa_14.0.1_loongarch64.deb  ...
+正在解压 aosc-aaa (14.0.1) 并覆盖 (14.0.0) ...
+正在设置 aosc-aaa (14.0.1) ...
+rm: 无法删除 '/var/tmp': 目录非空
+
+  [1mNAÏVE STRING MATCH ALGORITHM:[0m
+                                            [1;91m╔══════════╗[0m
+                               ┌───────────>[1;91m║ no match ║[0m
+                               │ [1;92m✔[0m          [1;91m╚══════════╝[0m
+                       [1;91m✘[0m  [1;33m┌───────────┐[0m     [1;92m╒════════════╕[0m
+               i:═i+1 <── [1;33m│[0m i+│p│═│s│ [1;33m│[0m     [1;92m│ match at i │[0m
+                  │       [1;33m└───────────┘[0m     [1;92m╘════════════╛[0m
+                  │            ^                  ^
+                  │            │ [1;91m✘[0m                │ [1;92m✔[0m
+                  v       [1;33m┌─────────────┐[0m  [1;92m✔[0m  [1;33m┌─────────┐[0m
+        i:═0 ──> j:═0 ──> [1;33m│[0m s(i+j)═p(j) [1;33m│[0m ──> [1;33m│[0m j+1═│p│ [1;33m│[0m
+                          [1;33m└─────────────┘[0m     [1;33m└─────────┘[0m
+        [3;95m(│x│ ═ length of x)[0m    ^                  │ [1;91m✘[0m
+                               └───── j:═j+1 <────┘
+
+        [1;91maaaaaaa...aaaaaaaaaa...aaa[92mb[0m    (... ═ many 'a')
+           [1;91maaaa...aaaaaaa[92mb[0m
+        [33m---i----~----j--------~---->[0m   [5m[1;41;97m Time Limit Exceeded! [0m
+
+[30;48;5;111m              Welcome to AOSC OS Core 14, Codename "Naïve"!                  [0m
+
+(正在读取数据库 ... (正在读取数据库 ... 5%(正在读取数据库 ... 10%(正在读取数据库 ... 15%(正在读取数据库 ... 20%(正在读取数据库 ... 25%(正在读取数据库 ... 30%(正在读取数据库 ... 35%(正在读取数据库 ... 40%(正在读取数据库 ... 45%(正在读取数据库 ... 50%(正在读取数据库 ... 55%(正在读取数据库 ... 60%(正在读取数据库 ... 65%(正在读取数据库 ... 70%(正在读取数据库 ... 75%(正在读取数据库 ... 80%(正在读取数据库 ... 85%(正在读取数据库 ... 90%(正在读取数据库 ... 95%(正在读取数据库 ... 100%(正在读取数据库 ... 系统当前共安装有 572707 个文件和目录。)
+准备解压 .../glibc-dbg_1%3a2.44-1_loongarch64.deb  ...
+正在解压 glibc-dbg (1:2.44-1) 并覆盖 (1:2.44) ...
+准备解压 .../glibc_1%3a2.44-1_loongarch64.deb  ...
+正在解压 glibc (1:2.44-1) 并覆盖 (1:2.44) ...
+正在设置 glibc (1:2.44-1) ...
+Refreshing dynamic library cache ...
+ldconfig: /usr/lib/libseat.so.1 不是符号链接
+
+Remove dangling nscd symlink in case the user has enabled it ...
+(正在读取数据库 ... (正在读取数据库 ... 5%(正在读取数据库 ... 10%(正在读取数据库 ... 15%(正在读取数据库 ... 20%(正在读取数据库 ... 25%(正在读取数据库 ... 30%(正在读取数据库 ... 35%(正在读取数据库 ... 40%(正在读取数据库 ... 45%(正在读取数据库 ... 50%(正在读取数据库 ... 55%(正在读取数据库 ... 60%(正在读取数据库 ... 65%(正在读取数据库 ... 70%(正在读取数据库 ... 75%(正在读取数据库 ... 80%(正在读取数据库 ... 85%(正在读取数据库 ... 90%(正在读取数据库 ... 95%(正在读取数据库 ... 100%(正在读取数据库 ... 系统当前共安装有 572700 个文件和目录。)
+准备解压 .../libjpeg-turbo_2%3a3.2.1_loongarch64.deb  ...
+正在解压 libjpeg-turbo (2:3.2.1) 并覆盖 (2:3.2.0-2) ...
+准备解压 .../screen_5.0.2-1_loongarch64.deb  ...
+正在解压 screen (5.0.2-1) 并覆盖 (5.0.2) ...
+准备解压 .../archives/sip_6.17.2_all.deb  ...
+正在解压 sip (6.17.2) 并覆盖 (6.16.1) ...
+正在设置 screen (5.0.2-1) ...
+正在设置 sip (6.17.2) ...
+正在处理用于 texinfo (7.2) 的触发器 ...
+Updating and installing Texinfo pages...
+正在设置 glibc-dbg (1:2.44-1) ...
+正在处理用于 dracut-ng (112-1) 的触发器 ...
+[36m**[0m	Generating initrd (Initialization RAM Disk) for 7 kernel versions ...
+7.1.13-aosc-main-16k	Successfully generated initrd.
+7.0.12-aosc-main-4k 	Successfully generated initrd.
+7.0.12-aosc-main-4k 	dracut-install: Failed to find module 'loonggpu'
+7.0.12-aosc-main-4k 	dracut[E]: FAILED:  /usr/lib/dracut/dracut-install -D /var/cache/dracut/dracut.dN1l3As/initramfs -N ^loongson$ --kerneldir /usr/lib/modules/7.0.12-aosc-main-4k -m loonggpu
+7.1.13-aosc-main-4k 	Successfully generated initrd.
+7.3.1-mainline-16k-rt	Successfully generated initrd.
+7.0.12-aosc-main-16k	Successfully generated initrd.
+7.0.12-aosc-main-16k	dracut-install: Failed to find module 'loonggpu'
+7.0.12-aosc-main-16k	dracut[E]: FAILED:  /usr/lib/dracut/dracut-install -D /var/cache/dracut/dracut.dEfb8zW/initramfs -N ^loongson$ --kerneldir /usr/lib/modules/7.0.12-aosc-main-16k -m loonggpu
+7.3.1-mainline-16k-rt-clang-lto	Successfully generated initrd.
+7.3.1-mainline-16k-rt-gcc-o3	Successfully generated initrd.
+[36m**[0m	Updating GRUB for the new kernel...
+正在生成 grub 配置文件 ...
+-- 正在处理内核“7.1.13-aosc-main-16k”
+-- 找到内核“7.1.13-aosc-main-16k”的初始内存盘：“/boot/initramfs-7.1.13-aosc-main-16k.img”
+-- 正在处理内核“7.1.13-aosc-main-4k”
+-- 找到内核“7.1.13-aosc-main-4k”的初始内存盘：“/boot/initramfs-7.1.13-aosc-main-4k.img”
+-- 正在处理内核“7.3.1-mainline-16k-rt”
+-- 找到内核“7.3.1-mainline-16k-rt”的初始内存盘：“/boot/initramfs-7.3.1-mainline-16k-rt.img”
+-- 正在处理内核“7.3.1-mainline-16k-rt-gcc-o3”
+-- 找到内核“7.3.1-mainline-16k-rt-gcc-o3”的初始内存盘：“/boot/initramfs-7.3.1-mainline-16k-rt-gcc-o3.img”
+-- 正在处理内核“7.3.1-mainline-16k-rt-clang-lto”
+-- 找到内核“7.3.1-mainline-16k-rt-clang-lto”的初始内存盘：“/boot/initramfs-7.3.1-mainline-16k-rt-clang-lto.img”
+-- 正在处理内核“7.0.12-aosc-main-16k”
+-- 找到内核“7.0.12-aosc-main-16k”的初始内存盘：“/boot/initramfs-7.0.12-aosc-main-16k.img”
+-- 正在处理内核“7.0.12-aosc-main-4k”
+-- 找到内核“7.0.12-aosc-main-4k”的初始内存盘：“/boot/initramfs-7.0.12-aosc-main-4k.img”
+-- 已成功生成 AOSC OS 的启动项。
+找到 Memtest86+ 程序：/boot/memtest86plus/memtest64
+正在添加 UEFI 固件设置的引导菜单项……
+完成
+正在设置 libjpeg-turbo (2:3.2.1) ...

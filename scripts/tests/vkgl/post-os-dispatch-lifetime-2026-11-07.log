@@ -1,0 +1,2 @@
+TEST_DEVICE LoongGPU LG110 (vkgl GLES2)
+PASS vktest-dispatch-lifetime cycles=64
