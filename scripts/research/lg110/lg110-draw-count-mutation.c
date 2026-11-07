@@ -97,6 +97,8 @@ static unsigned int submission_count;
 static unsigned int max_aux_records;
 static unsigned int aux_record_count;
 static unsigned int max_ib_dwords = LG110_DEFAULT_IB_DWORDS;
+static uint64_t trace_va_address;
+static unsigned int trace_va_dwords = 64;
 static int mutate_draw_mode;
 static int mutation_done;
 
@@ -155,6 +157,14 @@ static void configure(void)
         parsed = strtoul(value, &end, 10);
         if (end && end != value && *end == '\0' && parsed <= LG110_HARD_MAX_SUBS)
             max_aux_records = (unsigned int)parsed;
+    }
+
+    value = getenv("LG110_TRACE_VA");
+    end = NULL;
+    if (value && *value) {
+        unsigned long long address = strtoull(value, &end, 0);
+        if (end && end != value && *end == '\0' && address)
+            trace_va_address = (uint64_t)address;
     }
 
     value = getenv("LG110_TRACE_IB_DWORDS");
@@ -589,6 +599,91 @@ static void trace_ib_locked(unsigned int sequence, unsigned int index, int fd,
              (dwords[0] >> 16) & 0xffffU, values);
 }
 
+/* state_lock must be held. Dump only an explicitly selected, fully tracked VA. */
+static void trace_extra_va_locked(unsigned int sequence, int fd)
+{
+    struct ib_source source;
+    uint32_t dwords[256];
+    char values[256 * 11 + 1];
+    size_t count, used = 0;
+    unsigned int i;
+    void *temporary_map = NULL;
+    size_t temporary_length = 0;
+
+    if (!trace_va_address)
+        return;
+    source = resolve_ib_locked(fd, trace_va_address);
+    if (!source.valid && source.handle) {
+        union drm_loonggpu_gem_mmap mmap_args;
+        long page_size = sysconf(_SC_PAGESIZE);
+        size_t page_offset, delta, map_length;
+
+        memset(&mmap_args, 0, sizeof(mmap_args));
+        mmap_args.in.handle = source.handle;
+        if (page_size > 0 && source.bo_offset <= SIZE_MAX - 1024 &&
+            real_ioctl(fd, DRM_IOCTL_LOONGGPU_GEM_MMAP, &mmap_args) == 0) {
+            page_offset = (size_t)source.bo_offset & ~((size_t)page_size - 1);
+            delta = (size_t)source.bo_offset - page_offset;
+            map_length = (delta + 1024 + (size_t)page_size - 1) &
+                         ~((size_t)page_size - 1);
+            if (!real_mmap)
+                RESOLVE_REAL(real_mmap, "mmap");
+            if (real_mmap && mmap_args.out.addr_ptr <= (uint64_t)INT64_MAX - page_offset) {
+                temporary_map = real_mmap(NULL, map_length, PROT_READ, MAP_SHARED,
+                    fd, (off_t)(mmap_args.out.addr_ptr + page_offset));
+                if (temporary_map != MAP_FAILED) {
+                    temporary_length = map_length;
+                    source.user_address = (uintptr_t)temporary_map + delta;
+                    source.available = map_length - delta;
+                    source.valid = 1;
+                    source.reason = "temporary_read_only_mapping";
+                } else {
+                    temporary_map = NULL;
+                }
+            }
+        }
+    }
+    if (!source.valid) {
+        log_line("LG110VADUMP seq=%u va=0x%016" PRIx64
+                 " status=not_dumped reason=%s handle=%u bo_offset=0x%" PRIx64,
+                 sequence, trace_va_address, source.reason, source.handle,
+                 source.bo_offset);
+        return;
+    }
+    count = trace_va_dwords;
+    if (count > 256) count = 256;
+    if (count > source.available / 4) count = source.available / 4;
+    if (!count || (!temporary_map &&
+                   read_user(source.user_address, dwords, count * sizeof(dwords[0])))) {
+        log_line("LG110VADUMP seq=%u va=0x%016" PRIx64
+                 " status=read_failed handle=%u bo_offset=0x%" PRIx64,
+                 sequence, trace_va_address, source.handle, source.bo_offset);
+        goto out;
+    }
+    if (temporary_map)
+        memcpy(dwords, (const void *)source.user_address, count * sizeof(dwords[0]));
+    values[0] = '\0';
+    for (i = 0; i < count; ++i) {
+        int written = snprintf(values + used, sizeof(values) - used,
+                               "%s0x%08x", i ? " " : "", dwords[i]);
+        if (written < 0 || (size_t)written >= sizeof(values) - used)
+            break;
+        used += (size_t)written;
+    }
+    log_line("LG110VADUMP seq=%u va=0x%016" PRIx64
+             " status=ok handle=%u bo_offset=0x%" PRIx64 " dwords=%u data=%s",
+             sequence, trace_va_address, source.handle, source.bo_offset, i, values);
+out:
+    if (temporary_map) {
+        if (!real_munmap)
+            RESOLVE_REAL(real_munmap, "munmap");
+        if (real_munmap)
+            real_munmap(temporary_map, temporary_length);
+        else
+            syscall(SYS_munmap, temporary_map, temporary_length);
+    }
+}
+
 /* state_lock must be held. */
 static void trace_cs_locked(unsigned int sequence, int fd,
                             const struct drm_loonggpu_cs_in *input,
@@ -677,6 +772,7 @@ static void trace_cs_locked(unsigned int sequence, int fd,
                      (unsigned int)(sizeof(struct drm_loonggpu_cs_chunk_syncobj) / 4));
         }
     }
+    trace_extra_va_locked(sequence, fd);
 }
 
 #define LG110_DRAW_DWORDS 672U

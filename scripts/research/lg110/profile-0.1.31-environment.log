@@ -1,0 +1,5 @@
+2026-11-07T21:52:33+08:00
+Linux aosc-loongarch64 7.3.1-mainline-16k-rt-clang-lto #1 SMP PREEMPT_RT Wed Nov  4 21:11:59 CST 2026 loongarch64 GNU/Linux
+afac548f68ed43574b546b76e541110fba46e9c329f66a3318fcecc7dc4d2b3b  /usr/lib/vkgl/libvkgl.so
+perf_event_paranoid_restored=2
+perf.data intentionally excluded; flat/DSO/call-graph text retained

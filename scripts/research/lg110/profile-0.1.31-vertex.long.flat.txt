@@ -1,0 +1,249 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 287  of event 'cpu-clock'
+# Event count (approx.): 1442210875
+#
+# Overhead  Command         Shared Object                  Symbol                                                                                                                                                                   
+# ........  ..............  .............................  .........................................................................................................................................................................
+#
+     3.48%  vkmark          [unknown]                      [k] 0x9000000002e8c084
+     1.74%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000001276940
+     1.74%  vkmark          libvkgl.so                     [.] vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer* const*, unsigned long const*, Buffer*, unsigned long, Cmd const&)
+     1.39%  vkma:gsgpu_cs0  libldrm.so.1.0.0               [.] loonggpu_bo_list_create
+     1.39%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e8c084
+     1.39%  vkmark          libc.so.6                      [.] __GI___memmove_lasx
+     1.05%  vkmark          libGLdispatch.so.0.0.0         [.] __glDispatchCheckMultithreaded
+     1.05%  vkmark          libGLdispatch.so.0.0.0         [.] __glDispatchGetCurrentThreadState
+     1.05%  vkmark          libvkgl.so                     [.] execute_cmds(CommandBuffer*)
+     1.05%  vkmark          libvkgl.so                     [.] vkgl_AcquireNextImageKHR(VkDevice_T*, VkSwapchainKHR_T*, unsigned long, VkSemaphore_T*, VkFence_T*, unsigned int*)
+     0.70%  vkma:gsgpu_cs0  libc.so.6                      [.] __GI___ioctl
+     0.70%  vkma:gsgpu_cs0  libc.so.6                      [.] __syscall_cancel_arch
+     0.70%  vkma:gsgpu_cs0  [unknown]                      [k] 0x900000000146094c
+     0.70%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e876e0
+     0.70%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002284760
+     0.70%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff8000022a7168
+     0.70%  vkmark          gsgpu_dri.so                   [.] 0x00000000000ede18
+     0.70%  vkmark          gsgpu_dri.so                   [.] 0x000000000017b350
+     0.70%  vkmark          gsgpu_dri.so                   [.] 0x00000000002d9710
+     0.70%  vkmark          gsgpu_dri.so                   [.] 0x0000000000344c44
+     0.70%  vkmark          ld-linux-loongarch-lp64d.so.1  [.] _dl_lookup_symbol_x
+     0.70%  vkmark          ld-linux-loongarch-lp64d.so.1  [.] do_lookup_x
+     0.70%  vkmark          libc.so.6                      [.] __syscall_cancel_arch
+     0.70%  vkmark          libc.so.6                      [.] free
+     0.70%  vkmark          libc.so.6                      [.] pthread_rwlock_unlock@@GLIBC_2.36
+     0.70%  vkmark          libldrm.so.1.0.0               [.] loonggpu_cs_query_fence_status
+     0.70%  vkmark          libvkgl.so                     [.] vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+     0.70%  vkmark          libvkgl.so                     [.] vkgl_WaitForFences(VkDevice_T*, unsigned int, VkFence_T* const*, unsigned int, unsigned long) [clone .lto_priv.0]
+     0.70%  vkmark          vkmark                         [.] VertexScene::update_uniforms(unsigned long)
+     0.70%  vkmark          [unknown]                      [k] 0x9000000002a96dc0
+     0.35%  vkma:gsgpu_cs0  gsgpu_dri.so                   [.] 0x000000000019cd40
+     0.35%  vkma:gsgpu_cs0  gsgpu_dri.so                   [.] 0x000000000019cd7c
+     0.35%  vkma:gsgpu_cs0  gsgpu_dri.so                   [.] 0x000000000019d0f8
+     0.35%  vkma:gsgpu_cs0  libc.so.6                      [.] __condvar_confirm_wakeup
+     0.35%  vkma:gsgpu_cs0  libc.so.6                      [.] pthread_cond_wait@@GLIBC_2.36
+     0.35%  vkma:gsgpu_cs0  libc.so.6                      [.] syscall
+     0.35%  vkma:gsgpu_cs0  libldrm.so.1.0.0               [.] drmCommandWriteRead@plt
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x90000000011f62ac
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x900000000129a7a0
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000001460950
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000001460a6c
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000001461da0
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000001461da4
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000001461dc0
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000001461f00
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x90000000015e8fe4
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x900000000166df80
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x900000000166e5b0
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x90000000016d5860
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x90000000016d6b50
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x90000000016d7ae0
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000001770100
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x90000000017a9548
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000001f57180
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x90000000024a6c00
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x90000000024bb9d8
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002540940
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x90000000025e0e40
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x90000000025e11b0
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e5f6cc
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e732e4
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e75f74
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e84560
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e87298
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e87558
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e882c0
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002227340
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002227970
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff8000022293a0
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff80000224ef7c
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002252d0c
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002252d14
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002252d38
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff80000225445c
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff8000022621a0
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002262200
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002262580
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002262a54
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff8000022642c0
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002264e4c
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002265040
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002265360
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002265fcc
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002293118
+     0.35%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff8000022ebf70
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000000ed740
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000113bd8
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000011b2a0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000011b2c0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000011b2e0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000011fc60
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000120c00
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000121500
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000176ac0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000017d1a0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001808d4
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000181780
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000181f68
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000018205c
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000182390
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001823f8
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000182518
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000197e30
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001983f0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000019dee8
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000019e61c
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000019ec28
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000019ee64
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001b8d90
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001c69b0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001c6fc4
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001c7470
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001ca548
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001ca740
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001cb758
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001cbca0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001ce2a0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001d0f80
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001d1544
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001d1c40
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000001d1cc0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000206ec0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000206f00
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000002085a0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000248c48
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000272368
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000002d9740
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000031e1d0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000341dc0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000003440b0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000344d2c
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000003f5940
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000004089cc
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000409080
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000004091c0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000040ae20
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000051db58
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x000000000051eac0
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x0000000000524c98
+     0.35%  vkmark          gsgpu_dri.so                   [.] 0x00000000005254c0
+     0.35%  vkmark          libEGL.so.1.1.0                [.] 0x0000000000005ec8
+     0.35%  vkmark          libEGL_gsgpu.so.0.0.0          [.] 0x00000000000108c0
+     0.35%  vkmark          libEGL_gsgpu.so.0.0.0          [.] 0x000000000001ab00
+     0.35%  vkmark          libGLESv2.so.2.1.0             [.] glDepthMask
+     0.35%  vkmark          libGLESv2.so.2.1.0             [.] glUseProgram
+     0.35%  vkmark          libassimp.so.6.0.4             [.] 0x00000000001293c0
+     0.35%  vkmark          libassimp.so.6.0.4             [.] 0x0000000000129a80
+     0.35%  vkmark          libassimp.so.6.0.4             [.] 0x0000000000153eb4
+     0.35%  vkmark          libc.so.6                      [.] __GI___memcpy_lasx
+     0.35%  vkmark          libc.so.6                      [.] __GI___pthread_mutex_unlock_usercnt
+     0.35%  vkmark          libc.so.6                      [.] __getpid
+     0.35%  vkmark          libc.so.6                      [.] __libc_calloc
+     0.35%  vkmark          libc.so.6                      [.] __memcpy_chk
+     0.35%  vkmark          libc.so.6                      [.] __poll
+     0.35%  vkmark          libc.so.6                      [.] _int_free_chunk
+     0.35%  vkmark          libc.so.6                      [.] _int_free_create_chunk
+     0.35%  vkmark          libc.so.6                      [.] _int_malloc
+     0.35%  vkmark          libc.so.6                      [.] getenv
+     0.35%  vkmark          libc.so.6                      [.] malloc
+     0.35%  vkmark          libc.so.6                      [.] pthread_cond_signal@@GLIBC_2.36
+     0.35%  vkmark          libc.so.6                      [.] pthread_mutex_lock@@GLIBC_2.36
+     0.35%  vkmark          libc.so.6                      [.] pthread_rwlock_rdlock@@GLIBC_2.36
+     0.35%  vkmark          libc.so.6                      [.] syscall
+     0.35%  vkmark          libexpat.so.1.13.0             [.] 0x0000000000002148
+     0.35%  vkmark          libgsgpu_glapi.so.0.0.0        [.] 0x0000000000014578
+     0.35%  vkmark          libloong-gpucomp.so.1          [.] loonggpucomp::LG1XXTargetMachine::getSubtargetImpl(loonggpucomp::Function const&) const
+     0.35%  vkmark          libloong-gpucomp.so.1          [.] loonggpucomp::PMTopLevelManager::findAnalysisPass(void const*)
+     0.35%  vkmark          libloong-gpucomp.so.1          [.] loonggpucomp::SimplifyCastInst(unsigned int, loonggpucomp::Value*, loonggpucomp::Type*, loonggpucomp::SimplifyQuery const&)
+     0.35%  vkmark          libloong-gpucomp.so.1          [.] loonggpucomp::Value::doRAUW(loonggpucomp::Value*, loonggpucomp::Value::ReplaceMetadataUses)@plt
+     0.35%  vkmark          libloong-gpucomp.so.1          [.] 0x0000000001b3ac00
+     0.35%  vkmark          libstdc++.so.6.0.36            [.] operator new(unsigned long)
+     0.35%  vkmark          libstdc++.so.6.0.36            [.] std::chrono::_V2::steady_clock::now()
+     0.35%  vkmark          libvkgl.so                     [.] vkgl_QueuePresentKHR(VkQueue_T*, VkPresentInfoKHR const*)
+     0.35%  vkmark          libvulkan.so.1.4.363           [.] vkQueuePresentKHR
+     0.35%  vkmark          libwayland-client.so.0.26.0    [.] wl_display_get_fd
+     0.35%  vkmark          libwayland-client.so.0.26.0    [.] 0x0000000000003e40
+     0.35%  vkmark          libwayland-client.so.0.26.0    [.] 0x00000000000074d8
+     0.35%  vkmark          libwayland-client.so.0.26.0    [.] 0x0000000000008300
+     0.35%  vkmark          libwayland-client.so.0.26.0    [.] 0x00000000000087d8
+     0.35%  vkmark          libwayland-client.so.0.26.0    [.] 0x0000000000008d58
+     0.35%  vkmark          libwayland-client.so.0.26.0    [.] 0x0000000000008d60
+     0.35%  vkmark          libwayland-client.so.0.26.0    [.] 0x0000000000009120
+     0.35%  vkmark          libwayland-client.so.0.26.0    [.] 0x000000000000aae0
+     0.35%  vkmark          vkmark                         [.] MainLoop::run()
+     0.35%  vkmark          vkmark                         [.] VertexScene::draw(VulkanImage const&)
+     0.35%  vkmark          wayland.so                     [.] SwapchainWindowSystem::next_vulkan_image()
+     0.35%  vkmark          [unknown]                      [k] 0x90000000011edcc0
+     0.35%  vkmark          [unknown]                      [k] 0x90000000011ef948
+     0.35%  vkmark          [unknown]                      [k] 0x90000000011f62ac
+     0.35%  vkmark          [unknown]                      [k] 0x900000000126a560
+     0.35%  vkmark          [unknown]                      [k] 0x900000000129a7a0
+     0.35%  vkmark          [unknown]                      [k] 0x900000000137414c
+     0.35%  vkmark          [unknown]                      [k] 0x900000000138b604
+     0.35%  vkmark          [unknown]                      [k] 0x90000000013b67c0
+     0.35%  vkmark          [unknown]                      [k] 0x90000000013b6c80
+     0.35%  vkmark          [unknown]                      [k] 0x90000000013b9860
+     0.35%  vkmark          [unknown]                      [k] 0x9000000001460a78
+     0.35%  vkmark          [unknown]                      [k] 0x9000000001460a88
+     0.35%  vkmark          [unknown]                      [k] 0x9000000001461ef8
+     0.35%  vkmark          [unknown]                      [k] 0x900000000146200c
+     0.35%  vkmark          [unknown]                      [k] 0x90000000015e8f40
+     0.35%  vkmark          [unknown]                      [k] 0x90000000016761e0
+     0.35%  vkmark          [unknown]                      [k] 0x90000000016df5a0
+     0.35%  vkmark          [unknown]                      [k] 0x9000000001731ebc
+     0.35%  vkmark          [unknown]                      [k] 0x90000000017321b0
+     0.35%  vkmark          [unknown]                      [k] 0x9000000001737dec
+     0.35%  vkmark          [unknown]                      [k] 0x900000000176ff80
+     0.35%  vkmark          [unknown]                      [k] 0x90000000017a8a40
+     0.35%  vkmark          [unknown]                      [k] 0x90000000017ac014
+     0.35%  vkmark          [unknown]                      [k] 0x90000000017ac914
+     0.35%  vkmark          [unknown]                      [k] 0x9000000001e9fee0
+     0.35%  vkmark          [unknown]                      [k] 0x9000000001eab2b4
+     0.35%  vkmark          [unknown]                      [k] 0x9000000001eab2c0
+     0.35%  vkmark          [unknown]                      [k] 0x90000000020c0c40
+     0.35%  vkmark          [unknown]                      [k] 0x900000000248c5c0
+     0.35%  vkmark          [unknown]                      [k] 0x90000000024a7d74
+     0.35%  vkmark          [unknown]                      [k] 0x90000000025dc0f4
+     0.35%  vkmark          [unknown]                      [k] 0x90000000025dc344
+     0.35%  vkmark          [unknown]                      [k] 0x90000000025dc380
+     0.35%  vkmark          [unknown]                      [k] 0x90000000025dc44c
+     0.35%  vkmark          [unknown]                      [k] 0x9000000002a9dac0
+     0.35%  vkmark          [unknown]                      [k] 0x9000000002a9f780
+     0.35%  vkmark          [unknown]                      [k] 0x9000000002aac41c
+     0.35%  vkmark          [unknown]                      [k] 0x9000000002cf0f00
+     0.35%  vkmark          [unknown]                      [k] 0x9000000002e75500
+     0.35%  vkmark          [unknown]                      [k] 0x9000000002e87230
+     0.35%  vkmark          [unknown]                      [k] 0x9000000002e87254
+     0.35%  vkmark          [unknown]                      [k] 0x9000000002e87354
+     0.35%  vkmark          [unknown]                      [k] 0x9000000002e8735c
+     0.35%  vkmark          [unknown]                      [k] 0x9000000002e8774c
+     0.35%  vkmark          [unknown]                      [k] 0xffff800002251c60
+     0.35%  vkmark:sh0      libloong-gpucomp.so.1          [.] loonggpucomp::MachineInstr::getRegInfo()
+     0.35%  vkmark:sh2      libloong-gpucomp.so.1          [.] loonggpucomp::LGXXInstrInfo::isOperandLegal(loonggpucomp::MachineInstr const&, unsigned int, loonggpucomp::MachineOperand const*) const
+
+
+#
+# (Tip: To not accumulate CPU time of children symbols add --no-children)
+#

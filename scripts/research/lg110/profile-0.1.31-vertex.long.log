@@ -1,0 +1,29 @@
+WARNING: Kernel address maps (/proc/{kallsyms,modules}) are restricted,
+check /proc/sys/kernel/kptr_restrict and /proc/sys/kernel/perf_event_paranoid.
+
+Samples in kernel functions may not be resolved if a suitable vmlinux
+file is not found in the buildid cache or in the vmlinux path.
+
+Samples in kernel modules won't be resolved at all.
+
+If some relocation was applied (e.g. kexec) symbols may be misresolved
+even with a suitable vmlinux or kallsyms file.
+
+Couldn't record kernel reference relocation symbol
+Symbol resolution may be skewed if relocation was used (e.g. kexec).
+Check /proc/kallsyms permission or run as root.
+=======================================================
+    vkmark 2025.01
+=======================================================
+    Vendor ID:      0x14
+    Device ID:      0x7A25
+    Device Name:    LoongGPU LG110 (vkgl GLES2)
+    Driver Version: 4194304
+    Device UUID:    4c473131000000000000000000000000
+=======================================================
+[vertex] duration=30: FPS: 240 FrameTime: 4.167 ms
+=======================================================
+                                   vkmark Score: 240
+=======================================================
+[ perf record: Woken up 19581 times to write data ]
+[ perf record: Captured and wrote 2.400 MB /tmp/vkgl-031-profile/vertex.long.data (287 samples) ]

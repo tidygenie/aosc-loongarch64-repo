@@ -81,6 +81,8 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 
 0.1.31实现软件实例化下的instance-rate属性步进：每次重复draw仅对INSTANCE binding设置`voff+attr.offset+(firstInstance+instance)*stride`，vertex-rate保持不动，不调用未声明的divisor。0.1.30八项two/first均错误绿色，0.1.31十二项候选/安装后全过且validation=0；BGRA红色raw为0000ffff。旧36项功能、21项原生回归和双路径smoke全过。小样本vertex/shading均值+1.28%/+0.87%，不宣称提升。签名源32项、HTTPS/服务器字节一致。详见 [`vkgl-0.1.31.md`](../scripts/tests/vkgl/vkgl-0.1.31.md)。
 
+0.1.31后续30秒cpu-clock剖析仅287/258样本，vkgl DSO占5.57%/5.43%，gsgpu_dri占23.00%/28.29%；未知样本不归因，perf_event_paranoid已在每次采样后恢复2，不据此再发CPU微优化版本。原生顶点控制以同VBO字节和同gradient隔离offset0→8、UV stride8→16，XDMA/GFX及两个辅助BO前64 dword均无差异；新增仅显式tracked VA的只读临时GEM映射，默认/无效VA保护通过，未写BO或命名未知字段。详见 [`lg110-vertex-state-bo.md`](../scripts/research/lg110/lg110-vertex-state-bo.md) 与 [`lg110-cpu-profile-0.1.31.md`](../scripts/research/lg110/lg110-cpu-profile-0.1.31.md)。
+
 # 2026-11-07 Homebrew与系统维护
 
 - APT元数据刷新后可更新包为0；第三方更新检查确认ruby 4.0.9、v2raya 2.5.13、zerotier-one 1.16.2均为当前最新，没有为本轮盲目升级图形组件。

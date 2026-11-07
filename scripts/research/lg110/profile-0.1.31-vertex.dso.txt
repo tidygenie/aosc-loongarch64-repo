@@ -1,0 +1,35 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 287  of event 'cpu-clock'
+# Event count (approx.): 1442210875
+#
+# Overhead  Shared Object                
+# ........  .............................
+#
+    42.51%  [unknown]                    
+    23.00%  gsgpu_dri.so                 
+    11.15%  libc.so.6                    
+     5.57%  libvkgl.so                   
+     3.14%  libwayland-client.so.0.26.0  
+     2.44%  libldrm.so.1.0.0             
+     2.44%  libloong-gpucomp.so.1        
+     2.09%  libGLdispatch.so.0.0.0       
+     1.39%  ld-linux-loongarch-lp64d.so.1
+     1.39%  vkmark                       
+     1.05%  libassimp.so.6.0.4           
+     0.70%  libEGL_gsgpu.so.0.0.0        
+     0.70%  libGLESv2.so.2.1.0           
+     0.70%  libstdc++.so.6.0.36          
+     0.35%  libEGL.so.1.1.0              
+     0.35%  libexpat.so.1.13.0           
+     0.35%  libgsgpu_glapi.so.0.0.0      
+     0.35%  libvulkan.so.1.4.363         
+     0.35%  wayland.so                   
+
+
+#
+# (Tip: Show current config key-value pairs: perf config --list)
+#

@@ -1,0 +1,390 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 287  of event 'cpu-clock'
+# Event count (approx.): 1442210875
+#
+# Overhead  Command         Shared Object                  Symbol                                                                                                                                                                   
+# ........  ..............  .............................  .........................................................................................................................................................................
+#
+     3.48%  vkmark          [unknown]                      [k] 0x9000000002e8c084
+            |
+            ---0x9000000002e8c084
+               |          
+                --2.79%--0x90000000012a45dc
+                          |          
+                          |--1.39%--0x9000000001827de0
+                          |          0x9000000002aa4a40
+                          |          0x9000000002cf0330
+                          |          0x9000000002a9cec4
+                          |          0x9000000002a9d138
+                          |          0x9000000002e75594
+                          |          0x90000000011ec0c8
+                          |          __syscall_cancel_arch
+                          |          internal_syscall_cancel (inlined)
+                          |          syscall_cancel (inlined)
+                          |          __libc_sendmsg
+                          |          0x7fff2da878a3
+                          |          wl_display_flush
+                          |          vkgl_QueuePresentKHR(VkQueue_T*, VkPresentInfoKHR const*)
+                          |          SwapchainWindowSystem::present_vulkan_image(VulkanImage const&)
+                          |          MainLoop::run()
+                          |          main
+                          |          __libc_start_call_main
+                          |          __libc_start_main_impl (inlined)
+                          |          _start
+                          |          
+                           --1.39%--0x90000000013bed20
+                                     0x90000000013b9954
+                                     0x90000000013b9c14
+                                     0x9000000002e75594
+                                     0x90000000011ec0c8
+                                     futex_wake (inlined)
+                                     ___pthread_cond_signal (inlined)
+                                     0x7fff2d185567
+                                     0x7fff2cdfee63
+                                     0x7fff2cdd9dfb
+                                     0x7fff2cde27fb
+                                     0x7fff2cfa4c43
+                                     execute_cmds(CommandBuffer*)
+                                     vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+                                     VertexScene::draw(VulkanImage const&)
+                                     MainLoop::run()
+                                     main
+                                     __libc_start_call_main
+                                     __libc_start_main_impl (inlined)
+                                     _start
+
+     1.74%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000001276940
+            |
+            ---0x9000000001276940
+               0xffff800002227a44
+               0xffff8000022663fc
+               0xffff800002264e60
+               0x90000000024a6d88
+               0x90000000024a7e5c
+               0xffff80000228304c
+               0x90000000017a95c8
+               0x9000000002e75594
+               0x90000000011ec0c8
+
+     1.74%  vkmark          libvkgl.so                     [.] vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer* const*, unsigned long const*, Buffer*, unsigned long, Cmd const&)
+            |
+            ---vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer* const*, unsigned long const*, Buffer*, unsigned long, Cmd const&)
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               VertexScene::draw(VulkanImage const&)
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     1.39%  vkma:gsgpu_cs0  libldrm.so.1.0.0               [.] loonggpu_bo_list_create
+     1.39%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e8c084
+            |
+            ---0x9000000002e8c084
+               0x90000000012a45dc
+               0x90000000013bed20
+               0x90000000013b9954
+               0x90000000013b9c14
+               0x9000000002e75594
+               0x90000000011ec0c8
+
+     1.39%  vkmark          libc.so.6                      [.] __GI___memmove_lasx
+            |
+            ---__memmove_lasx (inlined)
+               |          
+                --0.70%--0x7fff2cddb0d3
+                          0x7fff2cddc94b
+
+     1.05%  vkmark          libGLdispatch.so.0.0.0         [.] __glDispatchCheckMultithreaded
+            |
+            ---__glDispatchCheckMultithreaded
+               eglMakeCurrent
+               |          
+                --0.70%--vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+                          VertexScene::draw(VulkanImage const&)
+                          MainLoop::run()
+                          main
+                          __libc_start_call_main
+                          __libc_start_main_impl (inlined)
+                          _start
+
+     1.05%  vkmark          libGLdispatch.so.0.0.0         [.] __glDispatchGetCurrentThreadState
+            |
+            ---__glDispatchGetCurrentThreadState
+               eglMakeCurrent
+               |          
+                --0.70%--execute_cmds(CommandBuffer*)
+                          vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+                          VertexScene::draw(VulkanImage const&)
+                          MainLoop::run()
+                          main
+                          __libc_start_call_main
+                          __libc_start_main_impl (inlined)
+                          _start
+
+     1.05%  vkmark          libvkgl.so                     [.] execute_cmds(CommandBuffer*)
+            |
+            ---execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               VertexScene::draw(VulkanImage const&)
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     1.05%  vkmark          libvkgl.so                     [.] vkgl_AcquireNextImageKHR(VkDevice_T*, VkSwapchainKHR_T*, unsigned long, VkSemaphore_T*, VkFence_T*, unsigned int*)
+            |
+            ---vkgl_AcquireNextImageKHR(VkDevice_T*, VkSwapchainKHR_T*, unsigned long, VkSemaphore_T*, VkFence_T*, unsigned int*)
+               SwapchainWindowSystem::next_vulkan_image()
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     0.70%  vkma:gsgpu_cs0  libc.so.6                      [.] __GI___ioctl
+     0.70%  vkma:gsgpu_cs0  libc.so.6                      [.] __syscall_cancel_arch
+     0.70%  vkma:gsgpu_cs0  [unknown]                      [k] 0x900000000146094c
+            |
+            ---0x900000000146094c
+               0x9000000002e877e8
+
+     0.70%  vkma:gsgpu_cs0  [unknown]                      [k] 0x9000000002e876e0
+            |
+            ---0x9000000002e876e0
+
+     0.70%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff800002284760
+            |
+            ---0xffff800002284760
+               0x90000000025dcc38
+               0xffff8000022275c4
+               0x90000000025dcc38
+               0x90000000025dcc38
+               0xffff8000022681fc
+               0xffff800002266268
+               0xffff800002264e60
+               0x90000000024a6d88
+               0x90000000024a7e5c
+               0xffff80000228304c
+               0x90000000017a95c8
+               0x9000000002e75594
+               0x90000000011ec0c8
+
+     0.70%  vkma:gsgpu_cs0  [unknown]                      [k] 0xffff8000022a7168
+            |
+            ---0xffff8000022a7168
+               0xffff800002266004
+               0xffff800002264e50
+               0x90000000024a6d88
+               0x90000000024a7e5c
+               0xffff80000228304c
+               0x90000000017a95c8
+               0x9000000002e75594
+               0x90000000011ec0c8
+
+     0.70%  vkmark          gsgpu_dri.so                   [.] 0x00000000000ede18
+            |
+            ---0x7fff2cd4de18
+               0x7fff2cd8169f
+               0x7fff2cd4a633
+               0x7fff2d067bcb
+               0x7fff2cfa67eb
+               0x7fff2d05593f
+               vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer* const*, unsigned long const*, Buffer*, unsigned long, Cmd const&)
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               VertexScene::draw(VulkanImage const&)
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     0.70%  vkmark          gsgpu_dri.so                   [.] 0x000000000017b350
+            |
+            ---0x7fff2cddb350
+               0x7fff2cd4bd7b
+               0x7fff2d0681fb
+               0x7fff2d067c0b
+               0x7fff2cfa67eb
+               0x7fff2d05593f
+               vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer* const*, unsigned long const*, Buffer*, unsigned long, Cmd const&)
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               VertexScene::draw(VulkanImage const&)
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     0.70%  vkmark          gsgpu_dri.so                   [.] 0x00000000002d9710
+            |
+            ---0x7fff2cf39710
+               vkgl_execute_draw(Pipeline*, std::vector<DescriptorSet*, std::allocator<DescriptorSet*> >&, Buffer* const*, unsigned long const*, Buffer*, unsigned long, Cmd const&)
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               VertexScene::draw(VulkanImage const&)
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     0.70%  vkmark          gsgpu_dri.so                   [.] 0x0000000000344c44
+            |
+            ---0x7fff2cfa4c44
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               VertexScene::draw(VulkanImage const&)
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     0.70%  vkmark          ld-linux-loongarch-lp64d.so.1  [.] _dl_lookup_symbol_x
+            |
+            ---_dl_new_hash (inlined)
+               _dl_lookup_symbol_x
+               resolve_map (inlined)
+               elf_machine_rela (inlined)
+               elf_dynamic_do_Rela (inlined)
+               _dl_relocate_object_no_relro
+               _dl_relocate_object
+               _dl_open_relocate_one_object (inlined)
+               dl_open_worker_begin
+               __GI__dl_catch_exception (inlined)
+               dl_open_worker
+               __GI__dl_catch_exception (inlined)
+               _dl_open
+               dlopen_doit
+               __GI__dl_catch_exception (inlined)
+               _dl_catch_error
+               _dlerror_run
+               dlopen_implementation (inlined)
+               ___dlopen (inlined)
+
+     0.70%  vkmark          ld-linux-loongarch-lp64d.so.1  [.] do_lookup_x
+            |
+            ---do_lookup_x
+               _dl_lookup_symbol_x
+               resolve_map (inlined)
+               elf_machine_rela (inlined)
+               elf_dynamic_do_Rela (inlined)
+               _dl_relocate_object_no_relro
+               _dl_relocate_object
+               _dl_open_relocate_one_object (inlined)
+               dl_open_worker_begin
+               __GI__dl_catch_exception (inlined)
+               dl_open_worker
+               __GI__dl_catch_exception (inlined)
+               _dl_open
+               dlopen_doit
+               __GI__dl_catch_exception (inlined)
+               _dl_catch_error
+               _dlerror_run
+               dlopen_implementation (inlined)
+               ___dlopen (inlined)
+               0x7fff2d58334f
+               0x7fff2d58358b
+               0x7fff2d583ed7
+               0x7fff2d7417ab
+               0x7fff2d7418cf
+               gbm_create_device
+               GlCtx::init() [clone .constprop.0]
+               vkgl_CreateDevice(VkPhysicalDevice_T*, VkDeviceCreateInfo const*, VkAllocationCallbacks const*, VkDevice_T**) [clone .lto_priv.0]
+               0x7fff2eae21a7
+
+     0.70%  vkmark          libc.so.6                      [.] __syscall_cancel_arch
+            |
+            ---__syscall_cancel_arch
+               internal_syscall_cancel (inlined)
+               syscall_cancel (inlined)
+
+     0.70%  vkmark          libc.so.6                      [.] free
+            |
+            ---__libc_free (inlined)
+
+     0.70%  vkmark          libc.so.6                      [.] pthread_rwlock_unlock@@GLIBC_2.36
+            |
+            ---___pthread_rwlock_unlock (inlined)
+               0x7fff2d7b5ef7
+               eglMakeCurrent
+
+     0.70%  vkmark          libldrm.so.1.0.0               [.] loonggpu_cs_query_fence_status
+            |
+            ---loonggpu_cs_query_fence_status
+               0x7fff2cdfd9b3
+               0x7fff2cdd9e47
+               0x7fff2cde27fb
+               0x7fff2cfa4c43
+               execute_cmds(CommandBuffer*)
+               vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               VertexScene::draw(VulkanImage const&)
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     0.70%  vkmark          libvkgl.so                     [.] vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+            |
+            ---vkgl_QueueSubmit(VkQueue_T*, unsigned int, VkSubmitInfo const*, VkFence_T*)
+               VertexScene::draw(VulkanImage const&)
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     0.70%  vkmark          libvkgl.so                     [.] vkgl_WaitForFences(VkDevice_T*, unsigned int, VkFence_T* const*, unsigned int, unsigned long) [clone .lto_priv.0]
+            |
+            ---vkgl_WaitForFences(VkDevice_T*, unsigned int, VkFence_T* const*, unsigned int, unsigned long) [clone .lto_priv.0]
+               SwapchainWindowSystem::next_vulkan_image()
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     0.70%  vkmark          vkmark                         [.] VertexScene::update_uniforms(unsigned long)
+            |
+            ---VertexScene::update_uniforms(unsigned long)
+               VertexScene::draw(VulkanImage const&)
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+     0.70%  vkmark          [unknown]                      [k] 0x9000000002a96dc0
+            |
+            ---0x9000000002a96dc0
+               0x90000000017ac8f0
+               0x90000000017acde8
+               0x9000000002e75594
+               0x90000000011ec0c8
+               __syscall_cancel_arch
+               internal_syscall_cancel (inlined)
+               syscall_cancel (inlined)
+               __poll
+               vkgl_AcquireNextImageKHR(VkDevice_T*, VkSwapchainKHR_T*, unsigned long, VkSemaphore_T*, VkFence_T*, unsigned int*)
+               SwapchainWindowSystem::next_vulkan_image()
+               MainLoop::run()
+               main
+               __libc_start_call_main
+               __libc_start_main_impl (inlined)
+               _start
+
+
+
+#
+# (Tip: Customize output of perf script with: perf script -F event,ip,sym)
+#

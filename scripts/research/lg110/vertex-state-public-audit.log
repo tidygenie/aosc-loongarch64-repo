@@ -1,0 +1,6 @@
+installed_driver=vkgl-loonggpu 0.1.31-1
+bo_1022c8000=3_constant_pixel_cases XDMA_GFX_identical VA64_identical
+bo_1022cc000=3_constant_pixel_cases XDMA_GFX_identical VA64_identical
+default_no_env=PASS no_VADUMP
+invalid_va_0x1=PASS no_va_mapping handle=0 no_mapping
+audit=PASS
