@@ -1,6 +1,6 @@
-/* Native draw-count differential: the same full-screen triangle workload runs
- * with Vulkan vertexCount=3 or 2. GL_TRIANGLES with two vertices emits no
- * primitive, so the center must remain the frame-0 clear color. A one-pixel
+/* Native draw differential: the workload varies vertexCount=3 or 2 and
+ * firstVertex=0 or 1. GL_TRIANGLES with two vertices emits no primitive; the
+ * separate four-vertex shader makes first=1 select the other safe triangle.
  * CopyImageToBuffer preserves raw evidence. LG110_EXPECT_DRAW_COUNT is separate
  * from input LG110_DRAW_VERTEX_COUNT for a paired active IB mutation. */
 #define _DEFAULT_SOURCE 1
@@ -74,24 +74,28 @@ int main(void) {
    if (!pixel_path) { fprintf(stderr, "set LG110_READBACK_PIXEL\n"); return 1; }
    const char *draw_text = getenv("LG110_DRAW_VERTEX_COUNT");
    const char *expected_draw_text = getenv("LG110_EXPECT_DRAW_COUNT");
+   const char *first_text = getenv("LG110_DRAW_FIRST_VERTEX");
    const char *topology_text = getenv("LG110_DRAW_TOPOLOGY");
    const char *expected_topology_text = getenv("LG110_EXPECT_TOPOLOGY");
    const char *frame_text = getenv("LG110_FRAME_LIMIT");
    if (!draw_text) draw_text = "3";
    if (!expected_draw_text) expected_draw_text = draw_text;
+   if (!first_text) first_text = "0";
    if (!topology_text) topology_text = "triangle";
    if (!expected_topology_text) expected_topology_text = topology_text;
    if (!frame_text) frame_text = "120";
    int expect_unsupported = getenv("LG110_EXPECT_UNSUPPORTED") &&
                             !strcmp(getenv("LG110_EXPECT_UNSUPPORTED"), "1");
-   if ((strcmp(draw_text, "3") && strcmp(draw_text, "2")) ||
+   if ((strcmp(first_text, "0") && strcmp(first_text, "1")) ||
+       (strcmp(draw_text, "3") && strcmp(draw_text, "2")) ||
        (strcmp(expected_draw_text, "3") && strcmp(expected_draw_text, "2")) ||
        topology_from_name(topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        topology_from_name(expected_topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        (strcmp(frame_text, "120") && strcmp(frame_text, "1"))) {
-      fprintf(stderr, "draw=3|2 topology=point|line|line-strip|triangle|triangle-strip|triangle-fan|adjacency|patch frames=120|1\n"); return 1;
+      fprintf(stderr, "draw=3|2 first=0|1 topology=point|line|line-strip|triangle|triangle-strip|triangle-fan|adjacency|patch frames=120|1\n"); return 1;
    }
    int draw_count = draw_text[0] - '0';
+   int first_vertex = first_text[0] - '0';
    int expected_draw_count = expected_draw_text[0] - '0';
    VkPrimitiveTopology topology = topology_from_name(topology_text);
    VkPrimitiveTopology expected_topology = topology_from_name(expected_topology_text);
@@ -103,8 +107,8 @@ int main(void) {
       return 1;
    }
    int frame_limit = frame_text[0] == '1' && !frame_text[1] ? 1 : 120;
-   printf("texture variant: %s red=%u other=0 draw=%d expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
-          mode, nonzero ? 255u : 0u, draw_count, expected_draw_count,
+   printf("texture variant: %s red=%u other=0 draw=%d first=%d expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
+          mode, nonzero ? 255u : 0u, draw_count, first_vertex, expected_draw_count,
           topology_text, expected_topology_text, frame_limit);
    dpy = wl_display_connect(NULL);
    if (!dpy) { fprintf(stderr, "no wayland display\n"); return 1; }
@@ -311,7 +315,7 @@ int main(void) {
       vkCmdBindDescriptorSets(cb,VK_PIPELINE_BIND_POINT_GRAPHICS,playout,0,1,&ds,0,NULL);
       vkCmdSetViewport(cb,0,1,&vp);
       vkCmdSetScissor(cb,0,1,&scissor);
-      vkCmdDraw(cb,(uint32_t)draw_count,1,0,0);
+      vkCmdDraw(cb,(uint32_t)draw_count,1,(uint32_t)first_vertex,0);
       vkCmdEndRenderPass(cb);
       if (frame==0) {
          VkImageMemoryBarrier ib={.sType=VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
