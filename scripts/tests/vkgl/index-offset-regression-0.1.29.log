@@ -1,0 +1,5 @@
+vkgl public candidate sha256=5ad81dfb43c85a39439130fb46d770a698228c5618a66feb8e2fb4361ab13614
+instance_index_type_matrix=16/16 PASS validation_events=0
+prior_nonindexed_and_index_type_native=12/12 PASS
+first_index_base_vertex_native=9/9 PASS
+audit=PASS

@@ -3290,8 +3290,30 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
                ibuf->uploaded_submit = g_submit_serial;
             }
             GLenum it = cmd.index_type == VK_INDEX_TYPE_UINT32 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
-            glDrawElements(draw_mode, (GLsizei)cmd.count, it,
-                           (const void *)(uintptr_t)(ioff + (VkDeviceSize)cmd.first * (it == GL_UNSIGNED_INT ? 4 : 2)));
+            const void *indices = (const void *)(uintptr_t)(ioff +
+                (VkDeviceSize)cmd.first * (it == GL_UNSIGNED_INT ? 4 : 2));
+            if (cmd.vertex_offset != 0) {
+               using BaseVertexFn = void (*)(GLenum, GLsizei, GLenum,
+                                                      const void *, GLint);
+               static BaseVertexFn base_vertex = nullptr;
+               static bool resolved = false;
+               if (!resolved) {
+                  base_vertex = reinterpret_cast<BaseVertexFn>(
+                      eglGetProcAddress("glDrawElementsBaseVertex"));
+                  resolved = true;
+               }
+               if (base_vertex) {
+                  base_vertex(draw_mode, (GLsizei)cmd.count, it, indices,
+                              (GLint)cmd.vertex_offset);
+               } else {
+                  static int reported = 0;
+                  if (reported++ < 1)
+                     fprintf(stderr, "vkgl: vertexOffset requires glDrawElementsBaseVertex\n");
+                  break;
+               }
+            } else {
+               glDrawElements(draw_mode, (GLsizei)cmd.count, it, indices);
+            }
          }
       } else {
          glDrawArrays(draw_mode, (GLint)cmd.first, (GLsizei)cmd.count);
