@@ -79,6 +79,8 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 
 0.1.30修复多顶点binding相互覆盖：Pipeline和执行器现保存16组独立VBO/offset/stride，每个attribute按自身binding上传与取址。双binding位置offset8/stride8、UV stride16的四种indexed/indirect组合安装后全为gradient且validation=0；旧32项功能及21项原生回归通过。普通场景小样本vertex/shading均值-1.85%/-0.38%，不归因回退。原生trace只见独立XDMA，两个VBO base VA均未字面出现在GFX中，不虚构地址字段。签名源31项、HTTPS/服务器字节一致。详见 [`vkgl-0.1.30.md`](../scripts/tests/vkgl/vkgl-0.1.30.md)。
 
+0.1.31实现软件实例化下的instance-rate属性步进：每次重复draw仅对INSTANCE binding设置`voff+attr.offset+(firstInstance+instance)*stride`，vertex-rate保持不动，不调用未声明的divisor。0.1.30八项two/first均错误绿色，0.1.31十二项候选/安装后全过且validation=0；BGRA红色raw为0000ffff。旧36项功能、21项原生回归和双路径smoke全过。小样本vertex/shading均值+1.28%/+0.87%，不宣称提升。签名源32项、HTTPS/服务器字节一致。详见 [`vkgl-0.1.31.md`](../scripts/tests/vkgl/vkgl-0.1.31.md)。
+
 # 2026-11-07 Homebrew与系统维护
 
 - APT元数据刷新后可更新包为0；第三方更新检查确认ruby 4.0.9、v2raya 2.5.13、zerotier-one 1.16.2均为当前最新，没有为本轮盲目升级图形组件。

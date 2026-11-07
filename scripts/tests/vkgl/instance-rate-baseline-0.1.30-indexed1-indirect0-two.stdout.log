@@ -1,0 +1,8 @@
+texture variant: A red=0 other=0 draw=3 first=0 instances=2 first_instance=0 indexed=1 indirect=0 index_type=16 first_index=0 vertex_offset=0 expected_draw=3 topology=triangle expected_topology=triangle frames=1
+physical devices: 1
+device: LoongGPU LG110 (vkgl GLES2)
+formats: 2 first=44
+swapchain images: 2
+readback center=(320,240) format=44 tolerance=2 expected_bytes=0000ffff
+readback actual_bytes=008000ff pixels_valid=0 sentinel_unchanged=0
+FAIL vktest-draw-count-readback variant=A pixels_valid=0

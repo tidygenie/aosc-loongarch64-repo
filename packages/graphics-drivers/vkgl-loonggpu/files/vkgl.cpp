@@ -3290,6 +3290,22 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets,
    /* Software instancing is deliberately a repeated draw, not an unadvertised
     * hardware entry point. Locations are cached at pipeline link time. */
    for (uint32_t instance = 0; instance < cmd.instances; ++instance) {
+      // GL 2.1 has no instanced arrays/divisor. Advance only instance-rate
+      // attributes for each repeated draw; vertex-rate pointers stay fixed.
+      for (auto &a : p->via) {
+         if (a.binding >= 16 ||
+             p->vibs[a.binding].inputRate != VK_VERTEX_INPUT_RATE_INSTANCE)
+            continue;
+         Buffer *vbuf = vbufs[a.binding];
+         GLint comps; GLboolean norm;
+         GLenum type = gl_type_for_format(a.format, &comps, &norm);
+         VkDeviceSize stride = p->vibs[a.binding].stride;
+         VkDeviceSize instance_offset =
+            (VkDeviceSize)(cmd.first_instance + instance) * stride;
+         glBindBuffer(GL_ARRAY_BUFFER, vbuf ? vbuf->gl : 0);
+         glVertexAttribPointer(a.location, comps, type, norm, (GLsizei)stride,
+            (const void *)(uintptr_t)(voffs[a.binding] + a.offset + instance_offset));
+      }
       if (p->instance_id_loc >= 0) glUniform1i(p->instance_id_loc, (GLint)instance);
       if (p->base_instance_loc >= 0) glUniform1i(p->base_instance_loc, (GLint)cmd.first_instance);
       if (cmd.kind == Cmd::DrawIndexed) {

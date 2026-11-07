@@ -1,0 +1,7 @@
+vkgl public candidate sha256=afac548f68ed43574b546b76e541110fba46e9c329f66a3318fcecc7dc4d2b3b
+prior_functional_and_binding=36/36 PASS validation_events=0
+prior_native_causal_and_guards=21/21 PASS
+public_instance_rate=12/12 PASS validation_events=0
+installed_instance_rate=12/12 PASS validation_events=0
+baseline_030=eight_red_expectation_failures_four_zero_controls_PASS
+audit=PASS
