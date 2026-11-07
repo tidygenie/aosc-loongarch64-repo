@@ -59,3 +59,8 @@ LG110_READBACK_PIXEL=/tmp/indexed.rgba \
 Run serially. Repeat with indexed/indirect=0/0, 0/1 and 1/1. The four raw pixels
 must remain clear; these observations do not establish indexed replay or full
 native draw semantics.
+
+Follow-up with the public 0.1.28 UINT32 path found that word281 stays 1 and the
+only GFX type differential is word268 `0x40000402→0x40000404`. A guarded active
+reverse mutation proves this word268 index-width effect and leaves word281
+unassigned. See [`lg110-index-type-field.md`](lg110-index-type-field.md).

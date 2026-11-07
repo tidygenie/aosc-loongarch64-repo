@@ -72,3 +72,5 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 ### vkgl 0.1.27 软件实例化
 
 后续差分发现0.1.26忽略instanceCount且不支持gl_InstanceIndex shader。0.1.27以内部instance/firstInstance uniforms和重复GL draw实现软件实例化，不调用未声明的硬件入口。direct/indexed/indirect/indexed-indirect共16项安装后raw像素全对、validation为0，双路径vkcube/vkmark也为0；既有8项原生命令流回归不变。普通vertex/shading配对均值仅-0.43%/-0.79%，不宣称性能提升。deb已发布，签名源28项且HTTPS/服务器字节一致。详见 [`vkgl-0.1.27.md`](../scripts/tests/vkgl/vkgl-0.1.27.md)。
+
+0.1.28继续修复索引位宽：0.1.27将UINT32硬当UINT16，直接与间接像素均失败；新版在录制时保存每个draw的VkIndexType。UINT16/UINT32×直接/间接×四实例控制共16项安装后全过且validation=0。原生GFX仅268在402/404间变化，主动反向单字修改精确复现旧错误，281仍不命名。普通性能仍只有波动；签名源29项、HTTPS/服务器字节一致。详见 [`vkgl-0.1.28.md`](../scripts/tests/vkgl/vkgl-0.1.28.md)。

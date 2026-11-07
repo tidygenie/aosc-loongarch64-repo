@@ -425,6 +425,7 @@ struct Cmd {
    VkRect2D scissor = {};
    uint32_t first = 0, count = 0, instances = 1, first_instance = 0;
    int32_t vertex_offset = 0;
+   VkIndexType index_type = VK_INDEX_TYPE_UINT16;
    Image *img = nullptr;
    VkClearColorValue cc = {};
    VkImageSubresourceRange range = {};
@@ -452,6 +453,7 @@ struct CommandBuffer : Obj {
    VkViewport cur_vp = {};
    VkRect2D cur_scissor = {};
    Pipeline *cur_pipe = nullptr;
+   VkIndexType cur_index_type = VK_INDEX_TYPE_UINT16;
 };
 
 struct Semaphore : Obj {};
@@ -1427,9 +1429,10 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBindVertexBuffers(VkCommandBuffer cb, 
    }
 }
 
-static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBindIndexBuffer(VkCommandBuffer cb, VkBuffer buf, VkDeviceSize off, VkIndexType) {
+static VKAPI_ATTR void VKAPI_CALL vkgl_CmdBindIndexBuffer(VkCommandBuffer cb, VkBuffer buf, VkDeviceSize off, VkIndexType type) {
    auto *c = from_handle<CommandBuffer>((uint64_t)cb);
    Cmd cmd{}; cmd.kind = Cmd::BindIndexBuffer; cmd.buf = from_handle<Buffer>((uint64_t)buf); cmd.offset = off;
+   cmd.index_type = type; c->cur_index_type = type;
    c->cmds.push_back(cmd);
 }
 
@@ -1464,6 +1467,7 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDrawIndexed(VkCommandBuffer cb, uint32
    auto *c = from_handle<CommandBuffer>((uint64_t)cb);
    Cmd cmd{}; cmd.kind = Cmd::DrawIndexed; cmd.count = count; cmd.instances = instances;
    cmd.first = first; cmd.vertex_offset = voff; cmd.first_instance = first_instance;
+   cmd.index_type = c->cur_index_type;
    c->cmds.push_back(cmd);
 }
 
@@ -1505,6 +1509,7 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDrawIndexedIndirect(VkCommandBuffer cb
    auto *c = from_handle<CommandBuffer>((uint64_t)cb);
    Cmd cmd{}; cmd.kind = Cmd::DrawIndexedIndirect; cmd.buf = from_handle<Buffer>((uint64_t)buf);
    cmd.offset = off; cmd.count = count; cmd.indirect_stride = stride ? stride : sizeof(VkDrawIndexedIndirectCommand);
+   cmd.index_type = c->cur_index_type;
    c->cmds.push_back(cmd);
 }
 
@@ -3284,7 +3289,7 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
                ibuf->uploaded_revision = ibuf->mem->revision;
                ibuf->uploaded_submit = g_submit_serial;
             }
-            GLenum it = GL_UNSIGNED_SHORT;
+            GLenum it = cmd.index_type == VK_INDEX_TYPE_UINT32 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
             glDrawElements(draw_mode, (GLsizei)cmd.count, it,
                            (const void *)(uintptr_t)(ioff + (VkDeviceSize)cmd.first * (it == GL_UNSIGNED_INT ? 4 : 2)));
          }

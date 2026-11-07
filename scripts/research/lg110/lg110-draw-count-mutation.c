@@ -5,7 +5,9 @@
  * Passive by default. =count changes only word270 from 3 to 2; =topology
  * changes only word268 from 0x40000400 to 0x40000000; =word276 changes only
  * word276 from 2 to 1; =word274/=word275 each change only that word from 0 to 1.
- * Exact stream signatures,
+ * =index32-to16 changes only word268 from 0x40000404 to 0x40000402 after
+ * requiring an indexed UINT32 signature and nonzero index VA. Exact stream
+ * signatures,
  * old values, writable mappings, and post-store readback are mandatory.
  */
 
@@ -125,6 +127,8 @@ static void configure(void)
             mutate_draw_mode = 4;
         else if (strcmp(draw_value, "word275") == 0)
             mutate_draw_mode = 5;
+        else if (strcmp(draw_value, "index32-to16") == 0)
+            mutate_draw_mode = 6;
         else {
             fprintf(stderr, "LG110DRAWMUTATE invalid field; passive only\n");
         }
@@ -667,12 +671,12 @@ static void trace_cs_locked(unsigned int sequence, int fd,
 }
 
 #define LG110_DRAW_DWORDS 672U
-#define LG110_DRAW_SIGNATURE_DWORDS 278U
+#define LG110_DRAW_SIGNATURE_DWORDS 281U
 
 static int draw_word_selected(unsigned int index)
 {
     return (index == 270U && mutate_draw_mode == 1) ||
-           (index == 268U && mutate_draw_mode == 2) ||
+           (index == 268U && (mutate_draw_mode == 2 || mutate_draw_mode == 6)) ||
            (index == 276U && mutate_draw_mode == 3) ||
            (index == 274U && mutate_draw_mode == 4) ||
            (index == 275U && mutate_draw_mode == 5);
@@ -698,9 +702,13 @@ static int draw_signature_matches(const uint32_t *words)
     size_t i;
 
     for (i = 0; i < sizeof(signature) / sizeof(signature[0]); ++i)
-        if (!draw_word_selected(signature[i].index) &&
-            words[signature[i].index] != signature[i].value)
-            return 0;
+        if (!draw_word_selected(signature[i].index)) {
+            uint32_t expected = signature[i].value;
+            if (mutate_draw_mode == 6 && signature[i].index == 276U)
+                expected = 0xffffffffU;
+            if (words[signature[i].index] != expected)
+                return 0;
+        }
     return 1;
 }
 
@@ -744,9 +752,15 @@ static void maybe_mutate_draw_ib(int fd, const struct drm_loonggpu_cs_in *input)
             source.user_address % sizeof(uint32_t) == 0) {
             if (read_user(source.user_address, words, sizeof(words)))
                 memcpy(words, (const void *)source.user_address, sizeof(words));
-            if (draw_signature_matches(words) &&
-                words[270] == 3U && words[276] == 2U &&
-                (mutate_draw_mode == 1 || words[268] == 0x40000400U)) {
+            int guard_ok;
+            if (mutate_draw_mode == 6) {
+                guard_ok = words[270] == 3U && words[276] == 0xffffffffU &&
+                           words[268] == 0x40000404U && words[280] != 0U;
+            } else {
+                guard_ok = words[270] == 3U && words[276] == 2U &&
+                           (mutate_draw_mode == 1 || words[268] == 0x40000400U);
+            }
+            if (draw_signature_matches(words) && guard_ok) {
                 uint32_t *target = (uint32_t *)source.user_address;
                 uint32_t observed;
                 int patched;
@@ -774,6 +788,14 @@ static void maybe_mutate_draw_ib(int fd, const struct drm_loonggpu_cs_in *input)
                     patched = observed == 1U;
                     log_line("LG110DRAWMUTATE mode=word276 word=276 old=0x00000002 "
                              "new=0x00000001 observed=0x%08x patched=%d",
+                             observed, patched ? 1 : 0);
+                } else if (mutate_draw_mode == 6) {
+                    target[268] = 0x40000402U;
+                    __sync_synchronize();
+                    observed = target[268];
+                    patched = observed == 0x40000402U;
+                    log_line("LG110DRAWMUTATE mode=index32-to16 word=268 old=0x40000404 "
+                             "new=0x40000402 observed=0x%08x patched=%d",
                              observed, patched ? 1 : 0);
                 } else {
                     unsigned int index = mutate_draw_mode == 4 ? 274U : 275U;

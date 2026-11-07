@@ -1,7 +1,8 @@
 /* Vulkan instancing correctness matrix. InstanceIndex=0 selects a triangle
  * that misses the center; InstanceIndex=1 selects the covering triangle.
- * Direct/indexed and direct-recorded/indirect paths test instanceCount=0,1,2
- * and firstInstance=0,1. CopyImageToBuffer preserves one raw pixel; dynamic
+ * Direct/indexed and direct-recorded/indirect paths test instanceCount=0,1,2,
+ * firstInstance=0,1 and UINT16/UINT32 indices. CopyImageToBuffer preserves one
+ * raw pixel; dynamic
  * viewport/scissor and the initial texture transition keep validation clean. */
 #define _DEFAULT_SOURCE 1
 #define VK_USE_PLATFORM_WAYLAND_KHR 1
@@ -79,6 +80,7 @@ int main(void) {
    const char *first_instance_text = getenv("LG110_DRAW_FIRST_INSTANCE");
    const char *indexed_text = getenv("LG110_DRAW_INDEXED");
    const char *indirect_text = getenv("LG110_DRAW_INDIRECT");
+   const char *index_type_text = getenv("LG110_INDEX_TYPE");
    const char *topology_text = getenv("LG110_DRAW_TOPOLOGY");
    const char *expected_topology_text = getenv("LG110_EXPECT_TOPOLOGY");
    const char *frame_text = getenv("LG110_FRAME_LIMIT");
@@ -89,12 +91,14 @@ int main(void) {
    if (!first_instance_text) first_instance_text = "0";
    if (!indexed_text) indexed_text = "0";
    if (!indirect_text) indirect_text = "0";
+   if (!index_type_text) index_type_text = "16";
    if (!topology_text) topology_text = "triangle";
    if (!expected_topology_text) expected_topology_text = topology_text;
    if (!frame_text) frame_text = "120";
    int expect_unsupported = getenv("LG110_EXPECT_UNSUPPORTED") &&
                             !strcmp(getenv("LG110_EXPECT_UNSUPPORTED"), "1");
-   if ((strcmp(indexed_text, "0") && strcmp(indexed_text, "1")) ||
+   if ((strcmp(index_type_text, "16") && strcmp(index_type_text, "32")) ||
+       (strcmp(indexed_text, "0") && strcmp(indexed_text, "1")) ||
        (strcmp(indirect_text, "0") && strcmp(indirect_text, "1")) ||
        (strcmp(instance_text, "0") && strcmp(instance_text, "1") && strcmp(instance_text, "2")) ||
        (strcmp(first_instance_text, "0") && strcmp(first_instance_text, "1")) ||
@@ -104,7 +108,7 @@ int main(void) {
        topology_from_name(topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        topology_from_name(expected_topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        (strcmp(frame_text, "120") && strcmp(frame_text, "1"))) {
-      fprintf(stderr, "draw=3|2 first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 topology=... frames=120|1\n"); return 1;
+      fprintf(stderr, "draw=3|2 first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 topology=... frames=120|1\n"); return 1;
    }
    int draw_count = draw_text[0] - '0';
    int first_vertex = first_text[0] - '0';
@@ -112,6 +116,7 @@ int main(void) {
    int first_instance = first_instance_text[0] - '0';
    int indexed = indexed_text[0] - '0';
    int indirect = indirect_text[0] - '0';
+   int index_type = atoi(index_type_text);
    int expected_draw_count = expected_draw_text[0] - '0';
    VkPrimitiveTopology topology = topology_from_name(topology_text);
    VkPrimitiveTopology expected_topology = topology_from_name(expected_topology_text);
@@ -123,8 +128,8 @@ int main(void) {
       return 1;
    }
    int frame_limit = frame_text[0] == '1' && !frame_text[1] ? 1 : 120;
-   printf("texture variant: %s red=%u other=0 draw=%d first=%d instances=%d first_instance=%d indexed=%d indirect=%d expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
-          mode, nonzero ? 255u : 0u, draw_count, first_vertex, instance_count, first_instance, indexed, indirect, expected_draw_count,
+   printf("texture variant: %s red=%u other=0 draw=%d first=%d instances=%d first_instance=%d indexed=%d indirect=%d index_type=%d expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
+          mode, nonzero ? 255u : 0u, draw_count, first_vertex, instance_count, first_instance, indexed, indirect, index_type, expected_draw_count,
           topology_text, expected_topology_text, frame_limit);
    dpy = wl_display_connect(NULL);
    if (!dpy) { fprintf(stderr, "no wayland display\n"); return 1; }
@@ -296,14 +301,16 @@ int main(void) {
     VkBuffer index_buffer=VK_NULL_HANDLE, indirect_buffer=VK_NULL_HANDLE;
     if (indexed) {
        VkBufferCreateInfo bci={.sType=VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-          .size=6,.usage=VK_BUFFER_USAGE_INDEX_BUFFER_BIT,.sharingMode=VK_SHARING_MODE_EXCLUSIVE};
+          .size=(VkDeviceSize)(index_type==32 ? 12 : 6),.usage=VK_BUFFER_USAGE_INDEX_BUFFER_BIT,.sharingMode=VK_SHARING_MODE_EXCLUSIVE};
        CK(vkCreateBuffer(dev,&bci,NULL,&index_buffer));
        VkMemoryRequirements mr; vkGetBufferMemoryRequirements(dev,index_buffer,&mr);
        VkMemoryAllocateInfo ma={.sType=VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,.allocationSize=mr.size,.memoryTypeIndex=0};
        VkDeviceMemory mem; CK(vkAllocateMemory(dev,&ma,NULL,&mem));
        CK(vkBindBufferMemory(dev,index_buffer,mem,0));
-       void *ptr; CK(vkMapMemory(dev,mem,0,6,0,&ptr));
-       uint16_t indices[3]={0,1,2}; memcpy(ptr,indices,sizeof(indices)); vkUnmapMemory(dev,mem);
+       void *ptr; CK(vkMapMemory(dev,mem,0,index_type==32 ? 12 : 6,0,&ptr));
+       if (index_type==32) { uint32_t indices[3]={0,1,2}; memcpy(ptr,indices,sizeof(indices)); }
+       else { uint16_t indices[3]={0,1,2}; memcpy(ptr,indices,sizeof(indices)); }
+       vkUnmapMemory(dev,mem);
     }
     if (indirect) {
        VkDeviceSize size=indexed ? sizeof(VkDrawIndexedIndirectCommand) : sizeof(VkDrawIndirectCommand);
@@ -378,7 +385,7 @@ int main(void) {
       vkCmdBindDescriptorSets(cb,VK_PIPELINE_BIND_POINT_GRAPHICS,playout,0,1,&ds,0,NULL);
       vkCmdSetViewport(cb,0,1,&vp);
       vkCmdSetScissor(cb,0,1,&scissor);
-      if (indexed) vkCmdBindIndexBuffer(cb,index_buffer,0,VK_INDEX_TYPE_UINT16);
+      if (indexed) vkCmdBindIndexBuffer(cb,index_buffer,0,index_type==32 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16);
       if (indirect && indexed)
          vkCmdDrawIndexedIndirect(cb,indirect_buffer,0,1,sizeof(VkDrawIndexedIndirectCommand));
       else if (indirect)

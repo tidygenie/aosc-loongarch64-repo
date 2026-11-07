@@ -1,0 +1,9 @@
+vkgl public candidate sha256=0688025cfcef4bdfe86a30fdbd15a6479f28acd7449d56a2f501ec1385f6be3c
+first1: pixel=663300ff gfx_diff=274:00000000->00000001,275:00000000->00000001,276:00000002->00000003
+active274: pixel=663300ff gfx_diff=274:00000000->00000001
+active275: pixel=007f00ff gfx_diff=275:00000000->00000001
+rejected274-first1: pixel=663300ff gfx_diff=
+regression-word276: pixel=007f00ff gfx_diff=276:00000002->00000001
+regression-count: pixel=663300ff gfx_diff=270:00000003->00000002
+regression-topology: pixel=663300ff gfx_diff=268:40000400->40000000
+audit=PASS

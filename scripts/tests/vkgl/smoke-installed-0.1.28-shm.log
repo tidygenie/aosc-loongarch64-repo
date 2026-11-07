@@ -1,0 +1,62 @@
+== shm installed-0.1.28
+== vulkaninfo without validation (Vulkan 1.0 ICD)
+'DISPLAY' environment variable not set... skipping surface info
+==========
+VULKANINFO
+==========
+
+Vulkan Instance Version: 1.4.363
+
+
+Instance Extensions: count = 10
+-------------------------------
+VK_EXT_debug_report              : extension revision 10
+VK_EXT_debug_utils               : extension revision 2
+VK_EXT_layer_settings            : extension revision 2
+VK_KHR_get_surface_capabilities2 : extension revision 1
+VK_KHR_portability_enumeration   : extension revision 1
+VK_KHR_surface                   : extension revision 25
+VK_KHR_wayland_surface           : extension revision 6
+VK_KHR_xcb_surface               : extension revision 6
+VK_KHR_xlib_surface              : extension revision 6
+VK_LUNARG_direct_driver_loading  : extension revision 1
+
+Instance Layers: count = 7
+--------------------------
+VK_LAYER_KHRONOS_shader_object      Khronos Shader object layer      1.4.363  version 1
+VK_LAYER_KHRONOS_synchronization2   Khronos Synchronization2 layer   1.4.363  version 1
+VK_LAYER_KHRONOS_timeline_semaphore Khronos timeline Semaphore layer 1.4.363  version 1
+VK_LAYER_KHRONOS_validation         Khronos Validation Layer         1.4.363  version 1
+VK_LAYER_MESA_device_select         Linux device selection layer     1.4.303  version 1
+VK_LAYER_MESA_overlay               Mesa Overlay layer               1.4.303  version 1
+VK_LAYER_MESA_screenshot            Mesa Screenshot layer            1.4.303  version 1
+
+Devices:
+========
+GPU0:
+	apiVersion         = 1.0.0
+	driverVersion      = 4194304
+	vendorID           = 0x0014
+	deviceID           = 0x7a25
+	deviceType         = PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
+	deviceName         = LoongGPU LG110 (vkgl GLES2)
+== vkcube 60 frames with validation
+Selected GPU 0: LoongGPU LG110 (vkgl GLES2), type: DiscreteGpu, apiVersion: 4194304 (1.0.0), driverVersion: 4194304 (1.0.0) 
+== vkmark five FIFO scenes with validation
+=======================================================
+    vkmark 2025.01
+=======================================================
+    Vendor ID:      0x14
+    Device ID:      0x7A25
+    Device Name:    LoongGPU LG110 (vkgl GLES2)
+    Driver Version: 4194304
+    Device UUID:    4c473131000000000000000000000000
+=======================================================
+[vertex] duration=2: FPS: 100 FrameTime: 10.000 ms
+[texture] duration=2: FPS: 80 FrameTime: 12.500 ms
+[shading] duration=2: FPS: 98 FrameTime: 10.204 ms
+[effect2d] duration=2: FPS: 52 FrameTime: 19.231 ms
+[desktop] duration=2: FPS: 65 FrameTime: 15.385 ms
+=======================================================
+                                   vkmark Score: 79
+=======================================================
