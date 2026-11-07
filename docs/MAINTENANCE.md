@@ -82,3 +82,4 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - APT元数据刷新后可更新包为0；第三方更新检查确认ruby 4.0.9、v2raya 2.5.13、zerotier-one 1.16.2均为当前最新，没有为本轮盲目升级图形组件。
 - 双lane保持运行。dsvpn原测试只接受Linux gateway错误，但无CAP_NET_ADMIN环境实际先返回精确的`tun device creation: Operation not permitted`。自定义测试接受这两个确定结果，不改变安装/运行逻辑；重新构建后`brew test`、bottle回装及回装测试全部通过，状态为`test=1,pour=1`。四种单横线/双横线及rebuild别名的本地、服务器、HTTPS SHA-256均为`a66feb2835d0b87ce624c5f676fa8161e6d16c0f7cee50c3fbaf5d965ae3d921`。
 - 五类定制巡检首次恢复22处已登记的旧包gnu17/GNU_SOURCE、告警兼容与gputils `-lfl`漂移；逐项diff审计后第二次巡检修复0处。dsvpn/lcdf等后续定制均走`state/custom`与`finalize-formula.sh`，未绕过stub/custom保护。
+- lcdf-typetools原测试硬编码不存在的DejaVuSans.ttf。自定义测试保留真实`otfinfo -p`解析与family断言，在原文件缺失时选用已确认存在的FreeSans.otf；构建测试及bottle回装测试均通过，`test=1,pour=1`。四别名本地/服务器/HTTPS SHA-256均为`98428c51990fcbd02d09ed1a57c0bdb5a8d11f38491a1f733437ebbc70dd81ab`。最终定制巡检修复0处，tap本地/服务器HEAD均为`290a73cbb7d873aa976776a31828d46b8359170e`，瓶子别名计数两边均为3606。
