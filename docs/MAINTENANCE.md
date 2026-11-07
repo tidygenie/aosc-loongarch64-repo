@@ -61,4 +61,10 @@ GRUB `saved_entry` 保持 gcc-O3，当前运行内核仍为 clang-LTO；维护�
 
 vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host format/sampler/fence/dispatch生命周期、LINEAR raw007f22ff全过。证据为 `os-upgrade-2026-11-07.log`、`post-os-2026-11-07-{dmabuf,shm}.log`、`post-os-*-2026-11-07.log`。
 
+### 账号/组完整性与既有旧世界模块失败
+
+健康检查发现每日shadow服务失败：21个系统账号缺shadow项、60个组缺gshadow项，另有http/locate/named三个home目录不存在。备份四文件后执行标准 `pwconv`/`grpconv`，逐条验证所有既有密码和组字段完全不变，仅新增锁定项；创建三个root-owned 0755空home目录后 `pwck -r`/`grpck -r`均为0，oneshot服务 `Result=success, ExecMainStatus=0`。
+
+`systemd-modules-load` 仍保留既有失败：liblol0.1.12的 `la_ow_syscall` 在7.3.1 clang-LTO上EINVAL。该模块会解析kallsyms并替换旧世界syscall表，不能在未定位兼容原因时屏蔽配置或强行打补丁。本轮未改liblol/模块，也不把failed列表描述为空。Homebrew lane1/lane2、queue timer、SSH/SDDM/v2rayA/nginx均active；当前索引为2392个bottle formula，tap有3841个配方（两者不是同一计数口径）。证据：`system-integrity-2026-11-07.log`、`homebrew-health-2026-11-07.log`。
+
 升级前后单次烟雾 FPS 有正有负且负载不同，只作为健康检查，不作性能升降宣称。

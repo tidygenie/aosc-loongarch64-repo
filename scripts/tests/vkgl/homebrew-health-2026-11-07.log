@@ -1,0 +1,15 @@
+2026-11-07T19:30:25+08:00
+brew-lane@1 active
+brew-lane@2 active
+brew-local-serve active
+nginx active
+sshd active
+sddm active
+v2raya active
+Result=success
+ExecMainStatus=0
+NextElapseUSecRealtime=
+LastTriggerUSec=Sat 2026-11-07 19:26:43 CST
+local_bottle_formulae 2392
+remote_bottle_formulae 2392
+tap_formula_recipes 3841

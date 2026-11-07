@@ -1,0 +1,14 @@
+2026-11-07T19:30:25+08:00
+pwck_rc=0
+grpck_rc=0
+ActiveState=inactive
+SubState=dead
+Result=success
+ExecMainStatus=0
+pwconv_added=21 grpconv_added=60 existing_entries_unchanged=1
+/srv/http root:root 755
+/var/lib/mlocate root:root 755
+/var/named root:root 755
+liblol 0.1.12
+insmod /lib/modules/7.3.1-mainline-16k-rt-clang-lto/kernel/arch/loongarch/ow_syscall/la_ow_syscall.ko.zst 
+la_ow_syscall_runtime_status=EINVAL_retained_not_masked
