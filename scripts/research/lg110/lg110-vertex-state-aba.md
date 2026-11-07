@@ -28,8 +28,8 @@ preserve this negative control.
 - `stride`: UV stride 8 -> 16 -> 8 with offset=8, using two pipelines.
 
 Cyclic positions and constant `{0,0.5}` UV pairs make every center pixel
-`007f00ff`. Three validation runs and three traced runs all pass every frame;
-nine raw pixels are retained for each set.
+`007f00ff`. Three validation runs and three traced runs all pass every frame. Nine traced
+raw pixels plus the separate validation stdout/stderr logs are retained.
 
 The tracer logs BO-list membership and, only when
 `LG110_TRACE_BO_RESOURCES=1`, reads resources belonging to the actual CS.
