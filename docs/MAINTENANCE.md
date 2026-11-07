@@ -68,3 +68,7 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 `systemd-modules-load` 仍保留既有失败：liblol0.1.12的 `la_ow_syscall` 在7.3.1 clang-LTO上EINVAL。该模块会解析kallsyms并替换旧世界syscall表，不能在未定位兼容原因时屏蔽配置或强行打补丁。本轮未改liblol/模块，也不把failed列表描述为空。Homebrew lane1/lane2、queue timer、SSH/SDDM/v2rayA/nginx均active；当前索引为2392个bottle formula，tap有3841个配方（两者不是同一计数口径）。证据：`system-integrity-2026-11-07.log`、`homebrew-health-2026-11-07.log`。
 
 升级前后单次烟雾 FPS 有正有负且负载不同，只作为健康检查，不作性能升降宣称。
+
+### vkgl 0.1.27 软件实例化
+
+后续差分发现0.1.26忽略instanceCount且不支持gl_InstanceIndex shader。0.1.27以内部instance/firstInstance uniforms和重复GL draw实现软件实例化，不调用未声明的硬件入口。direct/indexed/indirect/indexed-indirect共16项安装后raw像素全对、validation为0，双路径vkcube/vkmark也为0；既有8项原生命令流回归不变。普通vertex/shading配对均值仅-0.43%/-0.79%，不宣称性能提升。deb已发布，签名源28项且HTTPS/服务器字节一致。详见 [`vkgl-0.1.27.md`](../scripts/tests/vkgl/vkgl-0.1.27.md)。

@@ -1,0 +1,10 @@
+vkgl candidate sha256=b67f1a246f9223f0a0f5d2a4ddc45d8dffe86d96729eb3ee57ac7c18e58698c9
+All eight prior native draw cases executed on the exact candidate library.
+first1: pixel=663300ff gfx_diff=274:00000000->00000001,275:00000000->00000001,276:00000002->00000003
+active274: pixel=663300ff gfx_diff=274:00000000->00000001
+active275: pixel=007f00ff gfx_diff=275:00000000->00000001
+rejected274-first1: pixel=663300ff gfx_diff=
+regression-word276: pixel=007f00ff gfx_diff=276:00000002->00000001
+regression-count: pixel=663300ff gfx_diff=270:00000003->00000002
+regression-topology: pixel=663300ff gfx_diff=268:40000400->40000000
+audit=PASS

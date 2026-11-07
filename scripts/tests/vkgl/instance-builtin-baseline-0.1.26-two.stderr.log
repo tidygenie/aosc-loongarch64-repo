@@ -1,0 +1,35 @@
+vkgl: shader compile failed (main):
+0:3(12): error: extension `GL_ARB_draw_instanced' unsupported in vertex shader
+
+#version 120
+attribute float vkgl_VertexID;
+#extension GL_ARB_draw_instanced : require
+#ifdef GL_ARB_shader_draw_parameters
+#extension GL_ARB_shader_draw_parameters : enable
+#endif
+
+const vec2 _18[3] = vec2[](vec2(-1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));
+const vec2 _21[3] = vec2[](vec2(3.0, -1.0), vec2(-1.0, 3.0), vec2(3.0));
+
+#ifdef GL_ARB_shader_draw_parameters
+#define SPIRV_Cross_BaseInstance gl_BaseInstanceARB
+#else
+uniform int SPIRV_Cross_BaseInstance;
+#endif
+
+void main()
+{
+    vec2 _36;
+    if ((gl_InstanceID + SPIRV_Cross_BaseInstance) == 0)
+    {
+        _36 = _21[int(vkgl_VertexID)];
+    }
+    else
+    {
+        _36 = _18[int(vkgl_VertexID)];
+    }
+    gl_Position = vec4(_36, 0.0, 1.0);
+}
+
+
+FAIL /tmp/lg110-instance/vktest-draw-instance.c:265 pipeline_result = -3

@@ -379,6 +379,7 @@ struct Pipeline : Obj {
    VkExtent2D fb_extent = {0, 0};
    bool has_depth = false;
    bool uses_vertex_id = false;
+   GLint instance_id_loc = -1, base_instance_loc = -1;
 };
 
 struct DescriptorSetLayout : Obj {
@@ -422,7 +423,7 @@ struct Cmd {
    DescriptorSet *set = nullptr;
    VkViewport vp = {};
    VkRect2D scissor = {};
-   uint32_t first = 0, count = 0, instances = 1;
+   uint32_t first = 0, count = 0, instances = 1, first_instance = 0;
    int32_t vertex_offset = 0;
    Image *img = nullptr;
    VkClearColorValue cc = {};
@@ -1451,18 +1452,18 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdSetScissor(VkCommandBuffer cb, uint32_
 }
 
 static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDraw(VkCommandBuffer cb, uint32_t vertex_count, uint32_t instance_count,
-                                               uint32_t first_vertex, uint32_t) {
+                                               uint32_t first_vertex, uint32_t first_instance) {
    auto *c = from_handle<CommandBuffer>((uint64_t)cb);
    Cmd cmd{}; cmd.kind = Cmd::Draw; cmd.first = first_vertex; cmd.count = vertex_count;
-   cmd.instances = instance_count;
+   cmd.instances = instance_count; cmd.first_instance = first_instance;
    c->cmds.push_back(cmd);
 }
 
 static VKAPI_ATTR void VKAPI_CALL vkgl_CmdDrawIndexed(VkCommandBuffer cb, uint32_t count, uint32_t instances,
-                                                      uint32_t first, int32_t voff, uint32_t) {
+                                                      uint32_t first, int32_t voff, uint32_t first_instance) {
    auto *c = from_handle<CommandBuffer>((uint64_t)cb);
    Cmd cmd{}; cmd.kind = Cmd::DrawIndexed; cmd.count = count; cmd.instances = instances;
-   cmd.first = first; cmd.vertex_offset = voff;
+   cmd.first = first; cmd.vertex_offset = voff; cmd.first_instance = first_instance;
    c->cmds.push_back(cmd);
 }
 
@@ -1775,6 +1776,7 @@ static void execute_cmds(CommandBuffer *c) {
                const VkDrawIndirectCommand *d = (const VkDrawIndirectCommand *)(base + i * cmd.indirect_stride);
                Cmd sub = cmd; sub.kind = Cmd::Draw;
                sub.first = d->firstVertex; sub.count = d->vertexCount; sub.instances = d->instanceCount;
+                sub.first_instance = d->firstInstance;
                extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &, Buffer *, VkDeviceSize,
                                              Buffer *, VkDeviceSize, const Cmd &);
                vkgl_execute_draw(cur_pipe, sets, vbuf, voff, ibuf, ioff, sub);
@@ -1789,6 +1791,7 @@ static void execute_cmds(CommandBuffer *c) {
                Cmd sub = cmd; sub.kind = Cmd::DrawIndexed;
                sub.first = d->firstIndex; sub.count = d->indexCount;
                sub.vertex_offset = d->vertexOffset; sub.instances = d->instanceCount;
+                sub.first_instance = d->firstInstance;
                extern void vkgl_execute_draw(Pipeline *, std::vector<DescriptorSet *> &, Buffer *, VkDeviceSize,
                                              Buffer *, VkDeviceSize, const Cmd &);
                vkgl_execute_draw(cur_pipe, sets, vbuf, voff, ibuf, ioff, sub);
@@ -2939,6 +2942,31 @@ static bool build_stage(GLuint *out_shader, GLenum gl_stage, const std::vector<u
          glsl.insert(nl + 1, "attribute float vkgl_VertexID;\n");
          p->uses_vertex_id = true;
       }
+      /* LG110 GL 2.1 has no instanced-arrays extension. Replace the
+       * SPIRV-Cross instance builtin with an internal uniform; the draw
+       * executor sets it for each software-emulated instance. */
+      if (is_vertex && glsl.find("gl_InstanceID") != std::string::npos) {
+         bool removed_extension = false;
+         const char *extensions[] = {
+            "#extension GL_ARB_draw_instanced : require\n",
+            "#extension GL_ARB_draw_instanced : enable\n",
+         };
+         for (const char *ext : extensions) {
+            size_t pos = glsl.find(ext);
+            if (pos != std::string::npos) {
+               glsl.erase(pos, strlen(ext));
+               removed_extension = true;
+            }
+         }
+         if (!removed_extension) return false;
+         const std::string from = "gl_InstanceID";
+         const std::string to = "vkgl_InstanceID";
+         for (size_t pos = 0; (pos = glsl.find(from, pos)) != std::string::npos; pos += to.size())
+            glsl.replace(pos, from.size(), to);
+         size_t main_pos = glsl.find("void main()");
+         if (main_pos == std::string::npos) return false;
+         glsl.insert(main_pos, "uniform int vkgl_InstanceID;\n\n");
+      }
       if (getenv("VKGL_DUMP_GLSL")) fprintf(stderr, "---- %s ----\n%s\n", entry, glsl.c_str());
       GLuint sh = glCreateShader(gl_stage);
       const char *src = glsl.c_str();
@@ -3025,6 +3053,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateGraphicsPipelines(
 
       for (auto &u : p->ubos) u.loc = glGetUniformLocation(prog, u.name.c_str());
       for (auto &t : p->textures) t.loc = glGetUniformLocation(prog, t.name.c_str());
+       p->instance_id_loc = glGetUniformLocation(prog, "vkgl_InstanceID");
+       p->base_instance_loc = glGetUniformLocation(prog, "SPIRV_Cross_BaseInstance");
 
       // static pipeline state
       if (ci[n].pRasterizationState) {
@@ -3108,7 +3138,7 @@ static void apply_sampler(Image *image, Sampler *s) {
 
 void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *vbuf, VkDeviceSize voff,
                        Buffer *ibuf, VkDeviceSize ioff, const Cmd &cmd) {
-   if (!p || !p->program) return;
+   if (!p || !p->program || !cmd.instances) return;
    GlCtx::get().make_current();
    glUseProgram(p->program);
 
@@ -3240,21 +3270,27 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets, Buffer *
       VKGL_LOG("unsupported draw topology %d\n", (int)p->topology);
       return;
    }
-   if (cmd.kind == Cmd::DrawIndexed) {
-      if (ibuf && ibuf->gl) {
-         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuf->gl);
-         if (ibuf->uploaded_revision != ibuf->mem->revision ||
-             (ibuf->mem->mapped && ibuf->uploaded_submit != g_submit_serial)) {
-            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, (GLsizeiptr)ibuf->size, ibuf->mem->shadow.data() + ibuf->mem_offset);
-            ibuf->uploaded_revision = ibuf->mem->revision;
-            ibuf->uploaded_submit = g_submit_serial;
+   /* Software instancing is deliberately a repeated draw, not an unadvertised
+    * hardware entry point. Locations are cached at pipeline link time. */
+   for (uint32_t instance = 0; instance < cmd.instances; ++instance) {
+      if (p->instance_id_loc >= 0) glUniform1i(p->instance_id_loc, (GLint)instance);
+      if (p->base_instance_loc >= 0) glUniform1i(p->base_instance_loc, (GLint)cmd.first_instance);
+      if (cmd.kind == Cmd::DrawIndexed) {
+         if (ibuf && ibuf->gl) {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuf->gl);
+            if (ibuf->uploaded_revision != ibuf->mem->revision ||
+                (ibuf->mem->mapped && ibuf->uploaded_submit != g_submit_serial)) {
+               glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, (GLsizeiptr)ibuf->size, ibuf->mem->shadow.data() + ibuf->mem_offset);
+               ibuf->uploaded_revision = ibuf->mem->revision;
+               ibuf->uploaded_submit = g_submit_serial;
+            }
+            GLenum it = GL_UNSIGNED_SHORT;
+            glDrawElements(draw_mode, (GLsizei)cmd.count, it,
+                           (const void *)(uintptr_t)(ioff + (VkDeviceSize)cmd.first * (it == GL_UNSIGNED_INT ? 4 : 2)));
          }
-         GLenum it = GL_UNSIGNED_SHORT;
-         glDrawElements(draw_mode, (GLsizei)cmd.count, it,
-                        (const void *)(uintptr_t)(ioff + (VkDeviceSize)cmd.first * (it == GL_UNSIGNED_INT ? 4 : 2)));
+      } else {
+         glDrawArrays(draw_mode, (GLint)cmd.first, (GLsizei)cmd.count);
       }
-   } else {
-      glDrawArrays(draw_mode, (GLint)cmd.first, (GLsizei)cmd.count);
    }
    static int glerr_log = 0;
    GLenum err = glGetError();
