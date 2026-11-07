@@ -48,6 +48,24 @@ the triangle in this stream. It also shows that changing word276 is not required
 for this result. Word276 remains unassigned; no pair or last-field mutation is
 exposed by the final source.
 
+## Follow-up: isolated word276 is not sufficient (2026-11-07)
+
+With installed vkgl 0.1.26, the same 672-dword stream still had word270=3 and
+word276=2. The new opt-in `LG110_MUTATE_DRAW_FIELD=word276` changed only
+word276 from 2 to the passive-draw2 value 1; word270 deliberately remained 3.
+The XDMA IB was identical and the only GFX difference was word276. The raw
+center remained `007f00ff`, byte-identical to the untouched draw3 baseline.
+
+Therefore word276's passive correlation is not, by itself, sufficient to
+suppress the triangle. This does not establish that the field is unused, and it
+remains unassigned. Requesting the same mutation against an input already
+generated with draw2 was rejected: zero mutation records and zero IB changes.
+The existing count and topology modes were rerun and each still changed exactly
+its own dword (270 and 268 respectively) with the expected clear pixel.
+
+Public-rebuild evidence:
+`draw-word276-public-{base,active,passive-2,rejected-2,regression-count,regression-topology}.*`.
+
 ## Guard and public rebuild
 
 Running the active count request against an input already generated with
