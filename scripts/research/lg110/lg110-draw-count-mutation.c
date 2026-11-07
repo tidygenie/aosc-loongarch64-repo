@@ -90,6 +90,14 @@ struct user_map_record {
 static struct gem_record gems[LG110_MAX_GEM];
 static struct va_record vas[LG110_MAX_VA];
 static struct user_map_record user_maps[LG110_MAX_USER_MAP];
+struct bo_list_record {
+    int used;
+    int fd;
+    uint32_t list_handle;
+    unsigned int count;
+    uint32_t handles[64];
+};
+static struct bo_list_record bo_lists[16];
 static pthread_mutex_t state_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_once_t config_once = PTHREAD_ONCE_INIT;
 static unsigned int max_submissions = 64;
@@ -99,6 +107,10 @@ static unsigned int aux_record_count;
 static unsigned int max_ib_dwords = LG110_DEFAULT_IB_DWORDS;
 static uint64_t trace_va_address;
 static unsigned int trace_va_dwords = 64;
+static int trace_bo_resources;
+static int trace_va_hash;
+static uint64_t trace_bo_max_bytes = 0x4000;
+static unsigned int trace_va_hash_chunk;
 static int mutate_draw_mode;
 static int mutation_done;
 
@@ -157,6 +169,35 @@ static void configure(void)
         parsed = strtoul(value, &end, 10);
         if (end && end != value && *end == '\0' && parsed <= LG110_HARD_MAX_SUBS)
             max_aux_records = (unsigned int)parsed;
+    }
+
+    value = getenv("LG110_TRACE_BO_RESOURCES");
+    if (value && strcmp(value, "1") == 0)
+        trace_bo_resources = 1;
+    value = getenv("LG110_TRACE_BO_HASH");
+    if (value && strcmp(value, "1") == 0)
+        trace_va_hash = 1;
+    value = getenv("LG110_TRACE_BO_MAX_BYTES");
+    end = NULL;
+    if (value && *value) {
+        unsigned long long bytes = strtoull(value, &end, 0);
+        if (end && end != value && *end == '\0' && bytes >= 0x4000 && bytes <= 0x200000)
+            trace_bo_max_bytes = (uint64_t)bytes;
+    }
+    value = getenv("LG110_TRACE_BO_DWORDS");
+    end = NULL;
+    if (value && *value) {
+        parsed = strtoul(value, &end, 10);
+        if (end && end != value && *end == '\0' && parsed > 0 && parsed <= 524288)
+            trace_va_dwords = (unsigned int)parsed;
+    }
+
+    value = getenv("LG110_TRACE_BO_HASH_CHUNK");
+    end = NULL;
+    if (value && *value) {
+        parsed = strtoul(value, &end, 10);
+        if (end && end != value && *end == '\0' && parsed > 0 && parsed <= 4096)
+            trace_va_hash_chunk = (unsigned int)parsed;
     }
 
     value = getenv("LG110_TRACE_VA");
@@ -603,7 +644,7 @@ static void trace_ib_locked(unsigned int sequence, unsigned int index, int fd,
 static void trace_extra_va_locked(unsigned int sequence, int fd)
 {
     struct ib_source source;
-    uint32_t dwords[256];
+    uint32_t dwords[8192];
     char values[256 * 11 + 1];
     size_t count, used = 0;
     unsigned int i;
@@ -620,11 +661,12 @@ static void trace_extra_va_locked(unsigned int sequence, int fd)
 
         memset(&mmap_args, 0, sizeof(mmap_args));
         mmap_args.in.handle = source.handle;
-        if (page_size > 0 && source.bo_offset <= SIZE_MAX - 1024 &&
+        if (page_size > 0 && source.bo_offset <= SIZE_MAX - trace_va_dwords * sizeof(dwords[0]) &&
             real_ioctl(fd, DRM_IOCTL_LOONGGPU_GEM_MMAP, &mmap_args) == 0) {
             page_offset = (size_t)source.bo_offset & ~((size_t)page_size - 1);
             delta = (size_t)source.bo_offset - page_offset;
-            map_length = (delta + 1024 + (size_t)page_size - 1) &
+            map_length = (delta + trace_va_dwords * sizeof(dwords[0]) +
+                          (size_t)page_size - 1) &
                          ~((size_t)page_size - 1);
             if (!real_mmap)
                 RESOLVE_REAL(real_mmap, "mmap");
@@ -651,16 +693,36 @@ static void trace_extra_va_locked(unsigned int sequence, int fd)
         return;
     }
     count = trace_va_dwords;
-    if (count > 256) count = 256;
+    if (!trace_va_hash && count > 8192) count = 8192;
     if (count > source.available / 4) count = source.available / 4;
-    if (!count || (!temporary_map &&
-                   read_user(source.user_address, dwords, count * sizeof(dwords[0])))) {
+    if (!count) {
         log_line("LG110VADUMP seq=%u va=0x%016" PRIx64
                  " status=read_failed handle=%u bo_offset=0x%" PRIx64,
                  sequence, trace_va_address, source.handle, source.bo_offset);
         goto out;
     }
-    if (temporary_map)
+    if (trace_va_hash) {
+        const uint32_t *words = (const uint32_t *)source.user_address;
+        unsigned int chunk = trace_va_hash_chunk ? trace_va_hash_chunk : (unsigned int)count;
+        unsigned int base;
+        for (base = 0; base < count; base += chunk) {
+            uint64_t hash = UINT64_C(1469598103934665603);
+            unsigned int end = base + chunk;
+            if (end > count) end = (unsigned int)count;
+            for (i = base; i < end; ++i) {
+                hash ^= words[i];
+                hash *= UINT64_C(1099511628211);
+            }
+            log_line("LG110VAHASH seq=%u va=0x%016" PRIx64
+                     " status=ok handle=%u bo_offset=0x%" PRIx64
+                     " dwords=%u fnv1a64=0x%016" PRIx64,
+                     sequence, trace_va_address, source.handle,
+                     source.bo_offset + (uint64_t)base * 4, end - base, hash);
+        }
+        goto out;
+    }
+    /* A successful tracked or temporary mapping covers the complete range. */
+    if (read_user(source.user_address, dwords, count * sizeof(dwords[0])))
         memcpy(dwords, (const void *)source.user_address, count * sizeof(dwords[0]));
     values[0] = '\0';
     for (i = 0; i < count; ++i) {
@@ -773,6 +835,34 @@ static void trace_cs_locked(unsigned int sequence, int fd,
         }
     }
     trace_extra_va_locked(sequence, fd);
+    if (trace_bo_resources) {
+        uint64_t saved_va = trace_va_address;
+        unsigned int saved_dwords = trace_va_dwords;
+        unsigned int list_index;
+        for (list_index = 0; list_index < 16; ++list_index) {
+            struct bo_list_record *list = &bo_lists[list_index];
+            unsigned int entry;
+            if (!list->used || list->fd != fd ||
+                list->list_handle != input->bo_list_handle)
+                continue;
+            for (entry = 0; entry < list->count; ++entry) {
+                unsigned int va_index;
+                for (va_index = 0; va_index < LG110_MAX_VA; ++va_index) {
+                    struct va_record *va = &vas[va_index];
+                    if (!va->used || va->fd != fd || va->handle != list->handles[entry] ||
+                        !va->size || va->size > trace_bo_max_bytes ||
+                        va->size % 4 || va->size / 4 > 524288)
+                        continue;
+                    trace_va_address = va->va;
+                    trace_va_dwords = (unsigned int)(va->size / 4);
+                    trace_extra_va_locked(sequence, fd);
+                    break;
+                }
+            }
+        }
+        trace_va_address = saved_va;
+        trace_va_dwords = saved_dwords;
+    }
 }
 
 #define LG110_DRAW_DWORDS 672U
@@ -965,14 +1055,17 @@ int ioctl(int fd, unsigned long request, ...)
     int saved_errno;
     int is_create = request == DRM_IOCTL_LOONGGPU_GEM_CREATE;
     int is_gem_mmap = request == DRM_IOCTL_LOONGGPU_GEM_MMAP;
+    int is_bo_list = request == DRM_IOCTL_LOONGGPU_BO_LIST;
     int is_va = request == DRM_IOCTL_LOONGGPU_GEM_VA ||
                 request == LG110_IOCTL_GEM_VA_IOWR;
     int is_cs = request == DRM_IOCTL_LOONGGPU_CS;
     struct drm_loonggpu_gem_create_in create_input;
     struct drm_loonggpu_gem_mmap_in mmap_input;
+    union drm_loonggpu_bo_list bo_list_input;
     struct drm_loonggpu_gem_va va_input;
     struct drm_loonggpu_cs_in cs_input;
     int create_valid = 0, mmap_valid = 0, va_valid = 0, cs_valid = 0;
+    int bo_list_valid = 0;
 
     va_start(ap, request);
     argument = va_arg(ap, void *);
@@ -992,6 +1085,9 @@ int ioctl(int fd, unsigned long request, ...)
     else if (is_gem_mmap)
         mmap_valid = !read_user((uint64_t)(uintptr_t)argument,
                                 &mmap_input, sizeof(mmap_input));
+    else if (is_bo_list)
+        bo_list_valid = !read_user((uint64_t)(uintptr_t)argument,
+                                   &bo_list_input, sizeof(bo_list_input));
     else if (is_va)
         va_valid = !read_user((uint64_t)(uintptr_t)argument,
                               &va_input, sizeof(va_input));
@@ -1018,6 +1114,63 @@ int ioctl(int fd, unsigned long request, ...)
 
         if (!read_user((uint64_t)(uintptr_t)argument, &output, sizeof(output)))
             track_gem_mmap(fd, mmap_input.handle, output.addr_ptr);
+    } else if (is_bo_list && bo_list_valid && result == 0) {
+        struct drm_loonggpu_bo_list_entry entries[64];
+        char handles[64 * 12 + 1];
+        size_t used = 0;
+        unsigned int count = bo_list_input.in.bo_number;
+        unsigned int i;
+        if (count > 64) count = 64;
+        handles[0] = '\0';
+        if (bo_list_input.in.bo_info_size >= sizeof(entries[0]) &&
+            !read_user(bo_list_input.in.bo_info_ptr, entries,
+                       count * sizeof(entries[0]))) {
+            for (i = 0; i < count; ++i) {
+                int written = snprintf(handles + used, sizeof(handles) - used,
+                                       "%s%u", i ? "," : "", entries[i].bo_handle);
+                if (written < 0 || (size_t)written >= sizeof(handles) - used)
+                    break;
+                used += (size_t)written;
+            }
+        }
+        log_line("LG110BOLIST fd=%d operation=%u list=%u count=%u handles=%s",
+                 fd, bo_list_input.in.operation, bo_list_input.in.list_handle,
+                 bo_list_input.in.bo_number, handles);
+        pthread_mutex_lock(&state_lock);
+        if (bo_list_input.in.operation == LOONGGPU_BO_LIST_OP_DESTROY) {
+            for (i = 0; i < 16; ++i)
+                if (bo_lists[i].used && bo_lists[i].fd == fd &&
+                    bo_lists[i].list_handle == bo_list_input.in.list_handle)
+                    bo_lists[i].used = 0;
+        } else if ((bo_list_input.in.operation == LOONGGPU_BO_LIST_OP_CREATE ||
+                    bo_list_input.in.operation == LOONGGPU_BO_LIST_OP_UPDATE) &&
+                   bo_list_input.in.bo_info_size >= sizeof(entries[0]) &&
+                   !read_user(bo_list_input.in.bo_info_ptr, entries,
+                              count * sizeof(entries[0]))) {
+            union drm_loonggpu_bo_list output;
+            uint32_t list_handle = bo_list_input.in.list_handle;
+            unsigned int slot = 16;
+            if (bo_list_input.in.operation == LOONGGPU_BO_LIST_OP_CREATE &&
+                !read_user((uint64_t)(uintptr_t)argument, &output, sizeof(output)))
+                list_handle = output.out.list_handle;
+            for (i = 0; i < 16; ++i) {
+                if (bo_lists[i].used && bo_lists[i].fd == fd &&
+                    bo_lists[i].list_handle == list_handle) {
+                    slot = i;
+                    break;
+                }
+                if (slot == 16 && !bo_lists[i].used) slot = i;
+            }
+            if (slot < 16) {
+                bo_lists[slot].used = 1;
+                bo_lists[slot].fd = fd;
+                bo_lists[slot].list_handle = list_handle;
+                bo_lists[slot].count = count;
+                for (i = 0; i < count; ++i)
+                    bo_lists[slot].handles[i] = entries[i].bo_handle;
+            }
+        }
+        pthread_mutex_unlock(&state_lock);
     } else if (is_va && va_valid && result == 0) {
         track_gem_va(fd, &va_input);
     } else if (is_cs) {

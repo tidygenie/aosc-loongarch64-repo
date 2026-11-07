@@ -13,6 +13,10 @@ cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror -I"$VKGL_TESTS" \
   -o "$OUT/vktest-vertex-state" "$HERE/vktest-vertex-state.c" \
   "$VKGL_TESTS/xdg-shell-protocol.c" \
   $(pkg-config --cflags --libs wayland-client) -lvulkan
+cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror -I"$VKGL_TESTS" \
+  -o "$OUT/vktest-vertex-pair" "$HERE/vktest-vertex-pair.c" \
+  "$VKGL_TESTS/xdg-shell-protocol.c" \
+  $(pkg-config --cflags --libs wayland-client) -lvulkan
 mkdir -p "$OUT/run"
 glslangValidator -V "$VKGL_TESTS/vktest-vertex-bindings.vert" -o "$OUT/run/grad.vert.spv"
 cp "$HERE/vktest-gradient-sample-readback.frag.spv" "$OUT/run/"

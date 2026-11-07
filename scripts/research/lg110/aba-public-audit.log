@@ -1,0 +1,12 @@
+same: smallBO_4_to_5_changed=0 smallBO_3_to_4_changed=0 GFX_4_to_5_diff=12
+offset: smallBO_4_to_5_changed=0 smallBO_3_to_4_changed=0 GFX_4_to_5_diff=12
+stride: smallBO_4_to_5_changed=0 smallBO_3_to_4_changed=2 GFX_4_to_5_diff=14
+stride_only_GFX_words_4_to_5=338,362
+  word338: 0x022e4000->0x022dc000
+  word362: 0x022e8000->0x022e0000
+initialized_full_BO_handle23_seq3==handle25_seq4 dwords=4096 fnv1a64=0xe785d7ee442e0ad2
+initialized_full_BO_handle24_seq3==handle26_seq4 dwords=4096 fnv1a64=0x6d4e832bb0e9f7b8
+cross_process_same_state_handle11_hashes_differ=0x0194faecaebde563,0x8d75cd2e01831283
+audit=PASS
+legacy_baseline=PASS raw=007f00ff
+legacy_count2_mutation=PASS raw=663300ff word270=3->2

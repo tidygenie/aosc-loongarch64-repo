@@ -83,6 +83,8 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 
 0.1.31后续30秒cpu-clock剖析仅287/258样本，vkgl DSO占5.57%/5.43%，gsgpu_dri占23.00%/28.29%；未知样本不归因，perf_event_paranoid已在每次采样后恢复2，不据此再发CPU微优化版本。原生顶点控制以同VBO字节和同gradient隔离offset0→8、UV stride8→16，XDMA/GFX及两个辅助BO前64 dword均无差异；新增仅显式tracked VA的只读临时GEM映射，默认/无效VA保护通过，未写BO或命名未知字段。详见 [`lg110-vertex-state-bo.md`](../scripts/research/lg110/lg110-vertex-state-bo.md) 与 [`lg110-cpu-profile-0.1.31.md`](../scripts/research/lg110/lg110-cpu-profile-0.1.31.md)。
 
+顶点研究进一步改为同进程same/offset/stride三帧A→B→A，九帧validation与raw均通过。跨进程同参数handle11哈希仍变化，排除该方向的进程噪声；第二pipeline初次fill也通过ABA识别为懒初始化。初始化后same/offset/stride的小BO在seq4→5均无变化，GFX差分分别12/12/14，stride仅多word338/362的状态BO地址切换；对应两组16K BO完整哈希与首64 dword分别相同，故不命名为stride字段。bo_list限域只读快照、旧count=3/2回归及机器审计通过，驱动保持0.1.31。详见 [`lg110-vertex-state-aba.md`](../scripts/research/lg110/lg110-vertex-state-aba.md)。
+
 # 2026-11-07 Homebrew与系统维护
 
 - APT元数据刷新后可更新包为0；第三方更新检查确认ruby 4.0.9、v2raya 2.5.13、zerotier-one 1.16.2均为当前最新，没有为本轮盲目升级图形组件。
