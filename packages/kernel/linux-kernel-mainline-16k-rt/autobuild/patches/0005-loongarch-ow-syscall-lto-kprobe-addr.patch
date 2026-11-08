@@ -1,0 +1,67 @@
+LoongArch ow-syscall: use resolved kprobe address under full LTO
+
+Clang full LTO can inline kallsyms_lookup_name() into kprobe_lookup_name(),
+so registering the second probe no longer invokes the first probe handler.
+Use the address that register_kprobe() already stored in kp0.addr before
+unregister_kprobes() clears it, while retaining the existing symbol check.
+
+Add a discovery_only parameter that resolves and validates every required
+symbol but returns before the first syscall-table write.  Its exit path also
+returns without writing, allowing safe initialization and unload testing on
+LTO kernels.  The default remains the normal compatibility behavior.
+---
+--- a/arch/loongarch/ow_syscall/la_ow_syscall_main.c
++++ b/arch/loongarch/ow_syscall/la_ow_syscall_main.c
+@@ -31,6 +31,7 @@
+ 
+ static unsigned long kallsyms_lookup_name_addr = 0;
+ static unsigned int allow_mod_unreg = 0;
++static bool discovery_only;
+ 
+ #include <asm-generic/sections.h>
+ 
+@@ -88,6 +89,14 @@
+ 		return ret;
+ 	}
+ 
++	/* LTO may inline kallsyms_lookup_name into kprobe_lookup_name(),
++	 * so registering kp1 never calls kp0's pre-handler.  The first
++	 * registration still resolves the address directly; save it before
++	 * unregister_kprobes() clears kp0.addr. */
++	if (kallsyms_lookup_name_addr == 0 ||
++	    kallsyms_lookup_name_addr == (unsigned long)-1)
++		kallsyms_lookup_name_addr = (unsigned long)kp0.addr;
++
+ 	unregister_kprobe(&kp0);
+ 	unregister_kprobe(&kp1);
+ 
+@@ -234,6 +243,10 @@
+ 		}
+ 		syscall_to_replace[i].symbol_addr = (void *)symbol_addr;
+ 	}
++	if (discovery_only) {
++		pr_info("la_ow_syscall discovery-only initialization succeeded; syscall table unchanged\n");
++		return 0;
++	}
+ 	if (!allow_mod_unreg) {
+ 		bool succ = try_module_get(THIS_MODULE);
+ 		if (!succ) {
+@@ -256,6 +269,9 @@
+ 
+ static void __exit oldsyscall_end(void)
+ {
++	if (discovery_only)
++		return;
++
+ 	for (int i = 0; syscall_to_replace[i].syscall_num != -1; i++) {
+ 		pr_debug("will restore syscall_%ld to %px\n",
+ 			 syscall_to_replace[i].syscall_num,
+@@ -270,5 +286,8 @@
+ module_param(allow_mod_unreg, uint, 0000);
+ MODULE_PARM_DESC(allow_mod_unreg,
+ 		 "Allow this module to be unload (Danger! Debug use only)");
++module_param(discovery_only, bool, 0000);
++MODULE_PARM_DESC(discovery_only,
++		 "Resolve and validate symbols without modifying the syscall table");
+ module_param(kallsyms_lookup_name_addr, ulong, 0000);
+ MODULE_PARM_DESC(kallsyms_lookup_name_addr, "Address for kallsyms_lookup_name, provide this when unable to find using kprobe");
