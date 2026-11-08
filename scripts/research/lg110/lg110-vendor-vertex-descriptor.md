@@ -132,6 +132,27 @@ is retracted; it was not a valid descriptor comparison.  A later attempt to
 use the fourth construction offsets also failed at seq3/seq4 because those
 entries had not yet been constructed.  No failed assertion was forced to pass.
 
+## Causal mutation: the field changes the rendered pixels
+
+Passive correlation was followed by a test-process-only mutation using
+`gsgpu-mutate-vertex-stride.gdb`.  The exact binary SHA-256 was checked before
+launch.  Starting from pipeline/UV16 (BBB), the script changes only the first
+UV entry submitted for each frame, at UV-entry offsets `0x2b10`, `0x8f90`, and
+`0xf390`; these are pair offsets plus `0x10`.  It refuses to write unless the
+old word is exactly `0x00100001`, preserves all other bits, and replaces the
+stride field with 8 (`0x00080001`).
+
+Exactly three writes occurred, with no unexpected descriptor.  Raw pixels
+changed from BBB (`007010ff` three times) to AAA (`004040ff` three times).
+Success was asserted externally from the three raw files and mutation count,
+not from the test program's own `pattern_valid` flag.  The assertion SHA-256 is
+`d3806dd12a570d2d5024232df6d14856c7fde101d2ddf6c76e62339c537bf087`.
+
+An initial mutation attempt used pair bases rather than UV-entry addresses and
+made zero writes; pixels stayed BBB and the assertion failed.  That attempt is
+not evidence against the field.  Correcting the three addresses to pair+0x10
+produced the causal result above.  The installed driver was never patched.
+
 ## Reproduction and evidence
 
 Use the established `vktest-vertex-pair` environment and run GPU tests serially.
@@ -161,6 +182,6 @@ under `/home/houge/infra/gpu/evidence/` and
 `/home/houge/infra/gpu/evidence/lg110-sensitive-allva-20261108/`.  Large raw
 traces are not committed.
 
-This establishes the concrete vendor vertex-descriptor field and its handle-8
-BO storage.  It does not claim a native Vulkan implementation, zero-copy, or
-any performance improvement.
+This establishes the concrete vendor vertex-descriptor field, its handle-8
+BO storage, and a causal pixel mutation.  It does not claim a native Vulkan
+implementation, zero-copy, or any performance improvement.

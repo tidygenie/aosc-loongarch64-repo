@@ -136,3 +136,7 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 
 - 对SHA=`aff7101a`的gsgpu_dri恢复真实set_vertex_buffers=0x17ae08、draw_vbo=0x197d18和drawcall/VBO构造=0x17bb40。VBO缓存位于ctx+0xe38+16×slot；`17bc28`读取16位stride，`17bc38`将低14位插入descriptor word1 bits[29:16]。GDB只读捕获position/UV地址精确对应handle15/16，UV stride8/16时word1=`00080001`/`00100001`，其余地址、大小、格式字一致，CPU A-B-A正确。脚本和报告已公开。
 - 更正：旧敏感trace每CS只有首32 dword，不得写成完整IB全等。新2048上限抓取实际16/16/544/528/528字，pipeline/stride完整数组仍全等且不含descriptor字，故descriptor不内联IB。进一步由resource分配器ctx+3896/3912及/proc maps定位descriptor BO为handle8（GPU base=0x1010c0000），每帧首个pair偏移2b00/8f80/f380；UV word1在pipeline为16/16/16、stride为8/16/8，其余字全等，6个定向程序全PASS，断言SHA=`50bde8d1`。撤回旧“handle8相同”负结论：当时单条VADUMP被256字截为1KiB，未覆盖2b00；第四构造偏移也尚未在seq3/4生成，失败断言未强行通过。无驱动修改、无性能宣称。详见[`lg110-vendor-vertex-descriptor.md`](../scripts/research/lg110/lg110-vendor-vertex-descriptor.md)。
+
+# 2026-11-08 LG110 descriptor因果突变
+
+- 新增`gsgpu-mutate-vertex-stride.gdb`，要求精确gsgpu SHA，仅对pipeline三帧首个UV entry（2b10/8f90/f390）在旧值00100001时改stride16→8。实际恰好3次写、无意外descriptor，原始像素由BBB变为AAA，外部逐字节断言SHA=`d3806dd12a570d2d5024232df6d14856c7fde101d2ddf6c76e62339c537bf087`；不依赖程序pattern_valid。初次误用pair基址导致0次写、BBB及断言失败，修正为pair+0x10后才成立。安装驱动未改，无性能宣称。
