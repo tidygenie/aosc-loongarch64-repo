@@ -12,7 +12,11 @@
  * the indexed UINT16 signature and nonzero index VA. Exact stream
  * signatures,
  * old values, writable mappings, and post-store readback are mandatory.
- */
+ * Passive BO_HASH uses HASH_CHUNK dwords per record. LARGE_FULL reads large
+ * objects in bounded <=2 MiB temporary read-only mappings; ALL_VA also covers
+ * tracked VAs outside the current bo_list. WAIT_CS waits with a bounded
+ * five-second absolute timeout before sampling. These options never enable
+ * mutation. */
 
 #include <dlfcn.h>
 #include <errno.h>
@@ -29,6 +33,7 @@
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/uio.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "loonggpu_drm.h"
@@ -109,6 +114,9 @@ static uint64_t trace_va_address;
 static unsigned int trace_va_dwords = 64;
 static int trace_bo_resources;
 static int trace_va_hash;
+static int trace_bo_large_full;
+static int trace_all_va;
+static int trace_wait_cs;
 static uint64_t trace_bo_max_bytes = 0x4000;
 static unsigned int trace_va_hash_chunk;
 static int mutate_draw_mode;
@@ -199,6 +207,16 @@ static void configure(void)
         if (end && end != value && *end == '\0' && parsed > 0 && parsed <= 4096)
             trace_va_hash_chunk = (unsigned int)parsed;
     }
+
+    value = getenv("LG110_TRACE_BO_LARGE_FULL");
+    if (value && strcmp(value, "1") == 0 && trace_va_hash)
+        trace_bo_large_full = 1;
+    value = getenv("LG110_TRACE_ALL_VA");
+    if (value && strcmp(value, "1") == 0 && trace_bo_resources && trace_va_hash)
+        trace_all_va = 1;
+    value = getenv("LG110_TRACE_WAIT_CS");
+    if (value && strcmp(value, "1") == 0)
+        trace_wait_cs = 1;
 
     value = getenv("LG110_TRACE_VA");
     end = NULL;
@@ -747,6 +765,26 @@ out:
 }
 
 /* state_lock must be held. */
+static void trace_va_resource_locked(unsigned int sequence, int fd,
+                                     struct va_record *va)
+{
+    uint64_t offset = 0;
+    while (offset < va->size) {
+        uint64_t remaining = va->size - offset;
+        uint64_t chunk_size = remaining < trace_bo_max_bytes ?
+                              remaining : trace_bo_max_bytes;
+        if (chunk_size / 4 > 524288)
+            chunk_size = 524288 * 4;
+        chunk_size &= ~UINT64_C(3);
+        if (!chunk_size || offset > UINT64_MAX - va->va)
+            break;
+        trace_va_address = va->va + offset;
+        trace_va_dwords = (unsigned int)(chunk_size / 4);
+        trace_extra_va_locked(sequence, fd);
+        offset += chunk_size;
+    }
+}
+
 static void trace_cs_locked(unsigned int sequence, int fd,
                             const struct drm_loonggpu_cs_in *input,
                             int snapshot_valid, int result, int error_number,
@@ -850,14 +888,36 @@ static void trace_cs_locked(unsigned int sequence, int fd,
                 for (va_index = 0; va_index < LG110_MAX_VA; ++va_index) {
                     struct va_record *va = &vas[va_index];
                     if (!va->used || va->fd != fd || va->handle != list->handles[entry] ||
-                        !va->size || va->size > trace_bo_max_bytes ||
-                        va->size % 4 || va->size / 4 > 524288)
+                        !va->size || va->size % 4 ||
+                        (va->size > trace_bo_max_bytes && !trace_bo_large_full))
                         continue;
-                    trace_va_address = va->va;
-                    trace_va_dwords = (unsigned int)(va->size / 4);
-                    trace_extra_va_locked(sequence, fd);
+                    trace_va_resource_locked(sequence, fd, va);
                     break;
                 }
+            }
+        }
+        if (trace_all_va) {
+            unsigned int va_index;
+            for (va_index = 0; va_index < LG110_MAX_VA; ++va_index) {
+                struct va_record *va = &vas[va_index];
+                int listed = 0;
+                if (!va->used || va->fd != fd || !va->size || va->size % 4 ||
+                    (va->size > trace_bo_max_bytes && !trace_bo_large_full))
+                    continue;
+                for (list_index = 0; list_index < 16 && !listed; ++list_index) {
+                    struct bo_list_record *list = &bo_lists[list_index];
+                    unsigned int entry;
+                    if (!list->used || list->fd != fd ||
+                        list->list_handle != input->bo_list_handle)
+                        continue;
+                    for (entry = 0; entry < list->count; ++entry)
+                        if (list->handles[entry] == va->handle) {
+                            listed = 1;
+                            break;
+                        }
+                }
+                if (!listed)
+                    trace_va_resource_locked(sequence, fd, va);
             }
         }
         trace_va_address = saved_va;
@@ -1047,6 +1107,55 @@ static void maybe_mutate_draw_ib(int fd, const struct drm_loonggpu_cs_in *input)
     pthread_mutex_unlock(&state_lock);
 }
 
+static void wait_for_cs_snapshot(int fd, const struct drm_loonggpu_cs_in *input,
+                                 uint64_t output_handle)
+{
+    uint64_t chunk_pointers[LG110_MAX_CHUNKS];
+    struct timespec now;
+    uint64_t timeout;
+    unsigned int count = input->num_chunks;
+    unsigned int i;
+
+    if (count > LG110_MAX_CHUNKS)
+        count = LG110_MAX_CHUNKS;
+    if (!count || read_user(input->chunks, chunk_pointers,
+                            count * sizeof(chunk_pointers[0])) ||
+        clock_gettime(CLOCK_MONOTONIC, &now)) {
+        log_line("LG110WAITCS handle=0x%016" PRIx64 " status=snapshot_read_failed",
+                 output_handle);
+        return;
+    }
+    timeout = (uint64_t)now.tv_sec * UINT64_C(1000000000) +
+              (uint64_t)now.tv_nsec + UINT64_C(5000000000);
+    for (i = 0; i < count; ++i) {
+        struct drm_loonggpu_cs_chunk chunk;
+        struct drm_loonggpu_cs_chunk_ib ib;
+        union drm_loonggpu_wait_cs wait;
+        uint64_t status = UINT64_MAX;
+        int wait_result, wait_errno;
+        if (read_user(chunk_pointers[i], &chunk, sizeof(chunk)) ||
+            chunk.chunk_id != LOONGGPU_CHUNK_ID_IB ||
+            chunk.length_dw < (sizeof(ib) + 3) / 4 ||
+            read_user(chunk.chunk_data, &ib, sizeof(ib)))
+            continue;
+        memset(&wait, 0, sizeof(wait));
+        wait.in.handle = output_handle;
+        wait.in.timeout = timeout;
+        wait.in.ip_type = ib.ip_type;
+        wait.in.ip_instance = ib.ip_instance;
+        wait.in.ring = ib.ring;
+        wait.in.ctx_id = input->ctx_id;
+        wait_result = real_ioctl(fd, DRM_IOCTL_LOONGGPU_WAIT_CS, &wait);
+        wait_errno = wait_result == 0 ? 0 : errno;
+        if (wait_result == 0)
+            status = wait.out.status;
+        log_line("LG110WAITCS handle=0x%016" PRIx64
+                 " ip_type=%u ip_instance=%u ring=%u ret=%d errno=%d status=0x%" PRIx64,
+                 output_handle, ib.ip_type, ib.ip_instance, ib.ring,
+                 wait_result, wait_errno, status);
+    }
+}
+
 int ioctl(int fd, unsigned long request, ...)
 {
     va_list ap;
@@ -1059,6 +1168,8 @@ int ioctl(int fd, unsigned long request, ...)
     int is_va = request == DRM_IOCTL_LOONGGPU_GEM_VA ||
                 request == LG110_IOCTL_GEM_VA_IOWR;
     int is_cs = request == DRM_IOCTL_LOONGGPU_CS;
+    int is_metadata = request == DRM_IOCTL_LOONGGPU_GEM_METADATA;
+    int is_gem_op = request == DRM_IOCTL_LOONGGPU_GEM_OP;
     struct drm_loonggpu_gem_create_in create_input;
     struct drm_loonggpu_gem_mmap_in mmap_input;
     union drm_loonggpu_bo_list bo_list_input;
@@ -1181,6 +1292,8 @@ int ioctl(int fd, unsigned long request, ...)
         if (result == 0)
             output_valid = !read_user((uint64_t)(uintptr_t)argument,
                                       &output_handle, sizeof(output_handle));
+        if (trace_wait_cs && result == 0 && output_valid && cs_valid)
+            wait_for_cs_snapshot(fd, &cs_input, output_handle);
         pthread_mutex_lock(&state_lock);
         if (submission_count < max_submissions) {
             sequence = ++submission_count;
@@ -1193,6 +1306,66 @@ int ioctl(int fd, unsigned long request, ...)
                             saved_errno, output_valid, output_handle);
         }
         pthread_mutex_unlock(&state_lock);
+    }
+
+    if (is_metadata) {
+        struct drm_loonggpu_gem_metadata metadata;
+        if (!read_user((uint64_t)(uintptr_t)argument, &metadata, sizeof(metadata))) {
+            uint32_t bytes = metadata.data.data_size_bytes;
+            uint32_t available = bytes <= sizeof(metadata.data.data) ?
+                                 bytes : (uint32_t)sizeof(metadata.data.data);
+            unsigned int words = (available + 3U) / 4U;
+            unsigned int i;
+            uint64_t hash = UINT64_C(1469598103934665603);
+            char prefix[8 * 9 + 1];
+            size_t used = 0;
+            prefix[0] = '\0';
+            for (i = 0; i < words; ++i) {
+                hash ^= metadata.data.data[i];
+                hash *= UINT64_C(1099511628211);
+            }
+            for (i = 0; i < words && i < 8; ++i) {
+                int written = snprintf(prefix + used, sizeof(prefix) - used,
+                                       "%s%08x", i ? "," : "", metadata.data.data[i]);
+                if (written < 0 || (size_t)written >= sizeof(prefix) - used)
+                    break;
+                used += (size_t)written;
+            }
+            aux_log("LG110META fd=%d handle=%u op=%u flags=0x%016" PRIx64
+                    " tiling=0x%016" PRIx64 " bytes=%u captured=%u"
+                    " fnv1a64=0x%016" PRIx64 " first=%s ret=%d errno=%d",
+                    fd, metadata.handle, metadata.op,
+                    (uint64_t)metadata.data.flags,
+                    (uint64_t)metadata.data.tiling_info, bytes, available, hash,
+                    prefix, result, result == 0 ? 0 : saved_errno);
+        } else {
+            aux_log("LG110META fd=%d snapshot=read_failed ret=%d errno=%d",
+                    fd, result, result == 0 ? 0 : saved_errno);
+        }
+    }
+
+    if (is_gem_op) {
+        struct drm_loonggpu_gem_op op;
+        if (!read_user((uint64_t)(uintptr_t)argument, &op, sizeof(op))) {
+            aux_log("LG110GEMOP fd=%d handle=%u op=%u value=0x%016" PRIx64
+                    " ret=%d errno=%d", fd, op.handle, op.op, (uint64_t)op.value,
+                    result, result == 0 ? 0 : saved_errno);
+            if (result == 0 && op.op == LOONGGPU_GEM_OP_GET_GEM_CREATE_INFO) {
+                struct drm_loonggpu_gem_create_in info;
+                if (!read_user(op.value, &info, sizeof(info)))
+                    aux_log("LG110GEMCREATEINFO fd=%d handle=%u size=0x%016" PRIx64
+                            " alignment=0x%016" PRIx64 " domains=0x%016" PRIx64
+                            " flags=0x%016" PRIx64, fd, op.handle,
+                            (uint64_t)info.bo_size, (uint64_t)info.alignment,
+                            (uint64_t)info.domains, (uint64_t)info.domain_flags);
+                else
+                    aux_log("LG110GEMCREATEINFO fd=%d handle=%u snapshot=read_failed",
+                            fd, op.handle);
+            }
+        } else {
+            aux_log("LG110GEMOP fd=%d snapshot=read_failed ret=%d errno=%d",
+                    fd, result, result == 0 ? 0 : saved_errno);
+        }
     }
 
     if (is_va) {

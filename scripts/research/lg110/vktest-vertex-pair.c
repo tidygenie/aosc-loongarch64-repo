@@ -1,7 +1,11 @@
 /* Same-process A/B/A vertex-state differential with per-frame readback.
  * LG110_PAIR_MODE=same is the noise control, offset alternates binding offset
- * 0/8/0, and stride alternates pipeline UV stride 8/16/8. Use FRAME_LIMIT=3.
- * Cyclic positions and constant {0,0.5} UV pairs keep all center pixels equal.
+ * 0/8/0, stride alternates pipeline UV stride 8/16/8, and pipeline alternates
+ * two otherwise identical stride=16 pipelines. Use FRAME_LIMIT=3.
+ * Cyclic positions and constant {0,0.5} UV pairs keep default center pixels
+ * equal. LG110_ATTRIBUTE_SENSITIVE=1 instead uses distinct UV pairs and checks
+ * A-B-A-distinct for stride or A-A-A for same/pipeline with a direct-color
+ * fragment shader selected by LG110_FRAGMENT_SHADER.
  * The test writes Vulkan commands only; GPU BO inspection belongs to the
  * separately opt-in, read-only tracer. */
 #define _DEFAULT_SOURCE 1
@@ -107,10 +111,13 @@ int main(void) {
    if (!pair_text) pair_text = "";
    int pair_offset = !strcmp(pair_text, "offset");
    int pair_stride = !strcmp(pair_text, "stride");
+   int pair_pipeline = !strcmp(pair_text, "pipeline");
    int pair_same = !strcmp(pair_text, "same");
-   int pair_mode = pair_offset || pair_stride || pair_same;
+   int pair_mode = pair_offset || pair_stride || pair_pipeline || pair_same;
+   int attribute_sensitive = getenv("LG110_ATTRIBUTE_SENSITIVE") &&
+                             !strcmp(getenv("LG110_ATTRIBUTE_SENSITIVE"), "1");
    if (*pair_text && !pair_mode) {
-      fprintf(stderr, "LG110_PAIR_MODE=offset|stride|same\n"); return 1;
+      fprintf(stderr, "LG110_PAIR_MODE=offset|stride|pipeline|same\n"); return 1;
    }
    int expect_unsupported = getenv("LG110_EXPECT_UNSUPPORTED") &&
                             !strcmp(getenv("LG110_EXPECT_UNSUPPORTED"), "1");
@@ -132,7 +139,9 @@ int main(void) {
        (pair_mode && strcmp(frame_text, "2") && strcmp(frame_text, "3")) ||
        (!pair_mode && (!strcmp(frame_text, "2") || !strcmp(frame_text, "3"))) ||
        (pair_offset && strcmp(position_offset_text, "0")) ||
-       (pair_stride && strcmp(uv_stride_text, "8"))) {
+       (pair_stride && strcmp(uv_stride_text, "8")) ||
+       (pair_pipeline && strcmp(uv_stride_text, "16")) ||
+       (attribute_sensitive && (!pair_mode || pair_offset || strcmp(frame_text, "3")))) {
       fprintf(stderr, "draw=3|2 first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 topology=... frames=120|1 pair=2|3\n"); return 1;
    }
    int position_offset = atoi(position_offset_text);
@@ -239,7 +248,9 @@ int main(void) {
 
    size_t vsz=0, fsz=0;
    unsigned char *vs = load_file("grad.vert.spv", &vsz);
-   unsigned char *fs = load_file("vktest-gradient-sample-readback.frag.spv", &fsz);
+   const char *fragment_path = getenv("LG110_FRAGMENT_SHADER");
+   if (!fragment_path) fragment_path = "vktest-gradient-sample-readback.frag.spv";
+   unsigned char *fs = load_file(fragment_path, &fsz);
    VkShaderModuleCreateInfo smci={.sType=VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
    VkShaderModule vsm, fsm;
    smci.codeSize=vsz; smci.pCode=(const uint32_t*)vs; CK(vkCreateShaderModule(dev,&smci,NULL,&vsm));
@@ -321,8 +332,8 @@ int main(void) {
    }
    CK(pipeline_result);
    pipes[1] = pipes[0];
-   if (pair_stride) {
-      vibindings[1].stride = 16;
+   if (pair_stride || pair_pipeline) {
+      if (pair_stride) vibindings[1].stride = 16;
       CK(vkCreateGraphicsPipelines(dev,VK_NULL_HANDLE,1,&gpci,NULL,&pipes[1]));
    }
 
@@ -354,6 +365,10 @@ int main(void) {
        if (binding==0) {
           const float positions[10]={-1,-1, 3,-1, -1,3, -1,-1, 3,-1};
           memcpy(ptr,positions,sizeof(positions));
+       } else if (attribute_sensitive) {
+          const float uv_stride[16]={0,0, 1,0, 0,1, 1,1,
+                                     0.25f,0.75f, 0.8f,0.1f, 0.1f,0.9f, 0.6f,0.4f};
+          memcpy(ptr,uv_stride,sizeof(uv_stride));
        } else {
           const float uv_stride[16]={0,0.5, 0,0.5, 0,0.5, 0,0.5, 0,0.5, 0,0.5, 0,0.5, 0,0.5};
           memcpy(ptr,uv_stride,sizeof(uv_stride));
@@ -418,9 +433,14 @@ int main(void) {
       }
    }
    unsigned char actual[4]={0xa5,0xa5,0xa5,0xa5};
+   unsigned char pair_pixels[3][4]={{0}};
    int pixels_valid=0, all_pixels_valid=1, readback_attempted=0;
-   printf("readback center=(320,240) format=%d tolerance=2 expected_bytes=%02x%02x%02x%02x\n",
-      fmts[0].format,expected[0],expected[1],expected[2],expected[3]);
+   if (attribute_sensitive)
+      printf("attribute_sensitive=1 pair=%s expected_pattern=%s\n",
+             pair_text, pair_stride ? "A-B-A-distinct" : "A-A-A");
+   else
+      printf("readback center=(320,240) format=%d tolerance=2 expected_bytes=%02x%02x%02x%02x\n",
+         fmts[0].format,expected[0],expected[1],expected[2],expected[3]);
 
    VkSemaphoreCreateInfo semci={.sType=VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
    VkSemaphore acquire, done; CK(vkCreateSemaphore(dev,&semci,NULL,&acquire)); CK(vkCreateSemaphore(dev,&semci,NULL,&done));
@@ -489,13 +509,14 @@ int main(void) {
          memset(actual,0xa5,sizeof(actual));
          memcpy(actual,rptr,4); vkUnmapMemory(dev,rbmem);
          int matches=1, sentinel=1;
+         if (pair_mode) memcpy(pair_pixels[frame],actual,4);
          for (int c=0;c<4;c++) {
             int delta=(int)actual[c]-(int)expected[c]; if (delta<0) delta=-delta;
-            if (delta>2) matches=0;
+            if (!attribute_sensitive && delta>2) matches=0;
             if (actual[c]!=0xa5) sentinel=0;
          }
-         pixels_valid=matches;
-         if (!matches) all_pixels_valid=0;
+         pixels_valid=attribute_sensitive ? !sentinel : matches;
+         if (!pixels_valid) all_pixels_valid=0;
          printf("readback frame=%d actual_bytes=%02x%02x%02x%02x pixels_valid=%d sentinel_unchanged=%d\n",
             frame,actual[0],actual[1],actual[2],actual[3],pixels_valid,sentinel);
          char frame_pixel_path[4096];
@@ -509,6 +530,18 @@ int main(void) {
          .swapchainCount=1,.pSwapchains=&sc,.pImageIndices=&idx};
       CK(vkQueuePresentKHR(q,&pi));
       usleep(100000);
+   }
+   if (attribute_sensitive) {
+      int pattern_valid;
+      if (pair_stride)
+         pattern_valid = !memcmp(pair_pixels[0],pair_pixels[2],4) &&
+                         memcmp(pair_pixels[0],pair_pixels[1],4) != 0;
+      else
+         pattern_valid = !memcmp(pair_pixels[0],pair_pixels[1],4) &&
+                         !memcmp(pair_pixels[0],pair_pixels[2],4);
+      printf("attribute_sensitive pattern_valid=%d\n",pattern_valid);
+      pixels_valid=pattern_valid;
+      if (!pattern_valid) all_pixels_valid=0;
    }
    if (!readback_attempted || !pixels_valid || !all_pixels_valid) {
       printf("FAIL vktest-draw-count-readback variant=%s pixels_valid=0\n",mode);

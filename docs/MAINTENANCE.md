@@ -93,3 +93,11 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - lcdf-typetools原测试硬编码不存在的DejaVuSans.ttf。自定义测试保留真实`otfinfo -p`解析与family断言，在原文件缺失时选用已确认存在的FreeSans.otf；构建测试及bottle回装测试均通过，`test=1,pour=1`。四别名本地/服务器/HTTPS SHA-256均为`98428c51990fcbd02d09ed1a57c0bdb5a8d11f38491a1f733437ebbc70dd81ab`。最终定制巡检修复0处，tap本地/服务器HEAD均为`290a73cbb7d873aa976776a31828d46b8359170e`，瓶子别名计数两边均为3606。
 - 后续lane审计发现`brew install --only-dependencies`并不安装test依赖，已在`brew-lane.sh`原子加入`--include-test`，运行中的lane保持原inode且未重启。endlessh dry-run及实际日志均确认开始解析/安装netcat；其0.7.1旧autoreconf另报`AM_INTL_SUBDIR`，不将该依赖问题伪称已修。针对endlessh仅需`nc -z`连通性检查的测试，custom formula改用Ruby标准库`TCPSocket`并删除netcat test依赖，构建测试、bottle回装及回装测试均通过，`test=1,pour=1`。最终四别名本地/服务器/HTTPS SHA-256均为`6d58e5a160bda8ace693fe1ecfeb0a47ebba152b37f1476e8aaf0c8e2eaaf9d1`，tap main本地/服务器HEAD=`2f96092a79f097f50520ac32a645458f3adf469b`。
 - `make-cflags-formula.py`的CMake分支此前把C gnu17同时写入C/CXX；现仅将CXX替换为gnu++17，不回填覆盖现有formula。使用临时INFRA运行真实生成器，合成CMake formula的Ruby语法、C gnu17、CXX gnu++17、cmake参数展开及custom跳过全部通过，真实tap无cmaketest文件。APT检查仍为0项可更新，未执行autoremove或高风险图形升级。
+
+# 2026-11-08 LG110原始UAPI与同步全VA顶点审计
+
+- 原始LoongGPU ioctl解码排除strace错误别名：same/stride仅第二pipeline懒初始化使CREATE/MMAP/VA各多2次，没有额外请求类型。14次METADATA与4次GEM_OP规范化后完全相同；GEM_OP只是GET_GEM_CREATE_INFO，其value为用户态输出指针，不是顶点状态更新。
+- 新增属性敏感fragment与同进程same/stride/pipeline三帧控制。stride原始BGRA为`008040ff→009f20ff→008040ff`，same及两个不同pipeline但同stride16均为三次`009f20ff`。GALLIUM_TRACE确认position始终stride8，UV严格为16/16/16或8/16/8，排除vkgl漏传。
+- 敏感pipeline/stride的seq3/4/5 GFX逐字相同，seq4→5的11词差分列表也完全相同；word204/228仅确认为shader程序VA选择器，配对shader完整16K FNV相同，不命名其他未知词。旧word338/362仍是状态BO选择器。
+- 新只读哈希每次最多映射2MiB，覆盖完整16MiB BO及不在CS bo_list中的tracked VA。未等待时handle12在seq4整480块差异、seq5又一致，判定异步采样竞争；增加有界WAIT_CS后，三draw每模式13516/13524/13524条记录跨pipeline/stride全部完全相同。20次设备mmap全部匹配GEM_MMAP，DRM read/write/pread/pwrite调用为0。
+- 默认same/offset/stride、敏感same/stride/pipeline和legacy被动count=3均通过；主动count=2仍为预期663300ff/word270=2，旧程序因保留count=3期望而预期退出1。安装/发布vkgl保持0.1.31，无新deb、原生Vulkan、零拷贝或性能提升宣称。详见 [`lg110-vertex-state-uapi-all-va.md`](../scripts/research/lg110/lg110-vertex-state-uapi-all-va.md)。

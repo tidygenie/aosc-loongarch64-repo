@@ -1,0 +1,55 @@
+[raw UAPI]
+same={'BO_LIST':10,'CS':5,'CTX':2,'GEM_CREATE':32,'GEM_METADATA':14,'GEM_MMAP':21,'GEM_OP':4,'GEM_VA':41,'INFO':10}
+stride={'BO_LIST':10,'CS':5,'CTX':2,'GEM_CREATE':34,'GEM_METADATA':14,'GEM_MMAP':23,'GEM_OP':4,'GEM_VA':43,'INFO':10}
+raw_request_delta=only_second_pipeline_CREATE_MMAP_VA_plus_2_each
+same_normalized_records=22 sha256=cf7217f9f44c7fb2cecbc23bb33d1c7a451687e0938ba6778146c66a79479d4a
+stride_normalized_records=22 sha256=cf7217f9f44c7fb2cecbc23bb33d1c7a451687e0938ba6778146c66a79479d4a
+metadata_gemop_createinfo_normalized_equal=1
+
+[Gallium vertex input]
+pipeline vertex_buffer_calls=[(2900,[8,16],[8,0]),(2919,[8,16],[8,0]),(2938,[8,16],[8,0])]
+stride vertex_buffer_calls=[(2900,[8,8],[8,0]),(2919,[8,16],[8,0]),(2938,[8,8],[8,0])]
+GALLIUM_VERTEX_INPUT_AUDIT=PASS
+
+[sensitive GFX and pixels]
+pipeline_pixels=009f20ff,009f20ff,009f20ff
+stride_pixels=008040ff,009f20ff,008040ff
+GFX_seq3_seq4_seq5_pipeline_equals_stride=1
+GFX_seq4_to_5_differences_both=[54,87,110,184,204,216,218,228,240,372,504]
+word204_word228=shader_program_VA_selectors_only
+vertex_shader_complete_FNV1a=0x24356227d25a99be
+fragment_shader_complete_FNV1a=0x4292ec81d330ca20
+PIPELINE_CONTROL=PASS
+
+[CS-list full-resource control]
+pipeline_records=22312 stride_records=22312
+initialization_difference=seq2_handle16_chunk0_only
+draw_resource_records=14016 exact_equal=1
+DRAW_RESOURCE_AND_PIXEL_AUDIT=PASS
+
+[synchronized all-VA control]
+wait_records_per_mode=5 all_ret0_errno0_status0=1
+seq3_records_per_mode=13516 common_differences=0
+seq4_records_per_mode=13524 common_differences=0
+seq5_records_per_mode=13524 common_differences=0
+only_lifetime_mismatch=pipeline_seq2_handle20_16KiB_initialization_snapshot
+unsynchronized_handle12_seq4_480_chunk_difference=rejected_async_sampling_race
+
+[DRM mapping and direct file I/O]
+pipeline_device_mmaps=20 stride_device_mmaps=20
+combined_trace_device_mmaps=20 unique_GEM_MMAP_offsets=19
+unmatched_device_mmap_offsets=0
+ALL_DEVICE_MMAPS_ARE_GEM=PASS
+DEVICE_READ_WRITE_CALLS=0
+
+[final regression]
+default-same=007f00ff,007f00ff,007f00ff PASS
+default-offset=007f40ff,007f40ff,007f40ff PASS
+default-stride=007f00ff,007f00ff,007f00ff PASS
+sensitive-same=009f20ff,009f20ff,009f20ff PASS
+sensitive-pipeline=009f20ff,009f20ff,009f20ff PASS
+sensitive-stride=008040ff,009f20ff,008040ff PASS
+legacy-passive=007f00ff word270=3 PASS
+legacy-active=663300ff word270=2 sentinel_unchanged=0 expected_exit=1 intentional_count_mismatch
+strict_build_Wall_Wextra_Werror=PASS
+CONSOLIDATED_ROUND32_33_AUDIT=PASS

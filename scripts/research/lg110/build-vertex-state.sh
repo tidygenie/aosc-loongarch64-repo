@@ -19,5 +19,6 @@ cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror -I"$VKGL_TESTS" \
   $(pkg-config --cflags --libs wayland-client) -lvulkan
 mkdir -p "$OUT/run"
 glslangValidator -V "$VKGL_TESTS/vktest-vertex-bindings.vert" -o "$OUT/run/grad.vert.spv"
+glslangValidator -V "$HERE/vktest-attribute-color.frag" -o "$OUT/run/vktest-attribute-color.frag.spv"
 cp "$HERE/vktest-gradient-sample-readback.frag.spv" "$OUT/run/"
 echo "Built under $OUT; no GPU test was executed. Run from $OUT/run."
