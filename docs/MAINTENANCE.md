@@ -140,3 +140,7 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 # 2026-11-08 LG110 descriptor因果突变
 
 - 新增`gsgpu-mutate-vertex-stride.gdb`，要求精确gsgpu SHA，仅对pipeline三帧首个UV entry（2b10/8f90/f390）在旧值00100001时改stride16→8。实际恰好3次写、无意外descriptor，原始像素由BBB变为AAA，外部逐字节断言SHA=`d3806dd12a570d2d5024232df6d14856c7fde101d2ddf6c76e62339c537bf087`；不依赖程序pattern_valid。初次误用pair基址导致0次写、BBB及断言失败，修正为pair+0x10后才成立。安装驱动未改，无性能宣称。
+
+# 2026-11-08 LG110 descriptor IB间接引用闭环
+
+- 完整IB在seq3 word220、seq4/5 word218分别含descriptor VA低字010c2b00/010c8f80/010cf380，高字均1。先捕获UV descriptor再监视实际drawcall+336，硬件写watchpoint命中`182074 st.d`（报告PC为下一指令182078）。函数181fe8精确计算`ctx[3912]->gpu_va + ctx[3908]`并写drawcall+336，首帧1010c0000+2b00与IB一致。公开`gsgpu-descriptor-pointer-writer.gdb`；API stride→VBO缓存→handle8 word1→IB间接VA→像素因果链闭合，仍无原生Vulkan/性能宣称。

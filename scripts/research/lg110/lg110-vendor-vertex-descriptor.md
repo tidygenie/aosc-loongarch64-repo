@@ -123,6 +123,31 @@ Only UV word 1 changes, exactly following the A-B-A pixel sequence.  All six
 targeted programs returned success.  The assertion output SHA-256 is
 `50bde8d11be759ab32526cec204f6d068f95723d667d58bb96a7154410324483`.
 
+### IB indirect reference and pointer writer
+
+The complete IB contains the descriptor VA even though it does not contain the
+descriptor words.  The low address words are `0x010c2b00` at seq3 word220,
+`0x010c8f80` at seq4 word218, and `0x010cf380` at seq5 word218; each following
+high word is one.  These are the exact per-frame pair offsets above.
+
+A write watchpoint on the first drawcall's `+336` slot caught the actual writer.
+The function at `0x181fe8`, called by real `draw_vbo`, executes:
+
+```
+182050: ldptr.d   $t1, $s1, 3912   # descriptor resource
+182058: ldptr.w   $t2, $s1, 3908   # current suballocation offset
+18205c: ld.d      $t1, $t1, 64     # resource GPU base
+18206c: add.d     $t1, $t1, $t2
+182074: st.d      $t1, $s3, 336    # 64-bit descriptor VA in drawcall
+```
+
+The watchpoint reports the following instruction at `0x182078`, after the store
+has executed.  In the first draw, resource base `0x1010c0000` plus offset
+`0x2b00` produces exactly the observed IB value.  The supplied
+`gsgpu-descriptor-pointer-writer.gdb` reproduces this watch.  Thus the complete
+path is: API stride -> cached VBO entry -> handle-8 descriptor word 1 ->
+drawcall+336 indirect descriptor VA -> GPU-visible A-B-A change.
+
 Two failed approaches are retained as evidence boundaries.  A hardware read
 watchpoint on word 1 reported no later userspace read; direct GPU consumption
 does not require such a read.  An earlier targeted handle-8 dump appeared
@@ -183,5 +208,6 @@ under `/home/houge/infra/gpu/evidence/` and
 traces are not committed.
 
 This establishes the concrete vendor vertex-descriptor field, its handle-8
-BO storage, and a causal pixel mutation.  It does not claim a native Vulkan
-implementation, zero-copy, or any performance improvement.
+BO storage, the drawcall's indirect descriptor VA, and a causal pixel mutation.
+It does not claim a native Vulkan implementation, zero-copy, or any performance
+improvement.
