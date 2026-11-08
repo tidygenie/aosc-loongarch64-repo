@@ -117,4 +117,9 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - liblol EINVAL已静态定位：Clang full-LTO把kallsyms_lookup_name内联进kprobe_lookup_name，旧双kprobe方法不会触发首探针，地址保持0并在la_ow_syscall_main.c:112返回-EINVAL；GCC保留尾调用。源码候选在unregister清空前使用register_kprobe已解析的kp0.addr作fallback，并保留符号校验。
 - 候选实际加载命令与上一boot在18:02:42异常终止时间重合，随后18:04以7.1.13启动；没有持久panic日志，不能宣称修复有效或断言具体崩溃原因。当前7.1.13自带la_ow_syscall正常加载，本次清理后不主动重启，不再直接加载该候选；下一次验证必须先做不写syscall表的discovery-only测试。
 - 随后外部重启已进入保留的7.3.1 gcc-o3：systemd-modules-load返回0，la_ow_syscall与loonggpu正常加载；通过old-world loader实际执行LibLoL glibc 2.44返回0，KDE Wayland、loonggpu-dc和vkgl LG110均正常。这建立可用对照，但不代表clang已修复。
-- 公共内核配方新增[`0005-loongarch-ow-syscall-lto-kprobe-addr.patch`](../packages/kernel/linux-kernel-mainline-16k-rt/autobuild/patches/0005-loongarch-ow-syscall-lto-kprobe-addr.patch)：除kp0.addr fallback外加入默认关闭的discovery_only参数，init和exit均在任何syscall表写入前检查。补丁精确重放一致，并用构建树同一Clang full-LTO参数编译为LLVM IR成功；目前只完成编译验证，未加载、安装或发布新deb，clang运行验证仍待进行。
+- 公共内核配方新增[`0005-loongarch-ow-syscall-lto-kprobe-addr.patch`](../packages/kernel/linux-kernel-mainline-16k-rt/autobuild/patches/0005-loongarch-ow-syscall-lto-kprobe-addr.patch)：除kp0.addr fallback外加入默认关闭的discovery_only参数，init和exit均在任何syscall表写入前检查。补丁精确重放一致，并用构建树同一Clang full-LTO参数编译为LLVM IR成功；目前只完成编译验证，未加载、安装或发布新deb，clang运行验证仍待进行。新增[`test-liblol-discovery.sh`](../scripts/test-liblol-discovery.sh)，核对clang内核/vermagic/参数、拒绝替换已加载模块、使用EXIT trap卸载并保存持久证据；在gcc-o3上的拒绝保护已实测。
+
+# 2026-11-08 Homebrew b2sum可移植实现闭环
+
+- b2sum 20190724默认使用SSE2，原公式只对ARM切换NEON，LoongArch因emmintrin.h缺失失败。custom对非Intel且非ARM改用上游ref源文件，不伪造SIMD头；临时构建通过abc标准BLAKE2向量，lane构建/测试/bottle回装/回装测试全部通过，`test=1,pour=1`。
+- 四种单横线/双横线及rebuild别名的本地、服务器、HTTPS SHA-256均为`ae83bb5e103c1e197f0352742160caeeebf00bfe3dfd2c9fb789cebcc653ce93`，tap提交`826e6d07e4a7283cd419b3b9a8c273ccca796220`已到服务器main。最终本地bottle块已回填custom（infra `1c1fe4ae4`）；全量custom校验随后第二次修复0处。
