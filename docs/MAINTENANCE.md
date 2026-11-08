@@ -127,3 +127,7 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 # 2026-11-08 LG110双swapchain输出归属
 
 - 持久复测pipeline/stride/same并覆盖全部5个CS，IB逐字一致，输入handle15/16各10条哈希跨模式完全一致。新增只读单dword BO采样，直接证明stride frame0/2对应handle11 seq3/5、frame1对应handle12 seq4；两个BO均为0x1e0000，中心偏移0xf0500与CPU readback逐字一致。此前大表面差异因此归为双swapchain实际图像内容，不再当作隐藏stride状态；其余小BO仍未命名。严格构建、被动draw3、主动word270 count2及敏感三模式全过，库保持0.1.31，无性能或原生Vulkan宣称。详见[`lg110-swapchain-output-attribution.md`](../scripts/research/lg110/lg110-swapchain-output-attribution.md)。
+
+# 2026-11-08 clang构建不阻塞启动目标
+
+- 自有`kernel-build-clang-lto.service`原为oneshot，导致每次重启multi-user/graphical等待完整`make -j1 LLVM=1 all`。持久unit及/etc实例已改为`Type=simple`并移除RemainAfterExit，保留User=houge、Nice=10和IO idle；`systemd-analyze verify`通过，daemon-reload前后当前make PID均为738，未中断构建。当前旧启动job仍在等待，不能宣称本轮已解除；下一次重启需检查critical-chain和multi-user不再等make结束。infra提交`0d5170d37`。
