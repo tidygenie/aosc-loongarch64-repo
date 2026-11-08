@@ -15,8 +15,9 @@
  * Passive BO_HASH uses HASH_CHUNK dwords per record. LARGE_FULL reads large
  * objects in bounded <=2 MiB temporary read-only mappings; ALL_VA also covers
  * tracked VAs outside the current bo_list. WAIT_CS waits with a bounded
- * five-second absolute timeout before sampling. These options never enable
- * mutation. */
+ * five-second absolute timeout before sampling. SAMPLE_HANDLE/SAMPLE_OFFSET
+ * dump one dword at an explicit BO offset through a tracked VA. These options
+ * never enable mutation. */
 
 #include <dlfcn.h>
 #include <errno.h>
@@ -117,6 +118,10 @@ static int trace_va_hash;
 static int trace_bo_large_full;
 static int trace_all_va;
 static int trace_wait_cs;
+static uint32_t trace_sample_handle;
+static uint64_t trace_sample_offset;
+static uint64_t trace_sample_size;
+static int trace_sample_active;
 static uint64_t trace_bo_max_bytes = 0x4000;
 static unsigned int trace_va_hash_chunk;
 static int mutate_draw_mode;
@@ -137,9 +142,11 @@ static __thread int in_hook;
 static void configure(void)
 {
     const char *value = getenv("LG110_TRACE_MAX");
+    const char *offset_value;
     const char *draw_value = getenv("LG110_MUTATE_DRAW_FIELD");
     char *end = NULL;
     unsigned long parsed;
+    unsigned long long parsed_offset;
 
     if (draw_value) {
         if (strcmp(draw_value, "count") == 0)
@@ -217,6 +224,24 @@ static void configure(void)
     value = getenv("LG110_TRACE_WAIT_CS");
     if (value && strcmp(value, "1") == 0)
         trace_wait_cs = 1;
+
+    value = getenv("LG110_TRACE_SAMPLE_HANDLE");
+    offset_value = getenv("LG110_TRACE_SAMPLE_OFFSET");
+    if (value || offset_value) {
+        end = NULL;
+        parsed = value && *value ? strtoul(value, &end, 0) : 0;
+        if (!value || !end || end == value || *end != '\0' || !parsed || parsed > UINT32_MAX)
+            parsed = 0;
+        end = NULL;
+        parsed_offset = offset_value && *offset_value ? strtoull(offset_value, &end, 0) : 0;
+        if (!offset_value || !end || end == offset_value || *end != '\0' ||
+            !parsed || parsed_offset % 4) {
+            fprintf(stderr, "LG110TRACE invalid sample handle/offset; sample disabled\n");
+        } else {
+            trace_sample_handle = (uint32_t)parsed;
+            trace_sample_offset = parsed_offset;
+        }
+    }
 
     value = getenv("LG110_TRACE_VA");
     end = NULL;
@@ -676,29 +701,60 @@ static void trace_extra_va_locked(unsigned int sequence, int fd)
         union drm_loonggpu_gem_mmap mmap_args;
         long page_size = sysconf(_SC_PAGESIZE);
         size_t page_offset, delta, map_length;
+        size_t map_bytes = trace_va_dwords * sizeof(dwords[0]);
+
+        /* Match the successful resource mapping shape: one bounded mapping
+         * from BO base with its actual size, then read only one dword. */
+        if (trace_sample_active)
+            map_bytes = (size_t)trace_sample_size;
 
         memset(&mmap_args, 0, sizeof(mmap_args));
         mmap_args.in.handle = source.handle;
-        if (page_size > 0 && source.bo_offset <= SIZE_MAX - trace_va_dwords * sizeof(dwords[0]) &&
-            real_ioctl(fd, DRM_IOCTL_LOONGGPU_GEM_MMAP, &mmap_args) == 0) {
-            page_offset = (size_t)source.bo_offset & ~((size_t)page_size - 1);
-            delta = (size_t)source.bo_offset - page_offset;
-            map_length = (delta + trace_va_dwords * sizeof(dwords[0]) +
-                          (size_t)page_size - 1) &
-                         ~((size_t)page_size - 1);
-            if (!real_mmap)
-                RESOLVE_REAL(real_mmap, "mmap");
-            if (real_mmap && mmap_args.out.addr_ptr <= (uint64_t)INT64_MAX - page_offset) {
-                temporary_map = real_mmap(NULL, map_length, PROT_READ, MAP_SHARED,
-                    fd, (off_t)(mmap_args.out.addr_ptr + page_offset));
-                if (temporary_map != MAP_FAILED) {
-                    temporary_length = map_length;
-                    source.user_address = (uintptr_t)temporary_map + delta;
-                    source.available = map_length - delta;
-                    source.valid = 1;
-                    source.reason = "temporary_read_only_mapping";
-                } else {
-                    temporary_map = NULL;
+        if (page_size > 0 && source.bo_offset <= SIZE_MAX - map_bytes) {
+            int mmap_result = real_ioctl(fd, DRM_IOCTL_LOONGGPU_GEM_MMAP, &mmap_args);
+            int mmap_error = errno;
+
+            if (trace_sample_handle && source.handle == trace_sample_handle)
+                log_line("LG110SAMPLEIOCTL seq=%u handle=%u ret=%d errno=%d "
+                         "mmap_offset=0x%016" PRIx64 " bo_offset=0x%" PRIx64
+                         " page_size=%ld",
+                         sequence, source.handle, mmap_result,
+                         mmap_result == 0 ? 0 : mmap_error,
+                         (uint64_t)mmap_args.out.addr_ptr, source.bo_offset,
+                         page_size);
+            if (mmap_result == 0) {
+                page_offset = trace_sample_active ? 0 :
+                    (size_t)source.bo_offset & ~((size_t)page_size - 1);
+                delta = (size_t)source.bo_offset - page_offset;
+                map_length = (delta + map_bytes +
+                              (size_t)page_size - 1) &
+                             ~((size_t)page_size - 1);
+                if (trace_sample_active)
+                    map_length = (size_t)trace_sample_size;
+                if (trace_sample_handle && source.handle == trace_sample_handle)
+                    log_line("LG110SAMPLEMAP seq=%u handle=%u active=%d "
+                             "page_offset=0x%zx delta=0x%zx map_bytes=0x%zx "
+                             "map_length=0x%zx",
+                             sequence, source.handle, trace_sample_active,
+                             page_offset, delta, map_bytes, map_length);
+                if (!real_mmap)
+                    RESOLVE_REAL(real_mmap, "mmap");
+                if (delta <= map_length && map_length - delta >= 4 &&
+                    real_mmap && mmap_args.out.addr_ptr <= (uint64_t)INT64_MAX - page_offset) {
+                    temporary_map = real_mmap(NULL, map_length, PROT_READ, MAP_SHARED,
+                        fd, (off_t)(mmap_args.out.addr_ptr + page_offset));
+                    if (temporary_map != MAP_FAILED) {
+                        temporary_length = map_length;
+                        source.user_address = (uintptr_t)temporary_map + delta;
+                        source.available = map_length - delta;
+                        source.valid = 1;
+                        source.reason = "temporary_read_only_mapping";
+                    } else {
+                        if (trace_sample_handle && source.handle == trace_sample_handle)
+                            log_line("LG110SAMPLEMMAP seq=%u handle=%u errno=%d",
+                                     sequence, source.handle, errno);
+                        temporary_map = NULL;
+                    }
                 }
             }
         }
@@ -783,6 +839,44 @@ static void trace_va_resource_locked(unsigned int sequence, int fd,
         trace_extra_va_locked(sequence, fd);
         offset += chunk_size;
     }
+}
+
+static void trace_sample_locked(unsigned int sequence, int fd)
+{
+    uint64_t saved_va = trace_va_address;
+    unsigned int saved_dwords = trace_va_dwords;
+    int saved_hash = trace_va_hash;
+    unsigned int i;
+
+    if (!trace_sample_handle)
+        return;
+    for (i = 0; i < LG110_MAX_VA; ++i) {
+        struct va_record *va = &vas[i];
+        uint64_t delta;
+
+        if (!va->used || va->fd != fd || va->handle != trace_sample_handle ||
+            !va->size || va->size > trace_bo_max_bytes ||
+            trace_sample_offset < va->bo_offset)
+            continue;
+        delta = trace_sample_offset - va->bo_offset;
+        if (delta > va->size || va->size - delta < 4 ||
+            delta > UINT64_MAX - va->va)
+            continue;
+        trace_va_address = va->va + delta;
+        trace_va_dwords = 1;
+        trace_va_hash = 0;
+        trace_sample_size = va->size;
+        trace_sample_active = 1;
+        trace_extra_va_locked(sequence, fd);
+        trace_sample_active = 0;
+        trace_va_address = saved_va;
+        trace_va_dwords = saved_dwords;
+        trace_va_hash = saved_hash;
+        return;
+    }
+    log_line("LG110SAMPLE seq=%u status=not_dumped reason=no_covering_va "
+             "handle=%u bo_offset=0x%" PRIx64,
+             sequence, trace_sample_handle, trace_sample_offset);
 }
 
 static void trace_cs_locked(unsigned int sequence, int fd,
@@ -923,6 +1017,7 @@ static void trace_cs_locked(unsigned int sequence, int fd,
         trace_va_address = saved_va;
         trace_va_dwords = saved_dwords;
     }
+    trace_sample_locked(sequence, fd);
 }
 
 #define LG110_DRAW_DWORDS 672U

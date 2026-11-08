@@ -123,3 +123,7 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 
 - b2sum 20190724默认使用SSE2，原公式只对ARM切换NEON，LoongArch因emmintrin.h缺失失败。custom对非Intel且非ARM改用上游ref源文件，不伪造SIMD头；临时构建通过abc标准BLAKE2向量，lane构建/测试/bottle回装/回装测试全部通过，`test=1,pour=1`。
 - 四种单横线/双横线及rebuild别名的本地、服务器、HTTPS SHA-256均为`ae83bb5e103c1e197f0352742160caeeebf00bfe3dfd2c9fb789cebcc653ce93`，tap提交`826e6d07e4a7283cd419b3b9a8c273ccca796220`已到服务器main。最终本地bottle块已回填custom（infra `1c1fe4ae4`）；全量custom校验随后第二次修复0处。
+
+# 2026-11-08 LG110双swapchain输出归属
+
+- 持久复测pipeline/stride/same并覆盖全部5个CS，IB逐字一致，输入handle15/16各10条哈希跨模式完全一致。新增只读单dword BO采样，直接证明stride frame0/2对应handle11 seq3/5、frame1对应handle12 seq4；两个BO均为0x1e0000，中心偏移0xf0500与CPU readback逐字一致。此前大表面差异因此归为双swapchain实际图像内容，不再当作隐藏stride状态；其余小BO仍未命名。严格构建、被动draw3、主动word270 count2及敏感三模式全过，库保持0.1.31，无性能或原生Vulkan宣称。详见[`lg110-swapchain-output-attribution.md`](../scripts/research/lg110/lg110-swapchain-output-attribution.md)。
