@@ -96,15 +96,41 @@ A new run with `LG110_TRACE_IB_DWORDS=2048` captured the complete lengths:
 
 The complete pipeline and stride IB arrays are nevertheless identical at every
 word.  Neither `0x00080001` nor `0x00100001` appears inline.  Therefore the
-observed vertex descriptor is not embedded directly in the captured IB.  Its
-subsequent consumer or indirect storage remains unresolved.
+observed vertex descriptor is not embedded directly in the captured IB.
 
-A hardware read watchpoint on the first UV descriptor's word 1 reported no
-userspace read before process exit; this is a recorded negative result, not
-proof that no consumer exists.  Separately, targeted handle-8 dumps from a new
-pipeline/stride pair were word-for-word identical, despite hash differences in
-the earlier all-VA runs.  Those earlier handle-8 differences must not be called
-vertex-descriptor changes without a stable reproduction.
+## Final storage in handle 8 and per-frame proof
+
+The descriptor array is allocated through the vendor resource allocator at
+`0xe92a8`: its CPU pointer is cached at context offset 3896, its resource at
+3912, and its mapped size at 3908.  Runtime inspection showed that the resource
+GPU base is `0x1010c0000`, exactly handle 8.  `/proc/<pid>/maps` identified a
+16 MiB `/dev/dri/renderD128` mapping; the first descriptor pair is at CPU mapping
+offset and BO offset `0x2b00`.  This is a GPU BO mapping, not an ordinary stack
+allocation.
+
+Each later construction uses a new suballocation.  The first pair constructed
+for each frame is the one already present when that frame's CS is sampled:
+
+| Frame | CS | Pair BO offset | UV word 1 offset | Pipeline UV | Stride UV |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 3 | `0x2b00` | `0x2b14` | `0x00100001` (16) | `0x00080001` (8) |
+| 1 | 4 | `0x8f80` | `0x8f94` | `0x00100001` (16) | `0x00100001` (16) |
+| 2 | 5 | `0xf380` | `0xf394` | `0x00100001` (16) | `0x00080001` (8) |
+
+For all three pairs, the position descriptor, UV GPU address `0x1022c4000`, UV
+size `0x40`, and word 3 `0x0005f22c` are identical across pipeline and stride.
+Only UV word 1 changes, exactly following the A-B-A pixel sequence.  All six
+targeted programs returned success.  The assertion output SHA-256 is
+`50bde8d11be759ab32526cec204f6d068f95723d667d58bb96a7154410324483`.
+
+Two failed approaches are retained as evidence boundaries.  A hardware read
+watchpoint on word 1 reported no later userspace read; direct GPU consumption
+does not require such a read.  An earlier targeted handle-8 dump appeared
+identical only because the tracer's single `values` buffer truncated it to 256
+dwords (1 KiB), which did not cover offset `0x2b00`.  That negative comparison
+is retracted; it was not a valid descriptor comparison.  A later attempt to
+use the fourth construction offsets also failed at seq3/seq4 because those
+entries had not yet been constructed.  No failed assertion was forced to pass.
 
 ## Reproduction and evidence
 
@@ -118,11 +144,23 @@ For complete IBs, use the public tracer with `LG110_TRACE_IB_DWORDS=2048`,
 `LG110_TRACE_MAX=8`, and `LG110_TRACE_WAIT_CS=1`; do not use the old 32-dword
 prefix as a full-packet comparison.
 
+For the direct BO proof on this exact run, keep the sensitive stride controls
+and set `LG110_TRACE_BO_DWORDS=8` plus, serially:
+
+```
+LG110_TRACE_VA=0x1010c2b00  # frame 0, read seq3
+LG110_TRACE_VA=0x1010c8f80  # frame 1, read seq4
+LG110_TRACE_VA=0x1010cf380  # frame 2, read seq5
+```
+
+Repeat with pipeline/UV16.  These VAs and offsets must be re-derived if the
+binary, allocator, or test changes; they are not a general UAPI.
+
 Raw disassembly, GDB output, complete IBs, pixels, and SHA manifests are retained
 under `/home/houge/infra/gpu/evidence/` and
 `/home/houge/infra/gpu/evidence/lg110-sensitive-allva-20261108/`.  Large raw
 traces are not committed.
 
-This establishes a concrete vendor vertex-descriptor field.  It does not yet
-establish its final storage path, a native Vulkan implementation, zero-copy,
-or any performance improvement.
+This establishes the concrete vendor vertex-descriptor field and its handle-8
+BO storage.  It does not claim a native Vulkan implementation, zero-copy, or
+any performance improvement.
