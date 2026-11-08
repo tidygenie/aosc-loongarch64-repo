@@ -32,13 +32,17 @@ persistent evidence directory.  In this run:
 | same | `007010ff` | `007010ff` | `007010ff` |
 
 Each trace contains five CS submissions (three setup/draw sequences plus the
-two initial upload submissions, numbered 1 through 5).  The `LG110IBDUMP` data
-for all five submissions is identical across pipeline, stride, and same.
+two initial upload submissions, numbered 1 through 5).  The original
+`LG110IBDUMP` records cover only the first 32 dwords of each draw IB; those
+prefixes are identical across pipeline, stride, and same.  A later complete-IB
+follow-up also found identical 544/528-dword arrays and located the changing
+vertex stride in a separate descriptor; see
+[`lg110-vendor-vertex-descriptor.md`](lg110-vendor-vertex-descriptor.md).
 There is no additional copy CS numbered 6 through 8 in this test.
 
 All ten hash records per mode for the known input handles 15 and 16 are exactly
 equal across all three modes.  Thus the sensitive result still has identical
-captured input VBO bytes and identical captured IB words.
+captured input VBO bytes and identical originally captured IB prefixes.
 
 ## Direct BO attribution, not a size-only guess
 

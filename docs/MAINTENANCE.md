@@ -126,8 +126,13 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 
 # 2026-11-08 LG110双swapchain输出归属
 
-- 持久复测pipeline/stride/same并覆盖全部5个CS，IB逐字一致，输入handle15/16各10条哈希跨模式完全一致。新增只读单dword BO采样，直接证明stride frame0/2对应handle11 seq3/5、frame1对应handle12 seq4；两个BO均为0x1e0000，中心偏移0xf0500与CPU readback逐字一致。此前大表面差异因此归为双swapchain实际图像内容，不再当作隐藏stride状态；其余小BO仍未命名。严格构建、被动draw3、主动word270 count2及敏感三模式全过，库保持0.1.31，无性能或原生Vulkan宣称。详见[`lg110-swapchain-output-attribution.md`](../scripts/research/lg110/lg110-swapchain-output-attribution.md)。
+- 持久复测pipeline/stride/same并覆盖全部5个CS，IB首32字逐字一致（完整IB及descriptor见下节），输入handle15/16各10条哈希跨模式完全一致。新增只读单dword BO采样，直接证明stride frame0/2对应handle11 seq3/5、frame1对应handle12 seq4；两个BO均为0x1e0000，中心偏移0xf0500与CPU readback逐字一致。此前大表面差异因此归为双swapchain实际图像内容，不再当作隐藏stride状态；其余小BO仍未命名。严格构建、被动draw3、主动word270 count2及敏感三模式全过，库保持0.1.31，无性能或原生Vulkan宣称。详见[`lg110-swapchain-output-attribution.md`](../scripts/research/lg110/lg110-swapchain-output-attribution.md)。
 
 # 2026-11-08 clang构建不阻塞启动目标
 
 - 自有`kernel-build-clang-lto.service`原为oneshot，导致每次重启multi-user/graphical等待完整`make -j1 LLVM=1 all`。持久unit及/etc实例已改为`Type=simple`并移除RemainAfterExit，保留User=houge、Nice=10和IO idle；`systemd-analyze verify`通过，daemon-reload前后当前make PID均为738，未中断构建。当前旧启动job仍在等待，不能宣称本轮已解除；下一次重启需检查critical-chain和multi-user不再等make结束。infra提交`0d5170d37`。
+
+# 2026-11-08 LG110顶点descriptor实证与IB范围更正
+
+- 对SHA=`aff7101a`的gsgpu_dri恢复真实set_vertex_buffers=0x17ae08、draw_vbo=0x197d18和drawcall/VBO构造=0x17bb40。VBO缓存位于ctx+0xe38+16×slot；`17bc28`读取16位stride，`17bc38`将低14位插入descriptor word1 bits[29:16]。GDB只读捕获position/UV地址精确对应handle15/16，UV stride8/16时word1=`00080001`/`00100001`，其余地址、大小、格式字一致，CPU A-B-A正确。脚本和报告已公开。
+- 更正：旧敏感trace每CS只有首32 dword，不得写成完整IB全等。新2048上限抓取实际16/16/544/528/528字，pipeline/stride完整数组仍全等且不含descriptor字，故descriptor不内联IB，最终消费/间接存储尚未定位。读watchpoint未命中只是负结果；另一组handle8定向dump逐字一致，旧哈希差异不得命名为descriptor变化。无驱动修改、无性能宣称。详见[`lg110-vendor-vertex-descriptor.md`](../scripts/research/lg110/lg110-vendor-vertex-descriptor.md)。
