@@ -101,3 +101,11 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - 敏感pipeline/stride的seq3/4/5 GFX逐字相同，seq4→5的11词差分列表也完全相同；word204/228仅确认为shader程序VA选择器，配对shader完整16K FNV相同，不命名其他未知词。旧word338/362仍是状态BO选择器。
 - 新只读哈希每次最多映射2MiB，覆盖完整16MiB BO及不在CS bo_list中的tracked VA。未等待时handle12在seq4整480块差异、seq5又一致，判定异步采样竞争；增加有界WAIT_CS后，三draw每模式13516/13524/13524条记录跨pipeline/stride全部完全相同。20次设备mmap全部匹配GEM_MMAP，DRM read/write/pread/pwrite调用为0。
 - 默认same/offset/stride、敏感same/stride/pipeline和legacy被动count=3均通过；主动count=2仍为预期663300ff/word270=2，旧程序因保留count=3期望而预期退出1。安装/发布vkgl保持0.1.31，无新deb、原生Vulkan、零拷贝或性能提升宣称。详见 [`lg110-vertex-state-uapi-all-va.md`](../scripts/research/lg110/lg110-vertex-state-uapi-all-va.md)。
+
+# 2026-11-08 Homebrew netcat、pnpm与系统健康闭环
+
+- netcat 0.7.1的旧`AM_GNU_GETTEXT([external])`之外还冗余调用已被现代gettext删除的`AM_INTL_SUBDIR`，autoreconf因此在编译前失败。custom formula将该行替换为显式`AC_CHECK_HEADERS([locale.h])`，保留external gettext与NLS；临时源码autoreconf/configure/make及运行验证通过。原google.com测试改为本地Ruby TCPServer，排除外网和HTTP 301噪声。
+- 现有lane完成netcat构建、测试、bottle回装和回装测试，`test=1,pour=1`。最终custom/tap保留本地root_url及瓶子块，lane1再次独立HTTPS `--force-bottle`灌注和本地测试通过。四种单横线/双横线及rebuild别名的本地、服务器、HTTPS SHA-256均为`df1ec6b11d4b9c6cd5a8057fbcc1bea93c00fb285b6dc2bd1951909315833f6c`；tap提交`25c1ddab6df609c09709fe2ed9daa3d124bcee91`为服务器main祖先。全量custom校验首次修复23处，第二、第三次均修复0处。
+- 审查[pnpm 12.18.0发布说明](https://pnpm.io/blog/releases/12.18.0)后，因工作区重复安装/`verifyDepsBeforeRun`性能修复及watcher临时文件修复，单独将pnpm 12.15.0升至12.18.0；模拟和实际均只升级1项、无删除，既有esbuild进程和DSH GUI保持。fcitx5-qt/pyqt5/qt-5三项目前可联动升级，但Qt图形栈需要独立回归窗口，本轮未盲升，未执行autoremove。
+- 运行内核仍为7.3.1 clang-full-LTO，三个7.3.1目标DKMS和现有initramfs均直接包含loonggpu.ko，GRUB saved_entry仍为gcc-o3。SDDM/KDE Wayland继续使用gsgpu和loonggpu-dc，无llvmpipe回退；v2rayA 2.5.13-2 active且当前日志无错误，历史DNS closed-pipe未复现。AOSC签名源仍为32项，站点Homebrew索引2403。
+- 系统仍如实记为degraded：已知liblol `la_ow_syscall` EINVAL、六个历史DrKonqi五分钟超时、用户aa-notify缺少/var/log/syslog，以及KWin RT-priority EPERM/gamma ENOSYS警告未修；未通过清理failed状态或屏蔽模块伪装健康。
