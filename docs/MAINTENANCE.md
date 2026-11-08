@@ -109,3 +109,10 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - 审查[pnpm 12.18.0发布说明](https://pnpm.io/blog/releases/12.18.0)后，因工作区重复安装/`verifyDepsBeforeRun`性能修复及watcher临时文件修复，单独将pnpm 12.15.0升至12.18.0；模拟和实际均只升级1项、无删除，既有esbuild进程和DSH GUI保持。fcitx5-qt/pyqt5/qt-5三项目前可联动升级，但Qt图形栈需要独立回归窗口，本轮未盲升，未执行autoremove。
 - 运行内核仍为7.3.1 clang-full-LTO，三个7.3.1目标DKMS和现有initramfs均直接包含loonggpu.ko，GRUB saved_entry仍为gcc-o3。SDDM/KDE Wayland继续使用gsgpu和loonggpu-dc，无llvmpipe回退；v2rayA 2.5.13-2 active且当前日志无错误，历史DNS closed-pipe未复现。AOSC签名源仍为32项，站点Homebrew索引2403。
 - 系统仍如实记为degraded：已知liblol `la_ow_syscall` EINVAL、六个历史DrKonqi五分钟超时、用户aa-notify缺少/var/log/syslog，以及KWin RT-priority EPERM/gamma ENOSYS警告未修；未通过清理failed状态或屏蔽模块伪装健康。
+
+# 2026-11-08 仅保留双目标内核与liblol安全边界
+
+- 按用户要求，只保留`7.3.1-mainline-16k-rt-gcc-o3`和`7.3.1-mainline-16k-rt-clang-lto`。精确purge `linux-kernel-7.0.12`、`linux-kernel-7.1.13`、`linux+kernel`、gcc非O3内核/headers共5包，删除旧调试initramfs/日志和3类旧DKMS记录，未执行autoremove。/boot与/lib/modules仅余两个目标；通用linux+api、kernel-tools和本地deb回滚归档不属于启动内核，未误删。
+- /etc/grub.d/40_custom中的earlylog/watchdog旧菜单已清除并恢复为标准空模板，update-grub只生成两个目标Linux项；saved_entry保持gcc-o3，next_entry为空。两个新initramfs均直接包含updates/dkms/loonggpu.ko，SHA-256分别为clang `83cfcc5a76dae087e561254b1d973988207fb35e83013cfaa477545288fd82cb`、gcc-o3 `ed0258311629b4c14461adab1391c815ed4ca114e89a65d908bbc4f2641be06b`。
+- liblol EINVAL已静态定位：Clang full-LTO把kallsyms_lookup_name内联进kprobe_lookup_name，旧双kprobe方法不会触发首探针，地址保持0并在la_ow_syscall_main.c:112返回-EINVAL；GCC保留尾调用。源码候选在unregister清空前使用register_kprobe已解析的kp0.addr作fallback，并保留符号校验。
+- 候选实际加载命令与上一boot在18:02:42异常终止时间重合，随后18:04以7.1.13启动；没有持久panic日志，不能宣称修复有效或断言具体崩溃原因。当前7.1.13自带la_ow_syscall正常加载，本次清理后不主动重启，不再直接加载该候选；下一次验证必须先做不写syscall表的discovery-only测试。
