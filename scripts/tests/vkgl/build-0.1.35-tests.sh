@@ -11,4 +11,9 @@ cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror -I"$here" \
   "$here/xdg-shell-protocol.c" $(pkg-config --cflags --libs wayland-client) -lvulkan
 mkdir -p "$out/update-indirect"
 cp "$out/scissor/grad.vert.spv" "$out/scissor/scissor.frag.spv" "$out/update-indirect/"
+cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror -I"$here" \
+  -o "$out/vktest-update-vertex" "$here/vktest-update-vertex.c" \
+  "$here/xdg-shell-protocol.c" $(pkg-config --cflags --libs wayland-client) -lvulkan
+mkdir -p "$out/update-vertex"
+cp "$out/bindings/grad.vert.spv" "$out/bindings/vktest-gradient-sample-readback.frag.spv" "$out/update-vertex/"
 printf 'Built UpdateBuffer tests under %s; no GPU test was executed.\n' "$out"

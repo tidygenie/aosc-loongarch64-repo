@@ -73,9 +73,12 @@ vertices to three outside the render pass, mutates the source, and restores two
 vertices through the host mapping before submission. UpdateBuffer must execute
 before DrawIndirect. With Khronos validation enabled, retained 0.1.34 produced
 black/black and failed; both the 0.1.35 candidate and installed package produced
-red/black `0000ffff000000ff`. This proves ordering for the tested indirect
-consumer. It still is not a claim that every possible uniform or vertex consumer
-has been separately conformance-tested.
+red/black `0000ffff000000ff`. A third test updates vertex binding 0 through an
+8-byte buffer-binding offset, then restores offscreen vertices through its host
+mapping before submission. Retained 0.1.34 produced the clear color `663300ff`
+and failed; both 0.1.35 binaries produced the gradient center `007f40ff` with
+Khronos validation enabled. These prove ordering and upload visibility for the
+tested indirect and vertex consumers, not every possible uniform consumer.
 
 ## Package, installation, and publication
 
