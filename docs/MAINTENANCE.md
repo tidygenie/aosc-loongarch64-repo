@@ -181,3 +181,8 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - aalib增加`-Wno-error=return-mismatch`后构建成功；首个test/pour失败实际为无TERM能力，隔离bottle实测NO_TERM_RC=1、XTERM_RC=0。custom test显式TERM=xterm且保留版本/宽高/aatest断言，第二次test=1/pour=1。瓶SHA=`b89244ed89768ec536417d02dafb8835a873fd3197ae1035b5f6627481ee8ed6`，四别名本地/远端一致，tap main=`c71bdd9f14dabd6f7c9511b6c2016654b852b84a`且远端formula含正确瓶SHA/TERM。
 - Picat扫描全部espresso后修两个仅作goto标签的false文件；随后旧signal handler触发incompatible-pointer-types。ENV.append和主CFLAGS两条路径由真实日志证明未到该规则，最终仅追加`ESPRESSO_FLAGS`，成功日志明确含flag。3.9.12 build/test/bottle回装+测试全过，瓶SHA=`58128c317a0a32e55de78e145fce7f93c51e5e06db3dd3b1370037ae352875e5`，四别名本地/远端一致，tap main=`484afd10890d205f3b0e67ce7c1cba19bcf0aa60`且远端formula逐字一致。
 - 修正lane失败清单生命周期：fail写入与完整成功清除共享`.failed.lock`及PID临时文件，只有test=pour=1才清除，非闭环继续保留。`bash -n`通过；根据三条最新test/pour=1记录原子清理陈旧项，备份71个唯一失败到68，comm精确证明仅移除aalib/cuba/picat，无其他项被删。
+
+# 2026-11-10 Homebrew aview与队列竞争修复
+
+- aview旧configure的`main(){}`触发GCC16 implicit-int；现有ENV.append未进入conftest。custom用绝对`cc-compat/cxx-compat`设置ENV CC/CXX并传给make，不覆盖Makefile变量；config.log明确记录`/home/houge/infra/ci/bin/cc-compat`且compiler works=yes。首轮test=pour=1，重复轮也test=pour=1；最终瓶SHA=`6ba08869ac7df3d4364c1ab9683c0b27141b406ed8e522cfd07f7a2837ebf00c`，四别名本地/远端一致，tap main=`f7c97c7bc316c002d6088cd3910144d764f7eda5`，formula SHA=`ec13ab5772fd2a3615743978ce9304359dfa74ac83dce83f039a427cfcb34c70`且clear_failure已移除失败项。
+- 重复轮暴露requeue会把active包再次插入。requeue现于queue锁内对claims锁做非阻塞flock；active请求仅去重不插队，inactive仍置顶。对运行中的aview实测输出跳过、queue逐字不变、lane PID不变，bash -n通过；不杀构建、不重启lane。
