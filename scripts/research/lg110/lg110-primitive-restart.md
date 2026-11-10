@@ -59,6 +59,20 @@ version bump, deb, installation, or performance claim resulted.
 The default nonindexed triangle regression still passes with raw `007f00ff`, and
 invalid `LG110_PRIMITIVE_RESTART=2` is rejected before GPU work.
 
+## Core and fixed-index enables are also unavailable
+
+A follow-up probe did not repeat the NV candidate. It tested the core
+`GL_PRIMITIVE_RESTART` and `GL_PRIMITIVE_RESTART_FIXED_INDEX` enables even though
+the context advertises only GL 2.1. Both `glEnable` calls return `0x500`, both
+`glIsEnabled` values remain 0, and the associated state queries also return
+`0x500`. `glPrimitiveRestartIndex` resolves, but without a functional enable this
+entry point is not a viable implementation path.
+
+The probe now reports `CAP_ANY_primitive_restart_enable no`. Its strict mode exits
+nonzero only when **none** of NV, core, or fixed-index restart works. Raw results
+are in `gl-core-fixed-restart.log` and `gl-restart-paths-summary.json` under the
+same evidence directory. No third speculative candidate was built.
+
 ## Reproduce and evidence
 
 Build the harness with `scripts/tests/vkgl/build-0.1.29-tests.sh`, run from its
