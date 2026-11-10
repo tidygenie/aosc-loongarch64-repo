@@ -55,11 +55,13 @@ https://homebrewloongarch64.site/aosc/thirdparty.gpg  # 二进制 keyring
 否则用户按 README 安装时会得到 `NO_PUBKEY`。`srv/aosc/key.gpg` 曾经是 0 字节，
 就是这类漂移的实例（2026-11-04 修复）。
 
-## README 全量 deb 清单（强制对账）
+## README 最新版清单与旧版保留（强制对账）
 
-每次新增、升级或撤回 deb 后，必须让根 `README.md` 与实际 Packages 索引重新同步；
-不能只写最新版，也不能只保留手工挑选的八个包。生成器会列出索引中的每个
-Package/Version/Architecture/Filename 条目及 SHA-256，包括同一包的多个已发布版本：
+根 `README.md` **只列每个包/架构的最新版本**，不罗列所有历史版本。为控制 VPS
+空间，当前索引中的多版本包只保留最新版和紧邻的前一版；单版本包只保留当前版，
+未索引的 `pool/.attic` 旧存档不长期堆积。
+
+每次新增、升级或撤回 deb 后运行：
 
 ```bash
 PKGIDX=/home/houge/infra/srv/aosc/dists/stable/main/binary-loongarch64/Packages
@@ -68,6 +70,21 @@ python3 -B scripts/sync-readme-package-index.py "$PKGIDX" README.md --pool-root 
 python3 -B scripts/sync-readme-package-index.py "$PKGIDX" README.md --pool-root "$POOL" --check
 ```
 
-`--pool-root` 会逐个读取并核对全部本地 deb 的 SHA-256；`--check` 在 README 缺项、
-版本/哈希漂移时非零退出。标记之间的生成表格不要手工编辑。发布 deb 与提交 README
-是两个独立动作，推送前还必须检查远端 Packages 字节一致及所有生成下载链接可用。
+生成器用 `dpkg --compare-versions` 选择最新版；`--pool-root` 仍核验**索引内全部**
+deb（包括保留的回滚版），`--check` 在 README 版本/哈希漂移时非零退出。生成表格
+不要手工编辑。
+
+清理旧版必须先 dry-run 生成带路径、大小和 SHA-256 的计划，确认保留项后才可应用：
+
+```bash
+python3 -B scripts/prune-old-debs.py "$PKGIDX" --repo "$POOL" \
+  --keep-old=1 --prune-attic --plan-out /tmp/deb-retention-plan.json
+python3 -B scripts/prune-old-debs.py --repo "$POOL" --apply /tmp/deb-retention-plan.json
+scripts/publish-debs.sh --index-only --dry-run
+scripts/publish-debs.sh --index-only --deploy
+```
+
+应用时会逐项 resolve 到 `pool/main` 或 `pool/.attic`，拒绝越界、符号链接和哈希变化，
+并在删除前后验证所有保留项。禁止用 `rsync --delete` 或通配符代替。索引部署后，远端
+也只能应用同一份计划；最后重新运行 README `--check`，验证签名索引、隔离 APT、
+保留版下载链接和远端实际文件数。

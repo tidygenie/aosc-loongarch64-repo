@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Synchronize README's complete deb inventory from the actual APT Packages index."""
+"""List only the latest indexed deb per package/architecture in README."""
 
 import argparse
 import hashlib
+import subprocess
 from pathlib import Path
 from urllib.parse import quote
 
@@ -37,6 +38,26 @@ def read_packages(path: Path) -> list[dict[str, str]]:
     return sorted(rows, key=lambda row: (row["Package"], row["Version"], row["Architecture"], row["Filename"]))
 
 
+def version_greater(candidate: str, current: str) -> bool:
+    result = subprocess.run(
+        ["dpkg", "--compare-versions", candidate, "gt", current],
+        check=False,
+    )
+    if result.returncode not in (0, 1):
+        raise ValueError(f"cannot compare deb versions {candidate!r} and {current!r}")
+    return result.returncode == 0
+
+
+def latest_per_package(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    latest: dict[tuple[str, str], dict[str, str]] = {}
+    for row in rows:
+        key = (row["Package"], row["Architecture"])
+        current = latest.get(key)
+        if current is None or version_greater(row["Version"], current["Version"]):
+            latest[key] = row
+    return sorted(latest.values(), key=lambda row: (row["Package"], row["Architecture"]))
+
+
 def verify_pool(rows: list[dict[str, str]], pool_root: Path) -> None:
     for row in rows:
         payload = pool_root / row["Filename"]
@@ -48,15 +69,15 @@ def verify_pool(rows: list[dict[str, str]], pool_root: Path) -> None:
             raise ValueError(f"SHA256 mismatch for {payload}: {digest} != {row['SHA256']}")
 
 
-def render(rows: list[dict[str, str]]) -> str:
+def render(rows: list[dict[str, str]], indexed_total: int) -> str:
     names = len({row["Package"] for row in rows})
     lines = [
         BEGIN,
         "",
         "以下清单由 `scripts/sync-readme-package-index.py` 从实际发布的",
-        "`dists/stable/main/binary-loongarch64/Packages` 生成，**不能只列最新版或手工挑选**。",
-        f"当前共 **{len(rows)} 个 deb 文件条目、{names} 个不同包名**。仓库保留已发布的多个历史版本；",
-        "APT 默认选择可安装的最新版本，表中历史条目不表示它们都是当前推荐版本。",
+        "`dists/stable/main/binary-loongarch64/Packages` 生成，**只列每个包的最新版本**。",
+        f"当前列出 **{len(rows)} 个最新 deb 条目、{names} 个不同包名**；索引共保留 {indexed_total} 个 deb。",
+        "旧版本只保留有限的回滚副本，不在 README 罗列。APT 默认选择可安装的最新版本。",
         "`mesa-vulkan-loonggpu` 仍只是已废弃的 RADV 存档，不代表 LG110 可用原生 Vulkan。",
         "",
         "| 软件包 | 版本 | 架构 | SHA-256 | deb |",
@@ -89,10 +110,11 @@ def main() -> int:
     parser.add_argument("--check", action="store_true", help="fail instead of writing when README differs")
     args = parser.parse_args()
 
-    rows = read_packages(args.packages)
+    all_rows = read_packages(args.packages)
     if args.pool_root:
-        verify_pool(rows, args.pool_root)
-    updated = replace_section(args.readme.read_text(encoding="utf-8"), render(rows))
+        verify_pool(all_rows, args.pool_root)
+    rows = latest_per_package(all_rows)
+    updated = replace_section(args.readme.read_text(encoding="utf-8"), render(rows, len(all_rows)))
     original = args.readme.read_text(encoding="utf-8")
     if args.check:
         if updated != original:
@@ -104,7 +126,10 @@ def main() -> int:
             status = "updated"
         else:
             status = "unchanged"
-    print(f"DEB_INDEX entries={len(rows)} names={len({row['Package'] for row in rows})} status={status}")
+    print(
+        f"DEB_INDEX entries={len(rows)} names={len({row['Package'] for row in rows})} "
+        f"indexed={len(all_rows)} status={status}"
+    )
     return 0
 
 
