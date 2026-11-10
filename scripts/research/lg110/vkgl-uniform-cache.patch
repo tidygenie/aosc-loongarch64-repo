@@ -1,0 +1,33 @@
+--- a/vkgl.cpp
++++ b/vkgl.cpp
+@@ -372,6 +372,8 @@
+       uint32_t set = 0, binding = 0;
+       uint32_t vec4_count = 0;
+       bool push_constant = false;
++       std::vector<uint8_t> uploaded_data;
++       uint64_t cache_hits = 0, cache_uploads = 0;
+    };
+    std::vector<PipeUbo> ubos;
+    struct PipeTex { std::string name; GLint loc = -1; uint32_t set = 0, binding = 0; };
+@@ -3252,7 +3254,20 @@
+                VKGL_LOG("ubo %s loc=%d n=%u data0=(%.3f %.3f %.3f %.3f) data1=(%.3f %.3f %.3f %.3f)\n",
+                         u.name.c_str(), u.loc, u.vec4_count, f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7]);
+             }
+-            glUniform4fv(u.loc, (GLsizei)u.vec4_count, (const GLfloat *)data);
++            const size_t upload_bytes = (size_t)u.vec4_count * 16;
++             if (u.uploaded_data.size() == upload_bytes &&
++                 !memcmp(u.uploaded_data.data(), data, upload_bytes)) {
++                u.cache_hits++;
++             } else {
++                glUniform4fv(u.loc, (GLsizei)u.vec4_count, (const GLfloat *)data);
++                u.uploaded_data.assign(data, data + upload_bytes);
++                u.cache_uploads++;
++             }
++             if (((u.cache_hits + u.cache_uploads) % 120) == 0) {
++                VKGL_LOG("ubo cache name=%s hits=%llu uploads=%llu\n",
++                         u.name.c_str(), (unsigned long long)u.cache_hits,
++                         (unsigned long long)u.cache_uploads);
++             }
+          }
+       }
+    }

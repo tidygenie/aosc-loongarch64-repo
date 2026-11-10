@@ -1,0 +1,15 @@
+stats-shading.log sha256=8491688d90a09b97090092a9ec42a30f426f5f2e8e6b48323d4cad56bffcb0ba
+vkgl: ubo cache name=block hits=0 uploads=120
+vkgl: ubo cache name=block hits=0 uploads=240
+ FPS: 167 FrameTime: 5.988 ms
+stats-vertex-texture.log sha256=03b35084e6857e7bb29d277d3ff725a1a57297abeb82a23ccf7077e549d5e333
+vkgl: ubo cache name=block hits=0 uploads=120
+vkgl: ubo cache name=block hits=0 uploads=240
+vkgl: ubo cache name=block hits=0 uploads=360
+ FPS: 212 FrameTime: 4.717 ms
+vkgl: ubo cache name=block hits=0 uploads=120
+vkgl: ubo cache name=block hits=0 uploads=240
+ FPS: 150 FrameTime: 6.667 ms
+update-buffer.log validation_errors=0 PASS vktest-update-buffer
+uniform.log validation_errors=0 PASS vktest-update-uniform variant=B pixels_valid=1
+vertex.log validation_errors=0 PASS vktest-update-vertex variant=B pixels_valid=1
