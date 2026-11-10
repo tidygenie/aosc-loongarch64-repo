@@ -12,7 +12,8 @@ class QTableWidget;
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
-    explicit MainWindow(QString brewExecutable, bool autoRefresh, QWidget *parent = nullptr);
+    explicit MainWindow(QString brewExecutable, bool autoRefresh, bool inventoryCheck = false,
+                        QWidget *parent = nullptr);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -47,4 +48,5 @@ private:
     QStringList currentArguments;
     bool refreshWhenDone = false;
     bool mutationRunning = false;
+    bool inventoryCheck = false;
 };

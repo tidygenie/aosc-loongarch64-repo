@@ -23,14 +23,20 @@ int main(int argc, char **argv) {
     parser.addVersionOption();
     const QCommandLineOption brewOption(QStringLiteral("brew"), QStringLiteral("Homebrew executable"), QStringLiteral("path"));
     const QCommandLineOption smokeOption(QStringLiteral("smoke-test"), QStringLiteral("Construct the GUI and exit without running brew"));
+    const QCommandLineOption inventoryOption(QStringLiteral("check-inventory"), QStringLiteral("Run one real read-only inventory query and exit 0 only on success"));
     parser.addOption(brewOption);
     parser.addOption(smokeOption);
+    parser.addOption(inventoryOption);
     parser.process(application);
-    if (parser.isSet(brewOption) && discoverBrewExecutable(parser.value(brewOption)).isEmpty()) {
+    if (parser.isSet(smokeOption) && parser.isSet(inventoryOption)) parser.showHelp(2);
+    const QString brewExecutable = discoverBrewExecutable(parser.value(brewOption));
+    if ((parser.isSet(brewOption) && brewExecutable.isEmpty()) ||
+        (parser.isSet(inventoryOption) && brewExecutable.isEmpty())) {
         parser.showHelp(2);
     }
-    MainWindow window(discoverBrewExecutable(parser.value(brewOption)), !parser.isSet(smokeOption));
+    MainWindow window(brewExecutable, !parser.isSet(smokeOption), parser.isSet(inventoryOption));
     window.show();
     if (parser.isSet(smokeOption)) QTimer::singleShot(100, &application, &QCoreApplication::quit);
+    if (parser.isSet(inventoryOption)) QTimer::singleShot(60000, &application, [] { QCoreApplication::exit(124); });
     return QApplication::exec();
 }

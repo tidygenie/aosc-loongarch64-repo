@@ -14,13 +14,15 @@
 #include <QRegularExpression>
 #include <QStatusBar>
 #include <QTableWidget>
+#include <QTimer>
 #include <QVBoxLayout>
 
 #include <csignal>
 #include <unistd.h>
 
-MainWindow::MainWindow(QString executable, bool autoRefresh, QWidget *parent)
-    : QMainWindow(parent), brewExecutable(std::move(executable)), process(this) {
+MainWindow::MainWindow(QString executable, bool autoRefresh, bool checkInventory, QWidget *parent)
+    : QMainWindow(parent), brewExecutable(std::move(executable)), process(this),
+      inventoryCheck(checkInventory) {
     setWindowTitle(QStringLiteral("Homebrew Manager for Linux (unofficial)"));
     resize(1000, 700);
 
@@ -94,6 +96,7 @@ MainWindow::MainWindow(QString executable, bool autoRefresh, QWidget *parent)
             refreshWhenDone = false;
             mutationRunning = false;
             setBusy(false);
+            if (inventoryCheck) QTimer::singleShot(0, this, [] { QCoreApplication::exit(1); });
         }
     });
     process.setChildProcessModifier([] { ::setsid(); });
@@ -199,6 +202,7 @@ void MainWindow::cancelCommand() {
 void MainWindow::finishCommand(int exitCode, QProcess::ExitStatus status) {
     const QString operation = currentArguments.value(0);
     const bool succeeded = status == QProcess::NormalExit && exitCode == 0;
+    bool inventoryCheckPassed = false;
     if (succeeded && operation == QStringLiteral("info")) {
         QString error;
         const auto inventory = parseInstalledPackages(standardOutput, &error);
@@ -215,6 +219,7 @@ void MainWindow::finishCommand(int exitCode, QProcess::ExitStatus status) {
                 ++row;
             }
             statusBar()->showMessage(QStringLiteral("%1 installed formulae").arg(inventory.size()));
+            inventoryCheckPassed = true;
         }
     } else if (!succeeded) {
         statusBar()->showMessage(QStringLiteral("brew %1 failed (%2); inspect output").arg(operation).arg(exitCode));
@@ -226,6 +231,11 @@ void MainWindow::finishCommand(int exitCode, QProcess::ExitStatus status) {
     const bool doRefresh = succeeded && refreshWhenDone && operation != QStringLiteral("info");
     refreshWhenDone = false;
     if (doRefresh) refresh();
+    if (inventoryCheck && operation == QStringLiteral("info")) {
+        QTimer::singleShot(0, this, [inventoryCheckPassed] {
+            QCoreApplication::exit(inventoryCheckPassed ? 0 : 1);
+        });
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {

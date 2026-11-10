@@ -30,6 +30,21 @@ checkout, apply the new patch, then require `brew --version`, `brew --config`, a
 local b2sum formula load, and `brew info --json=v2 --installed` to pass. Do not
 run `autoremove` as an upgrade test.
 
+The persistent safe-boundary helper is
+[`upgrade-homebrew-lane.sh`](../scripts/upgrade-homebrew-lane.sh). It holds the
+existing shared queue lock so no next formula can start, waits for an exact
+`/proc` argv match to disappear, saves the old diff and stash, and rolls back on
+any failed smoke test. It neither kills a build nor restarts a lane:
+
+```sh
+./scripts/upgrade-homebrew-lane.sh /home/houge/infra/brew-build2 7.0.13 \
+  "$PWD/patches/homebrew/brew-7.0.13-loongarch64.patch"
+```
+
+Both live prefixes were upgraded by this boundary procedure. Avoid piping
+`brew --version` through `head` under `set -o pipefail`: the resulting SIGPIPE
+was observed as exit 141 and correctly triggered rollback before the fixed retry.
+
 ## GUI package
 
 The official [BrewUI](https://github.com/Homebrew/BrewUI) is SwiftUI/AppKit and
@@ -43,6 +58,9 @@ selected uninstall/upgrade, confirmed upgrade-all, explicit tap update, visible
 literal-argv commands, streamed output and process-group cancellation. It does
 not manage casks/services/taps yet. Backend JSON and offscreen/Wayland smoke
 tests are required before publishing its deb through `publish-debs.sh`.
+`--check-inventory` additionally runs the real read-only QProcess/JSON/table
+path and returns nonzero on failure or timeout. Revision 0.1.0-4 passed that
+check independently against both 7.0.13 prefixes.
 
 When official AOSC packages satisfy dependencies, declare and use them. Only
 missing or incompatible dependencies should receive a reviewed third-party

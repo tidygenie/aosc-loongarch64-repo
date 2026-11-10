@@ -150,3 +150,9 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - clang full-LTO全量构建于11月9日00:41完成。发现构建树只有kp0.addr修正而缺discovery_only四个hunk，补齐后重编`la_ow_syscall.v2.ko`，vermagic匹配clang-lto且参数出现，SHA=`04d17dfcacef0345584f97bdc06e443f37dd7d591b2524f7157dc713c4d99add`；gcc-o3拒绝保护通过，未加载，运行验证留待受控clang启动。
 - Homebrew 7.0.13浅标签候选保留原4个LoongArch补丁，并修复CPU.type/Linux family导致的`packages.dunno_linux`404。候选及lane1的`--version`、`--config`、b2sum配方、安装JSON均通过，lane1已升级；lane2仍在scheme48构建，拒绝中途覆盖，保留下一轮边界升级。完整patch已纳入Git，旧7.0.11 diff和stash保留回滚。所有测试使用NO_INSTALL_FROM_API，官方无LoongArch API。
 - 新增非官方Qt6 `brew-ui-linux`，支持已安装JSON清单、精确formula安装、选中卸载/升级、全部升级、显式update、串行argv、完整输出和进程组取消；不调用autoremove。后端JSON与offscreen测试、安装后offscreen/Wayland smoke通过。修复轻量构建器多依赖未转逗号及GUI启动失败不复位问题。最终0.1.0-3 deb SHA=`f122a3768fc86a3b1e5e4a1f88a0e57ce9a4472543f6052fc40067532369f5e8`，dry-run/deploy/签名/HTTPS/隔离apt全部通过。依赖使用官方qt-6/glibc/gcc-runtime，无需第三方补包。详见[`HOMEBREW.md`](HOMEBREW.md)。
+
+# 2026-11-10 双lane 7.0.13与GUI真实清单闭环
+
+- 新增`upgrade-homebrew-lane.sh`：持有现有共享brew-queue.lock，使当前formula完成而下一条不能出队；/proc精确argv确认目标prefix无brew.rb后保存diff/stash、浅fetch、应用patch并跑config/b2sum/installed JSON，任何失败自动回滚，不杀进程或重启lane。首次`brew --version | head`在pipefail下SIGPIPE=141，已确认旧HEAD和4补丁完整恢复；改为全量捕获后重试成功。
+- lane2现HEAD=bc63375ac3a4d6debb1ceb441ae6e22854f0909a，5文件与candidate逐字一致，b2sum及486项installed JSON通过；lane1同样7.0.13，双服务active。lane1升级后bwfmetaedit/chadwick/microsocks/miniupnpc/pstree/passt/symlinks均真实构建成功，无新增dunno错误。
+- GUI新增`--check-inventory`，通过真实QProcess→brew info→JSON→表格路径后按结果退出，带60秒超时且启动失败立即非零；0.1.0-4分别对两prefix返回PASS。offscreen/Wayland smoke继续通过。deb SHA=`7c4ed634592c6abb1b4a91cf2d6e82b16593e7920efbc907aaf046484f8fa271`，dry-run/deploy及远端精确0.1.0-4可见性全过。
