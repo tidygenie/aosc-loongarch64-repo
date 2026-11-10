@@ -95,12 +95,20 @@ def checked_path(root: Path, item: dict[str, object], area: str) -> Path:
     if relative.is_absolute() or ".." in relative.parts:
         raise ValueError(f"unsafe path in plan: {relative}")
     expected_parent = (root / area).resolve(strict=True)
-    path = (root / relative).resolve(strict=True)
-    if path == expected_parent or expected_parent not in path.parents:
-        raise ValueError(f"path escapes {area}: {path}")
-    if path.suffix != ".deb" or path.is_symlink() or not path.is_file():
-        raise ValueError(f"not a regular non-symlink deb: {path}")
-    return path
+    candidate = root / relative
+    if candidate.suffix != ".deb":
+        raise ValueError(f"not a deb path: {candidate}")
+    cursor = root
+    for part in relative.parts:
+        cursor = cursor / part
+        if cursor.is_symlink():
+            raise ValueError(f"symlink in planned path: {cursor}")
+    if not candidate.is_file():
+        raise ValueError(f"not a regular non-symlink deb: {candidate}")
+    resolved = candidate.resolve(strict=True)
+    if resolved == expected_parent or expected_parent not in resolved.parents:
+        raise ValueError(f"path escapes {area}: {resolved}")
+    return candidate
 
 
 def verify_item(root: Path, item: dict[str, object], area: str) -> Path:
