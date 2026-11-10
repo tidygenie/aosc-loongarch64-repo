@@ -173,3 +173,9 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - format测试新增`LG110_UV_FORMAT=r32|rgb32|rgba32`，默认r32不变；rgb32/rgba32要求A-A-A同像素，r32要求A-B-A，三者严格构建和普通运行全过。最新test binary SHA=b1109ff1。
 - R32G32/R32/RGB32/RGBA32 raw→word3依次为5f22c00000000→0005f22c、2720400000000→00027204、6f3ac00000000→0006f3ac、77fac00000000→00077fac。每run 11个UV条目全满足低19位映射，六组子字段以bit区间记录，不强猜语义。
 - 最新二进制重跑直接word3突变仍MUTATIONS=3、三帧000010ff，log SHA=fcbb3beeb61e110db6e6f211099467b756096449b32f75f8bdce2414b5a6ac93。新增机器可读`lg110-vertex-format-summary.json`及日志哈希；仍无原生Vulkan或性能宣称。
+
+# 2026-11-10 Homebrew Cuba/aalib失败修复与闭环
+
+- system scope的autopilot/hourly-review/brew-update/site-publish timers及双lane均active；首次custom校验修复23处，二次0，新custom同步后再0。未重启健康lane或杀ponyc。OS模拟剩Mesa、Qt5、PipeWire/libcamera/WirePlumber等7项，高风险图形栈继续不盲从升级；v2rayA active/NRestarts=0。
+- Cuba通用cflags命令行覆盖丢失`@DEFS@ -DREALSIZE -I$(common)`，导致stddecl.h缺失。custom改为保留configure生成CFLAGS并修复test局部flags作用域；4.2.2 source build、brew test、bottle回装+测试全过。瓶SHA=`f7367c07988c8b9270157be2728b5b722cd2a367008539036708187148b62905`，四别名本地/远端一致，tap远端formula SHA=`3b2f72ec8538045b5888369dbe9a5ee3cf17bf52af6fc873b87f6c938abb27d8`。
+- aalib增加`-Wno-error=return-mismatch`后构建成功；首个test/pour失败实际为无TERM能力，隔离bottle实测NO_TERM_RC=1、XTERM_RC=0。custom test显式TERM=xterm且保留版本/宽高/aatest断言，第二次test=1/pour=1。瓶SHA=`b89244ed89768ec536417d02dafb8835a873fd3197ae1035b5f6627481ee8ed6`，四别名本地/远端一致，tap main=`c71bdd9f14dabd6f7c9511b6c2016654b852b84a`且远端formula含正确瓶SHA/TERM。
