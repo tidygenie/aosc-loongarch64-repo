@@ -82,6 +82,7 @@ int main(void) {
    const char *indirect_text = getenv("LG110_DRAW_INDIRECT");
    const char *index_type_text = getenv("LG110_INDEX_TYPE");
    const char *topology_text = getenv("LG110_DRAW_TOPOLOGY");
+   const char *restart_text = getenv("LG110_PRIMITIVE_RESTART");
    const char *expected_topology_text = getenv("LG110_EXPECT_TOPOLOGY");
    const char *frame_text = getenv("LG110_FRAME_LIMIT");
    if (!draw_text) draw_text = "3";
@@ -93,11 +94,13 @@ int main(void) {
    if (!indirect_text) indirect_text = "0";
    if (!index_type_text) index_type_text = "16";
    if (!topology_text) topology_text = "triangle";
+   if (!restart_text) restart_text = "0";
    if (!expected_topology_text) expected_topology_text = topology_text;
    if (!frame_text) frame_text = "120";
    int expect_unsupported = getenv("LG110_EXPECT_UNSUPPORTED") &&
                             !strcmp(getenv("LG110_EXPECT_UNSUPPORTED"), "1");
    if ((strcmp(index_type_text, "16") && strcmp(index_type_text, "32")) ||
+       (strcmp(restart_text, "0") && strcmp(restart_text, "1")) ||
        (strcmp(indexed_text, "0") && strcmp(indexed_text, "1")) ||
        (strcmp(indirect_text, "0") && strcmp(indirect_text, "1")) ||
        (strcmp(instance_text, "0") && strcmp(instance_text, "1") && strcmp(instance_text, "2")) ||
@@ -108,7 +111,7 @@ int main(void) {
        topology_from_name(topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        topology_from_name(expected_topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        (strcmp(frame_text, "120") && strcmp(frame_text, "1"))) {
-      fprintf(stderr, "draw=3|2 first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 topology=... frames=120|1\n"); return 1;
+      fprintf(stderr, "draw=3|2 first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 primitive_restart=0|1 topology=... frames=120|1\n"); return 1;
    }
    int draw_count = draw_text[0] - '0';
    int first_vertex = first_text[0] - '0';
@@ -117,6 +120,7 @@ int main(void) {
    int indexed = indexed_text[0] - '0';
    int indirect = indirect_text[0] - '0';
    int index_type = atoi(index_type_text);
+   int primitive_restart = restart_text[0] == '1';
    int expected_draw_count = expected_draw_text[0] - '0';
    VkPrimitiveTopology topology = topology_from_name(topology_text);
    VkPrimitiveTopology expected_topology = topology_from_name(expected_topology_text);
@@ -128,8 +132,8 @@ int main(void) {
       return 1;
    }
    int frame_limit = frame_text[0] == '1' && !frame_text[1] ? 1 : 120;
-   printf("texture variant: %s red=%u other=0 draw=%d first=%d instances=%d first_instance=%d indexed=%d indirect=%d index_type=%d expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
-          mode, nonzero ? 255u : 0u, draw_count, first_vertex, instance_count, first_instance, indexed, indirect, index_type, expected_draw_count,
+   printf("texture variant: %s red=%u other=0 draw=%d first=%d instances=%d first_instance=%d indexed=%d indirect=%d index_type=%d primitive_restart=%d expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
+          mode, nonzero ? 255u : 0u, draw_count, first_vertex, instance_count, first_instance, indexed, indirect, index_type, primitive_restart, expected_draw_count,
           topology_text, expected_topology_text, frame_limit);
    dpy = wl_display_connect(NULL);
    if (!dpy) { fprintf(stderr, "no wayland display\n"); return 1; }
@@ -219,7 +223,7 @@ int main(void) {
       {.sType=VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,.stage=VK_SHADER_STAGE_VERTEX_BIT,.module=vsm,.pName="main"},
       {.sType=VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,.stage=VK_SHADER_STAGE_FRAGMENT_BIT,.module=fsm,.pName="main"}};
    VkPipelineVertexInputStateCreateInfo vici={.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
-   VkPipelineInputAssemblyStateCreateInfo iaci={.sType=VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,.topology=topology};
+   VkPipelineInputAssemblyStateCreateInfo iaci={.sType=VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,.topology=topology,.primitiveRestartEnable=(VkBool32)primitive_restart};
    VkViewport vp={0,0,640,480,0,1};
    VkRect2D scissor={.offset={0,0},.extent={640,480}};
    VkPipelineViewportStateCreateInfo vsci={.sType=VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,.viewportCount=1,.pViewports=&vp,.scissorCount=1,.pScissors=&scissor};

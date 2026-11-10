@@ -9,6 +9,14 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifndef GL_PRIMITIVE_RESTART_NV
+#define GL_PRIMITIVE_RESTART_NV 0x8558
+#endif
+#ifndef GL_PRIMITIVE_RESTART_INDEX_NV
+#define GL_PRIMITIVE_RESTART_INDEX_NV 0x8559
+#endif
+typedef void (*PrimitiveRestartIndexNVFn)(GLuint);
+
 static void die(const char *message) {
     fprintf(stderr, "PROBE_ERROR %s egl_error=0x%x\n", message, eglGetError());
     exit(1);
@@ -106,6 +114,34 @@ int main(void) {
     int glsl_130 = parsed == 2 && (glsl_major > 1 || (glsl_major == 1 && glsl_minor >= 30));
     printf("CAP_GL_EXT_gpu_shader4 %s\n", ext_gpu_shader4 ? "yes" : "no");
     printf("CAP_GLSL_130 %s\n", glsl_130 ? "yes" : "no");
+    int primitive_restart = has_extension(extensions, "GL_NV_primitive_restart");
+    printf("CAP_GL_NV_primitive_restart %s\n", primitive_restart ? "yes" : "no");
+    if (primitive_restart) {
+        PrimitiveRestartIndexNVFn restart_index =
+            (PrimitiveRestartIndexNVFn)eglGetProcAddress("glPrimitiveRestartIndexNV");
+        printf("PROC_glPrimitiveRestartIndexNV %s\n", restart_index ? "yes" : "no");
+        if (!restart_index) die("glPrimitiveRestartIndexNV unavailable");
+        glEnable(GL_PRIMITIVE_RESTART_NV);
+        GLenum enable_error = glGetError();
+        restart_index(0xffffU);
+        GLenum set_error = glGetError();
+        GLint enabled = glIsEnabled(GL_PRIMITIVE_RESTART_NV);
+        GLenum enabled_error = glGetError();
+        GLint index = 0;
+        glGetIntegerv(GL_PRIMITIVE_RESTART_INDEX_NV, &index);
+        GLenum get_error = glGetError();
+        printf("PRIMITIVE_RESTART_STATE enabled=%d index=0x%x enable_error=0x%x "
+               "set_error=0x%x enabled_error=0x%x get_error=0x%x\n",
+               enabled, (unsigned)index, enable_error, set_error, enabled_error, get_error);
+        int functional = enabled == 1 && index == 0xffff && enable_error == GL_NO_ERROR &&
+                         set_error == GL_NO_ERROR && enabled_error == GL_NO_ERROR &&
+                         get_error == GL_NO_ERROR;
+        printf("CAP_GL_NV_primitive_restart_functional %s\n", functional ? "yes" : "no");
+        if (enabled == 1) glDisable(GL_PRIMITIVE_RESTART_NV);
+        if (!functional && getenv("LG110_REQUIRE_PRIMITIVE_RESTART") &&
+            !strcmp(getenv("LG110_REQUIRE_PRIMITIVE_RESTART"), "1"))
+            die("GL_NV_primitive_restart state verification");
+    }
     printf("PROBE_HARDWARE accepted (software names absent)\n");
 
     free(renderer_lower);
