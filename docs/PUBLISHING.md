@@ -54,3 +54,20 @@ https://homebrewloongarch64.site/aosc/thirdparty.gpg  # 二进制 keyring
 `repo/key.gpg` 是同一份公钥的仓库副本。**改动签名密钥后必须同时更新这三处**，
 否则用户按 README 安装时会得到 `NO_PUBKEY`。`srv/aosc/key.gpg` 曾经是 0 字节，
 就是这类漂移的实例（2026-11-04 修复）。
+
+## README 全量 deb 清单（强制对账）
+
+每次新增、升级或撤回 deb 后，必须让根 `README.md` 与实际 Packages 索引重新同步；
+不能只写最新版，也不能只保留手工挑选的八个包。生成器会列出索引中的每个
+Package/Version/Architecture/Filename 条目及 SHA-256，包括同一包的多个已发布版本：
+
+```bash
+PKGIDX=/home/houge/infra/srv/aosc/dists/stable/main/binary-loongarch64/Packages
+POOL=/home/houge/infra/srv/aosc
+python3 -B scripts/sync-readme-package-index.py "$PKGIDX" README.md --pool-root "$POOL"
+python3 -B scripts/sync-readme-package-index.py "$PKGIDX" README.md --pool-root "$POOL" --check
+```
+
+`--pool-root` 会逐个读取并核对全部本地 deb 的 SHA-256；`--check` 在 README 缺项、
+版本/哈希漂移时非零退出。标记之间的生成表格不要手工编辑。发布 deb 与提交 README
+是两个独立动作，推送前还必须检查远端 Packages 字节一致及所有生成下载链接可用。
