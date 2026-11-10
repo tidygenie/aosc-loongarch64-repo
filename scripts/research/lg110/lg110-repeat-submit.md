@@ -2,6 +2,13 @@
 
 Date: 2026-11-11
 
+> **Follow-up correction:** a clean headless control derived independently of
+> this harness passes every clear and changing-uniform frame on the same
+> installed vkgl 0.1.35. See [`lg110-offscreen-uniform.md`](lg110-offscreen-uniform.md).
+> The failures below are therefore specific to this unresolved harness
+> construction and must not be cited as evidence of a production clear or
+> uniform driver bug. This document remains as the historical negative record.
+
 ## Status
 
 A repeatable three-frame workload does not observe later clear or uniform states

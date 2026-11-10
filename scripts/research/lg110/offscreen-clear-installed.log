@@ -1,0 +1,9 @@
+offscreen_clear_extent=64x64
+device[0]=LoongGPU LG110 (vkgl GLES2)
+selected=LoongGPU LG110 (vkgl GLES2) api=0x400000
+memory_types image=0 buffer=0
+frame=0 actual=0000ffff expected=0000ffff valid=1
+frame=1 actual=00ff00ff expected=00ff00ff valid=1
+frame=2 actual=ff0000ff expected=ff0000ff valid=1
+OFFSCREEN_PIXEL=/home/houge/infra/gpu/evidence/lg110-offscreen-clear-20261111/memory-types.bin valid_mask=7
+PASS vktest-offscreen-clear exact=red,green,blue

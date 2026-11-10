@@ -1,0 +1,3 @@
+device=LoongGPU LG110 (vkgl GLES2)
+before_submit=10203040 host_write=5a5a5a5a after_submit=11223344 host_between=deadbeef after_second=11223344 expected_before=10203040 expected_after=11223344
+PASS vktest-update-buffer

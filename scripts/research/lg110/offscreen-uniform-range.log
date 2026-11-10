@@ -1,0 +1,9 @@
+offscreen_uniform_extent=640x480
+device[0]=LoongGPU LG110 (vkgl GLES2)
+selected=LoongGPU LG110 (vkgl GLES2) api=0x400000
+memory_types image=0 buffer=0
+frame=0 actual=0000ffff expected=0000ffff valid=1
+frame=1 actual=1010ffff expected=1010ffff valid=1
+frame=2 actual=ff1010ff expected=ff1010ff valid=1
+OFFSCREEN_PIXEL=/home/houge/infra/gpu/evidence/lg110-offscreen-clear-20261111/offscreen-uniform-range.bin valid_mask=7
+PASS vktest-offscreen-uniform exact=red,red_plus_16,blue_plus_16

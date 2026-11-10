@@ -1,0 +1,253 @@
+{
+  "identity": {
+    "baseline": {
+      "icd": "/usr/share/vulkan/icd.d/vkgl_loonggpu.json",
+      "library": "/usr/lib/vkgl/libvkgl.so",
+      "library_sha256": "78c963855189836046520f1ee9f327057bd61d7a75c2b8e40b8988f3ea473668"
+    },
+    "candidate": {
+      "icd": "/home/houge/infra/gpu/candidates/vkgl-ubo-coalesce-clean/icd.json",
+      "library": "/home/houge/infra/gpu/candidates/vkgl-ubo-coalesce-clean/libvkgl.so",
+      "library_sha256": "1243dc431ac6534a43d85854608851b696752199554d8c93ccb2bec6cbfca116"
+    }
+  },
+  "rounds": 6,
+  "runs": [
+    {
+      "fps": {
+        "shading": 196.0,
+        "texture": 154.0,
+        "vertex": 222.0
+      },
+      "log": "round-1-baseline.log",
+      "round": 1,
+      "seconds": 12.316964864730835,
+      "variant": "baseline"
+    },
+    {
+      "fps": {
+        "shading": 189.0,
+        "texture": 145.0,
+        "vertex": 228.0
+      },
+      "log": "round-1-candidate.log",
+      "round": 1,
+      "seconds": 12.311329126358032,
+      "variant": "candidate"
+    },
+    {
+      "fps": {
+        "shading": 195.0,
+        "texture": 154.0,
+        "vertex": 225.0
+      },
+      "log": "round-2-candidate.log",
+      "round": 2,
+      "seconds": 12.397447109222412,
+      "variant": "candidate"
+    },
+    {
+      "fps": {
+        "shading": 186.0,
+        "texture": 154.0,
+        "vertex": 227.0
+      },
+      "log": "round-2-baseline.log",
+      "round": 2,
+      "seconds": 12.35631513595581,
+      "variant": "baseline"
+    },
+    {
+      "fps": {
+        "shading": 192.0,
+        "texture": 153.0,
+        "vertex": 227.0
+      },
+      "log": "round-3-baseline.log",
+      "round": 3,
+      "seconds": 12.427262544631958,
+      "variant": "baseline"
+    },
+    {
+      "fps": {
+        "shading": 192.0,
+        "texture": 154.0,
+        "vertex": 226.0
+      },
+      "log": "round-3-candidate.log",
+      "round": 3,
+      "seconds": 12.35113525390625,
+      "variant": "candidate"
+    },
+    {
+      "fps": {
+        "shading": 186.0,
+        "texture": 152.0,
+        "vertex": 218.0
+      },
+      "log": "round-4-candidate.log",
+      "round": 4,
+      "seconds": 12.353182792663574,
+      "variant": "candidate"
+    },
+    {
+      "fps": {
+        "shading": 196.0,
+        "texture": 154.0,
+        "vertex": 212.0
+      },
+      "log": "round-4-baseline.log",
+      "round": 4,
+      "seconds": 12.42656946182251,
+      "variant": "baseline"
+    },
+    {
+      "fps": {
+        "shading": 188.0,
+        "texture": 151.0,
+        "vertex": 226.0
+      },
+      "log": "round-5-baseline.log",
+      "round": 5,
+      "seconds": 12.414852857589722,
+      "variant": "baseline"
+    },
+    {
+      "fps": {
+        "shading": 173.0,
+        "texture": 156.0,
+        "vertex": 232.0
+      },
+      "log": "round-5-candidate.log",
+      "round": 5,
+      "seconds": 12.327898502349854,
+      "variant": "candidate"
+    },
+    {
+      "fps": {
+        "shading": 185.0,
+        "texture": 147.0,
+        "vertex": 213.0
+      },
+      "log": "round-6-candidate.log",
+      "round": 6,
+      "seconds": 12.52257776260376,
+      "variant": "candidate"
+    },
+    {
+      "fps": {
+        "shading": 188.0,
+        "texture": 146.0,
+        "vertex": 201.0
+      },
+      "log": "round-6-baseline.log",
+      "round": 6,
+      "seconds": 12.394052982330322,
+      "variant": "baseline"
+    }
+  ],
+  "scenes": {
+    "shading": {
+      "baseline": {
+        "median": 190.0,
+        "values": [
+          196.0,
+          186.0,
+          192.0,
+          196.0,
+          188.0,
+          188.0
+        ]
+      },
+      "candidate": {
+        "median": 187.5,
+        "values": [
+          189.0,
+          195.0,
+          192.0,
+          186.0,
+          173.0,
+          185.0
+        ]
+      },
+      "paired_median": -2.5835866261398177,
+      "paired_percent": [
+        -3.571428571428571,
+        4.838709677419355,
+        0.0,
+        -5.1020408163265305,
+        -7.9787234042553195,
+        -1.5957446808510638
+      ],
+      "positive_pairs": 1
+    },
+    "texture": {
+      "baseline": {
+        "median": 153.5,
+        "values": [
+          154.0,
+          154.0,
+          153.0,
+          154.0,
+          151.0,
+          146.0
+        ]
+      },
+      "candidate": {
+        "median": 153.0,
+        "values": [
+          145.0,
+          154.0,
+          154.0,
+          152.0,
+          156.0,
+          147.0
+        ]
+      },
+      "paired_median": 0.32679738562091504,
+      "paired_percent": [
+        -5.844155844155844,
+        0.0,
+        0.6535947712418301,
+        -1.2987012987012987,
+        3.3112582781456954,
+        0.684931506849315
+      ],
+      "positive_pairs": 3
+    },
+    "vertex": {
+      "baseline": {
+        "median": 224.0,
+        "values": [
+          222.0,
+          227.0,
+          227.0,
+          212.0,
+          226.0,
+          201.0
+        ]
+      },
+      "candidate": {
+        "median": 225.5,
+        "values": [
+          228.0,
+          225.0,
+          226.0,
+          218.0,
+          232.0,
+          213.0
+        ]
+      },
+      "paired_median": 2.6787849796699357,
+      "paired_percent": [
+        2.7027027027027026,
+        -0.881057268722467,
+        -0.4405286343612335,
+        2.8301886792452833,
+        2.6548672566371683,
+        5.970149253731343
+      ],
+      "positive_pairs": 4
+    }
+  }
+}
