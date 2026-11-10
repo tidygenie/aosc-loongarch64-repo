@@ -55,6 +55,51 @@ QList<BrewPackage> parseInstalledPackages(const QByteArray &json, QString *error
     return result;
 }
 
+QList<BrewService> parseServices(const QByteArray &json, QString *error) {
+    QList<BrewService> result;
+    QJsonParseError parseError{};
+    const QJsonDocument document = QJsonDocument::fromJson(json, &parseError);
+    if (parseError.error != QJsonParseError::NoError || !document.isArray()) {
+        if (error) *error = QStringLiteral("Invalid brew services JSON: %1").arg(parseError.errorString());
+        return result;
+    }
+    int malformed = 0;
+    for (const QJsonValue &value : document.array()) {
+        if (!value.isObject()) { ++malformed; continue; }
+        const QJsonObject object = value.toObject();
+        BrewService service;
+        service.name = object.value(QStringLiteral("name")).toString();
+        service.status = object.value(QStringLiteral("status")).toString();
+        service.user = object.value(QStringLiteral("user")).toString();
+        service.file = object.value(QStringLiteral("file")).toString();
+        if (service.name.isEmpty() || service.status.isEmpty()) { ++malformed; continue; }
+        result.append(service);
+    }
+    if (malformed && result.isEmpty()) {
+        if (error) *error = QStringLiteral("All %1 brew services were malformed").arg(malformed);
+        return {};
+    }
+    if (error) error->clear();
+    return result;
+}
+
+QStringList parseTapList(const QByteArray &text, QString *error) {
+    QStringList result;
+    static const QRegularExpression validTap(QStringLiteral("^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"));
+    const QList<QByteArray> lines = text.split('\n');
+    for (const QByteArray &line : lines) {
+        const QString tap = QString::fromUtf8(line).trimmed();
+        if (tap.isEmpty()) continue;
+        if (!validTap.match(tap).hasMatch()) {
+            if (error) *error = QStringLiteral("Invalid tap name in brew output: %1").arg(tap);
+            return {};
+        }
+        result.append(tap);
+    }
+    if (error) error->clear();
+    return result;
+}
+
 QString discoverBrewExecutable(const QString &explicitPath) {
     if (executableFile(explicitPath)) return QFileInfo(explicitPath).absoluteFilePath();
     const QString fromEnvironment = QProcessEnvironment::systemEnvironment()

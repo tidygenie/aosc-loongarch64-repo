@@ -26,6 +26,23 @@ int main() {
 
     require(parseInstalledPackages("not-json", &error).isEmpty() && !error.isEmpty(), "invalid JSON accepted");
     require(parseInstalledPackages("{}", &error).isEmpty() && !error.isEmpty(), "missing formulae accepted");
+
+    const auto serviceList = parseServices(R"([{"name":"dbus","status":"started","user":"houge","file":"/tmp/dbus.service","exit_code":0},{"name":"httpd","status":"none","user":null,"file":"/tmp/httpd.service"}])", &error);
+    require(error.isEmpty() && serviceList.size() == 2, "valid services JSON rejected");
+    require(serviceList[0].name == QStringLiteral("dbus") && serviceList[0].status == QStringLiteral("started"),
+            "service name/status lost");
+    require(serviceList[1].user.isEmpty(), "null service user was not normalized");
+    require(parseServices("{}", &error).isEmpty() && !error.isEmpty(), "services object accepted as an array");
+    require(parseServices("[{\"status\":\"none\"}]", &error).isEmpty() && !error.isEmpty(),
+            "nameless service accepted");
+
+    const auto tapList = parseTapList("homebrew/core\nloongarch64/loong64\n", &error);
+    require(error.isEmpty() && tapList.size() == 2 && tapList[1] == QStringLiteral("loongarch64/loong64"),
+            "valid tap list rejected");
+    require(parseTapList("https://example.invalid/tap.git\n", &error).isEmpty() && !error.isEmpty(),
+            "URL accepted as a tap-list row");
+    require(parseTapList("", &error).isEmpty() && error.isEmpty(), "empty tap list rejected");
+
     require(displayCommand(QStringLiteral("/bin/brew"), {QStringLiteral("install"), QStringLiteral("bad name")}) ==
                 QStringLiteral("/bin/brew install 'bad name'"), "display quoting failed");
     require(discoverBrewExecutable(QStringLiteral("/definitely/not/brew")).isEmpty() ||

@@ -55,12 +55,19 @@ Source and its self-contained AOSC recipe are under
 
 `brew-ui-linux` manages installed formula inventory, exact-name install,
 selected uninstall/upgrade, confirmed upgrade-all, explicit tap update, visible
-literal-argv commands, streamed output and process-group cancellation. It does
-not manage casks/services/taps yet. Backend JSON and offscreen/Wayland smoke
-tests are required before publishing its deb through `publish-debs.sh`.
-`--check-inventory` additionally runs the real read-only QProcess/JSON/table
-path and returns nonzero on failure or timeout. Revision 0.1.0-4 passed that
-check independently against both 7.0.13 prefixes.
+literal-argv commands, streamed output and process-group cancellation. It also
+reads real `brew services list --json` data, starts/stops/restarts a selected
+service after confirmation, lists taps, adds an exact `user/repository` tap and
+untaps a selected entry after confirmation. macOS casks are not emulated on
+Linux. Backend JSON and offscreen/Wayland smoke tests are required before
+publishing its deb through `publish-debs.sh`.
+`--check-inventory` runs the real read-only QProcess/JSON/table path;
+`--check-management` additionally requires the real service and tap tables to
+parse, returning nonzero on any failure or timeout. Revision 0.1.0-5 passed both
+checks independently against the two 7.0.13 prefixes; malformed services JSON
+was independently verified to fail closed without attempting a mutation. Its
+published deb SHA-256 is
+`f31a56110f420390f32cb2f795b8984109f41187382cbd4cc7e374184c30f481`.
 
 When official AOSC packages satisfy dependencies, declare and use them. Only
 missing or incompatible dependencies should receive a reviewed third-party
