@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "driver_sha256": "aff7101ab877db0026fa0f8274e03a579f1b4fd2c16fabe2478d08f224d0da0a",
+  "test_binary_sha256": "b1109ff1a484599787502ecb307dc149b56f7833858ae12ef1da8c1c7d0b575c",
+  "mapping": "word3[18:0] = raw_metadata[50:32]",
+  "a_control": {
+    "vk_format": "VK_FORMAT_R32G32_SFLOAT",
+    "raw_metadata": "0x000005f22c00000000",
+    "word3": "0x0005f22c",
+    "pixel_hex": "007010ff"
+  },
+  "variants": [
+    {
+      "name": "r32",
+      "vk_format": "VK_FORMAT_R32_SFLOAT",
+      "vk_format_number": 100,
+      "raw_metadata": "0x000002720400000000",
+      "word3": "0x00027204",
+      "pixel_hex": "000010ff",
+      "word3_subfields": {"bits_2_0": 4, "bits_5_3": 0, "bits_8_6": 0, "bits_11_9": 1, "bits_14_12": 7, "bits_18_15": 4},
+      "plain_log_sha256": "11dc0d4b0b47bd277b8d3596d8642e66ef1026e6cdcd0827f1aa918a209aedb1",
+      "gdb_log_sha256": "06ddc25036215242cd1b8a8eb54e62006f98d8eb0930d2690de4dc8ebf547ea4"
+    },
+    {
+      "name": "rgb32",
+      "vk_format": "VK_FORMAT_R32G32B32_SFLOAT",
+      "vk_format_number": 106,
+      "raw_metadata": "0x000006f3ac00000000",
+      "word3": "0x0006f3ac",
+      "pixel_hex": "007010ff",
+      "word3_subfields": {"bits_2_0": 4, "bits_5_3": 5, "bits_8_6": 6, "bits_11_9": 1, "bits_14_12": 7, "bits_18_15": 13},
+      "plain_log_sha256": "eafe5acb6853d6b4eea12ff722c560830a0997766c4141b38060907fbed5863e",
+      "gdb_log_sha256": "ac3f7a8bbf1735dc752d9d8f7a53a693c79e938d4deaf4bd982c401921ea21f8"
+    },
+    {
+      "name": "rgba32",
+      "vk_format": "VK_FORMAT_R32G32B32A32_SFLOAT",
+      "vk_format_number": 109,
+      "raw_metadata": "0x0000077fac00000000",
+      "word3": "0x00077fac",
+      "pixel_hex": "007010ff",
+      "word3_subfields": {"bits_2_0": 4, "bits_5_3": 5, "bits_8_6": 6, "bits_11_9": 7, "bits_14_12": 7, "bits_18_15": 14},
+      "plain_log_sha256": "ab09d4b8380d459063d001267c91b4989fba14c2fc3a9f8d542b14f2d1f268aa",
+      "gdb_log_sha256": "f4c524156fd6c622a5209cfd2d60ea42eca546ad073dfd5a67be749f8b22ae1a"
+    }
+  ],
+  "uv_entries_per_gdb_run": 11,
+  "all_entries_mapping_valid": true,
+  "validation_clean_claimed": false
+}

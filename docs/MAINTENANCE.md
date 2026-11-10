@@ -167,3 +167,9 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - `vktest-vertex-pair`新增format A-B-A，仅改变UV R32G32_SFLOAT/R32_SFLOAT，严格-Werror构建；像素007010ff→000010ff→007010ff，position和UV word0/1/2不变，UV word3=0005f22c/00027204。原测试仍有swapchain semaphore复用validation警告，不称clean。
 - 在17bc50首次64位load后观察raw meta：R32G32=0x000005f22c00000000、R32=0x000002720400000000。反汇编6组bit insert证明所有观测项word3[18:0]=raw[50:32]，bits31:19未由该段清除；末点t1/t2仅是截位结果，早期0x7/0xb/4输出已废弃。
 - 新`gsgpu-mutate-vertex-format.gdb`在全R32G32 pipeline下仅写三帧UV word3低19位为R32，恰好3次且外部像素三帧000010ff，因果成立。首次0写因16MiB CPU mapping未对齐而mask偏移错误；改为首UV=2b10求base后成功，同修复stride脚本并复现3次/004040ff。旧offset误用attribute参数被usage拒绝，按原模式重跑后6/6控制全过。详见[`lg110-vendor-vertex-format.md`](../scripts/research/lg110/lg110-vendor-vertex-format.md)。
+
+# 2026-11-10 LG110四种float vertex格式表
+
+- format测试新增`LG110_UV_FORMAT=r32|rgb32|rgba32`，默认r32不变；rgb32/rgba32要求A-A-A同像素，r32要求A-B-A，三者严格构建和普通运行全过。最新test binary SHA=b1109ff1。
+- R32G32/R32/RGB32/RGBA32 raw→word3依次为5f22c00000000→0005f22c、2720400000000→00027204、6f3ac00000000→0006f3ac、77fac00000000→00077fac。每run 11个UV条目全满足低19位映射，六组子字段以bit区间记录，不强猜语义。
+- 最新二进制重跑直接word3突变仍MUTATIONS=3、三帧000010ff，log SHA=fcbb3beeb61e110db6e6f211099467b756096449b32f75f8bdce2414b5a6ac93。新增机器可读`lg110-vertex-format-summary.json`及日志哈希；仍无原生Vulkan或性能宣称。

@@ -46,6 +46,17 @@ extraction.  For UV entries it observed:
 | --- | ---: | ---: |
 | R32G32_SFLOAT | `0x000005f22c00000000` | `0x0005f22c` |
 | R32_SFLOAT | `0x000002720400000000` | `0x00027204` |
+| R32G32B32_SFLOAT | `0x000006f3ac00000000` | `0x0006f3ac` |
+| R32G32B32A32_SFLOAT | `0x0000077fac00000000` | `0x00077fac` |
+
+The latter two are selected with `LG110_UV_FORMAT=rgb32` and `rgba32`.  Their
+first two components produce the same `00 70 10 ff` pixel as the A control, as
+expected; R32 produces `00 00 10 ff`.  All three expanded runs passed their
+pixel patterns and all 11 UV entries per run passed the raw/word mapping.  The
+expanded test binary SHA-256 is
+`b1109ff1a484599787502ecb307dc149b56f7833858ae12ef1da8c1c7d0b575c`;
+machine-readable values and log hashes are in
+[`lg110-vertex-format-summary.json`](lg110-vertex-format-summary.json).
 
 Position remains R32G32 with word 3 `0x0005f22c`.  UV words 0, 1 and 2 remain
 `0x022c4000`, `0x00100001` and `0x00000040`; word 1 therefore still contains the
@@ -71,6 +82,16 @@ Together, every captured entry satisfies:
 ```
 word3[18:0] = raw_metadata[50:32]
 ```
+
+The four measured formats decode as follows.  These are bit-range names, not
+invented semantic names for an undocumented encoding:
+
+| Format | 2:0 | 5:3 | 8:6 | 11:9 | 14:12 | 18:15 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| R32 | 4 | 0 | 0 | 1 | 7 | 4 |
+| R32G32 | 4 | 5 | 0 | 1 | 7 | 11 |
+| R32G32B32 | 4 | 5 | 6 | 1 | 7 | 13 |
+| R32G32B32A32 | 4 | 5 | 6 | 7 | 7 | 14 |
 
 The constructor reads the old word 3 and does not clear bits 31:19 here, so this
 proof is limited to the low 19 bits.  The raw metadata values are not claimed to
@@ -99,6 +120,9 @@ in addition to the previously proven word 1 stride field.  The causal log SHA-25
 is `3a9c00fcc403e6a21ec46fbc55b28ca270980913fc1df828f5b0c8245e3b1fff`;
 each causal pixel file is
 `d92849ac451023a25885cd7aba9c6339f2c4d5b12c5c07fd86b59b04b7878b1e`.
+The expanded table binary also reran the same three-write/R32-pixel assertion;
+its log SHA-256 is
+`fcbb3beeb61e110db6e6f211099467b756096449b32f75f8bdce2414b5a6ac93`.
 
 ## Failed attempts corrected
 
@@ -117,6 +141,7 @@ each causal pixel file is
   same/stride/pipeline/same-UV16/format attribute controls, passed 6/6.
 
 Raw logs, disassembly and pixels are retained under
-`/home/houge/infra/gpu/evidence/lg110-descriptor-format-20261110/`.  This is a
+`/home/houge/infra/gpu/evidence/lg110-descriptor-format-20261110/` and
+`/home/houge/infra/gpu/evidence/lg110-descriptor-format-table-20261110/`.  This is a
 vendor-format descriptor result, not a native Vulkan driver, performance claim,
-or proof for formats other than the two tested.
+or proof for formats other than the four tested.
