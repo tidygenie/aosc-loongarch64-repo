@@ -65,3 +65,34 @@ check independently against both 7.0.13 prefixes.
 When official AOSC packages satisfy dependencies, declare and use them. Only
 missing or incompatible dependencies should receive a reviewed third-party
 recipe; the GUI currently uses official `qt-6`, `glibc` and `gcc-runtime`.
+
+## Formula-generation safeguards (2026-11-10)
+
+The triplet generator now handles `system "../dist/configure", *args`, variable
+`configure` calls at the start of an install body, every quoted `./configure`
+call in multi-library formulas, and `dist/config.sub`/`dist/config.guess`.
+Repeat injection is idempotent; real Berkeley DB and dvanalyzer formulas plus
+legacy configure forms were used as assertions.
+
+A formula registered in `needs-build-triplet.txt` now enters local-tap
+finalization before its **first** build. Finalization or live-tap injection
+failure records a deduplicated failure and skips the package instead of silently
+building the unmodified core formula. Active-lane requeue/claim guards remain in
+force; healthy lanes are not restarted for these changes.
+
+Two former failures completed build, upstream test, bottle pour, and poured-test
+verification:
+
+- `dvanalyzer 1.4.2`, bottle SHA-256
+  `8efaa63a4554b2ce1bc4c7e6277a6e6eb7458e34b7a37a767f175e4371eb1c8e`;
+  all three configure calls received the LoongArch triplet.
+- `berkeley-db 18.1.40_4`, bottle SHA-256
+  `2f62e153a11f1a54b569cb16645e78c656ad9fa15dd50f618167fb4f08fc849e`.
+  Its protected custom formula uses `ENV.append_to_cflags` rather than
+  command-line CFLAGS, preserving Berkeley's required `-I. -I../src` and
+  `-D_REENTRANT` while adding GCC 16 compatibility flags.
+
+All four filename aliases for each bottle were verified byte-identical locally,
+on the server, and over HTTPS. The tap `main` branch was pushed through commit
+`7c3e73be2a733f133698a8c7a5eaa4dda96961b4`. This reduces current failures but
+does not claim that the remaining queue or all formulas are fixed.
