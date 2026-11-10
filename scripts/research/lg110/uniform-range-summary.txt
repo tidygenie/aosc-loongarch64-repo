@@ -1,0 +1,26 @@
+Uniform range/coalesce instrumentation; debug FPS is not a benchmark.
+stats-all.log sha256=0f657edca70351ad515bc6e3f3f84e4b90eb627d41d3a84c405a9e633f064365
+vkgl: ubo range name=block hits=0 uploads=120 vec4=1080 changed=568 runs=394
+vkgl: ubo range name=block hits=0 uploads=240 vec4=2160 changed=1114 runs=808
+vkgl: ubo range name=block hits=0 uploads=360 vec4=3240 changed=1672 runs=1210
+vkgl: ubo range name=block hits=0 uploads=120 vec4=1080 changed=723 runs=239
+vkgl: ubo range name=block hits=0 uploads=240 vec4=2160 changed=1443 runs=479
+vkgl: ubo range name=block hits=0 uploads=120 vec4=1080 changed=559 runs=403
+vkgl: ubo range name=block hits=0 uploads=240 vec4=2160 changed=1121 runs=801
+stats-coalesce.log sha256=0d6bec3f0b70b85a46947d19e4fd0ba23c5552925f8c272c05bb1c4b9ddb8117
+vkgl: ubo coalesce name=block hits=0 uploads=120 vec4=1080 uploaded_vec4=842 calls=120
+vkgl: ubo coalesce name=block hits=0 uploads=240 vec4=2160 uploaded_vec4=1682 calls=240
+vkgl: ubo coalesce name=block hits=0 uploads=360 vec4=3240 uploaded_vec4=2522 calls=360
+vkgl: ubo coalesce name=block hits=0 uploads=120 vec4=1080 uploaded_vec4=842 calls=120
+vkgl: ubo coalesce name=block hits=0 uploads=240 vec4=2160 uploaded_vec4=1682 calls=240
+vkgl: ubo coalesce name=block hits=0 uploads=120 vec4=1080 uploaded_vec4=842 calls=120
+vkgl: ubo coalesce name=block hits=0 uploads=240 vec4=2160 uploaded_vec4=1682 calls=240
+vkgl: ubo coalesce name=block hits=0 uploads=360 vec4=3240 uploaded_vec4=2522 calls=360
+stats-index.log sha256=ea71ba7cb7f02d6eeebdb7672410d617336b94197f5918b2e10dd898f1083cfc
+vkgl: ubo coalesce name=block hits=0 uploads=120 vec4=1080 uploaded_vec4=842 calls=120
+vkgl: ubo index name=block changed=119,0,119,0,119,71,119,0,0,0,0,0,0,0,0,0
+vkgl: ubo coalesce name=block hits=0 uploads=120 vec4=1080 uploaded_vec4=842 calls=120
+vkgl: ubo index name=block changed=119,119,119,0,119,119,119,0,0,0,0,0,0,0,0,0
+vkgl: ubo coalesce name=block hits=0 uploads=120 vec4=1080 uploaded_vec4=842 calls=120
+vkgl: ubo index name=block changed=119,0,119,0,119,77,119,0,0,0,0,0,0,0,0,0
+decision=no paired FPS; baseline three-frame clear-only control fails, so no candidate correctness/performance promotion

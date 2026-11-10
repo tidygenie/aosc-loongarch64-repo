@@ -1,0 +1,14 @@
+workload_sha256=3d5ad6acce53b90928e98da7a2809630ca2d114f49aef80be44a930d0d582fba
+mode=clear_only expected=red,green,blue actual=red,red,red
+seq=2 gfx_dwords=272
+seq=4 gfx_dwords=272
+seq=6 gfx_dwords=272
+diff_seq=2->4 changed_dwords=2
+  word110=0x010c7000->0x010cfc00
+  word242=0x010c8400->0x010d1000
+diff_seq=4->6 changed_dwords=2
+  word110=0x010cfc00->0x010d8800
+  word242=0x010d1000->0x010d9c00
+diff_seq=2->6 changed_dwords=2
+  word110=0x010c7000->0x010d8800
+  word242=0x010c8400->0x010d9c00

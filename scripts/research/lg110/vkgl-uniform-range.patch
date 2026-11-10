@@ -1,0 +1,63 @@
+--- a/vkgl.cpp
++++ b/vkgl.cpp
+@@ -372,6 +372,9 @@
+       uint32_t set = 0, binding = 0;
+       uint32_t vec4_count = 0;
+       bool push_constant = false;
++       std::vector<uint8_t> uploaded_data;
++       uint64_t cache_hits = 0, cache_uploads = 0;
++       uint64_t cache_vec4 = 0, cache_changed = 0, cache_runs = 0;
+    };
+    std::vector<PipeUbo> ubos;
+    struct PipeTex { std::string name; GLint loc = -1; uint32_t set = 0, binding = 0; };
+@@ -3252,7 +3255,49 @@
+                VKGL_LOG("ubo %s loc=%d n=%u data0=(%.3f %.3f %.3f %.3f) data1=(%.3f %.3f %.3f %.3f)\n",
+                         u.name.c_str(), u.loc, u.vec4_count, f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7]);
+             }
+-            glUniform4fv(u.loc, (GLsizei)u.vec4_count, (const GLfloat *)data);
++            const size_t upload_bytes = (size_t)u.vec4_count * 16;
++             u.cache_vec4 += u.vec4_count;
++             if (u.uploaded_data.size() == upload_bytes &&
++                 !memcmp(u.uploaded_data.data(), data, upload_bytes)) {
++                u.cache_hits++;
++             } else {
++                if (u.uploaded_data.size() != upload_bytes) {
++                   glUniform4fv(u.loc, (GLsizei)u.vec4_count,
++                                (const GLfloat *)data);
++                   u.cache_changed += u.vec4_count;
++                   u.cache_runs++;
++                } else {
++                   size_t index = 0;
++                   while (index < u.vec4_count) {
++                      size_t first;
++                      while (index < u.vec4_count &&
++                             !memcmp(u.uploaded_data.data() + index * 16,
++                                     data + index * 16, 16))
++                         index++;
++                      if (index == u.vec4_count) break;
++                      first = index++;
++                      while (index < u.vec4_count &&
++                             memcmp(u.uploaded_data.data() + index * 16,
++                                    data + index * 16, 16))
++                         index++;
++                      glUniform4fv(u.loc + (GLint)first,
++                                   (GLsizei)(index - first),
++                                   (const GLfloat *)(data + first * 16));
++                      u.cache_changed += index - first;
++                      u.cache_runs++;
++                   }
++                }
++                u.uploaded_data.assign(data, data + upload_bytes);
++                u.cache_uploads++;
++             }
++             if (((u.cache_hits + u.cache_uploads) % 120) == 0) {
++                VKGL_LOG("ubo range name=%s hits=%llu uploads=%llu vec4=%llu changed=%llu runs=%llu\n",
++                         u.name.c_str(), (unsigned long long)u.cache_hits,
++                         (unsigned long long)u.cache_uploads,
++                         (unsigned long long)u.cache_vec4,
++                         (unsigned long long)u.cache_changed,
++                         (unsigned long long)u.cache_runs);
++             }
+          }
+       }
+    }
