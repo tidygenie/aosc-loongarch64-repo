@@ -68,10 +68,14 @@ a stable regression. In particular, the texture series contains a large
 outlier and is not hidden or removed. Raw summary SHA-256:
 `84d6d3b9737dc4871acd2aa33b2682c136bdb8ee7417a6ab81fbd90df17801c2`.
 
-The CPU-shadow test proves record/submit timing and replay, but is not a claim
-that every possible uniform, vertex, or indirect consumer has been separately
-conformance-tested. Existing draw paths were regression-tested; additional
-consumer-specific UpdateBuffer tests remain useful follow-up work.
+A second exact consumer test records an indirect-buffer update from two
+vertices to three outside the render pass, mutates the source, and restores two
+vertices through the host mapping before submission. UpdateBuffer must execute
+before DrawIndirect. With Khronos validation enabled, retained 0.1.34 produced
+black/black and failed; both the 0.1.35 candidate and installed package produced
+red/black `0000ffff000000ff`. This proves ordering for the tested indirect
+consumer. It still is not a claim that every possible uniform or vertex consumer
+has been separately conformance-tested.
 
 ## Package, installation, and publication
 
