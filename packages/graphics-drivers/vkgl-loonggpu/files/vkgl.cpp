@@ -1726,7 +1726,11 @@ static void execute_cmds(CommandBuffer *c) {
       case Cmd::SetScissor:
          sc = cmd.scissor;
          glEnable(GL_SCISSOR_TEST);
-         glScissor(sc.offset.x, sc.offset.y, (GLsizei)sc.extent.width, (GLsizei)sc.extent.height);
+         /* Vulkan scissor origin is top-left, GL is bottom-left. */
+         glScissor(sc.offset.x,
+                   (GLint)((int64_t)fb_height - (int64_t)sc.offset.y -
+                           (int64_t)sc.extent.height),
+                   (GLsizei)sc.extent.width, (GLsizei)sc.extent.height);
          break;
       case Cmd::ClearAttachments: {
          Framebuffer *fb = cmd.fb;
