@@ -86,6 +86,8 @@ int main(void) {
    const char *restart_text = getenv("LG110_PRIMITIVE_RESTART");
    const char *sentinel_text = getenv("LG110_RESTART_SENTINEL");
    const char *expected_clear_text = getenv("LG110_EXPECT_CLEAR");
+   const char *index_mapped_text = getenv("LG110_INDEX_MAPPED");
+   const char *update_restart_text = getenv("LG110_UPDATE_RESTART_SECOND_FRAME");
    const char *expected_topology_text = getenv("LG110_EXPECT_TOPOLOGY");
    const char *frame_text = getenv("LG110_FRAME_LIMIT");
    if (!draw_text) draw_text = "3";
@@ -99,6 +101,8 @@ int main(void) {
    if (!topology_text) topology_text = "triangle";
    if (!restart_text) restart_text = "0";
    if (!sentinel_text) sentinel_text = "0";
+   if (!index_mapped_text) index_mapped_text = "0";
+   if (!update_restart_text) update_restart_text = "0";
    if (!expected_topology_text) expected_topology_text = topology_text;
    if (!frame_text) frame_text = "120";
    int expect_unsupported = getenv("LG110_EXPECT_UNSUPPORTED") &&
@@ -106,6 +110,12 @@ int main(void) {
    if ((strcmp(index_type_text, "16") && strcmp(index_type_text, "32")) ||
        (strcmp(restart_text, "0") && strcmp(restart_text, "1")) ||
        (strcmp(sentinel_text, "0") && strcmp(sentinel_text, "1")) ||
+       (strcmp(index_mapped_text, "0") && strcmp(index_mapped_text, "1")) ||
+       (strcmp(update_restart_text, "0") && strcmp(update_restart_text, "1")) ||
+       (!strcmp(index_mapped_text, "1") && strcmp(indexed_text, "1")) ||
+       (!strcmp(update_restart_text, "1") &&
+        (strcmp(index_mapped_text, "1") || strcmp(sentinel_text, "1") ||
+         strcmp(restart_text, "1") || strcmp(frame_text, "120"))) ||
        (expected_clear_text && strcmp(expected_clear_text, "0") && strcmp(expected_clear_text, "1")) ||
        (strcmp(indexed_text, "0") && strcmp(indexed_text, "1")) ||
        (strcmp(indirect_text, "0") && strcmp(indirect_text, "1")) ||
@@ -121,7 +131,7 @@ int main(void) {
        topology_from_name(topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        topology_from_name(expected_topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        (strcmp(frame_text, "120") && strcmp(frame_text, "1"))) {
-      fprintf(stderr, "draw=3|2|7(restart) first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 primitive_restart=0|1 sentinel=0|1 expect_clear=0|1 topology=... frames=120|1\n"); return 1;
+      fprintf(stderr, "draw=3|2|7(restart) first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 primitive_restart=0|1 sentinel=0|1 expect_clear=0|1 mapped=0|1 update_second=0|1 topology=... frames=120|1\n"); return 1;
    }
    int draw_count = draw_text[0] - '0';
    int first_vertex = first_text[0] - '0';
@@ -132,6 +142,8 @@ int main(void) {
    int index_type = atoi(index_type_text);
    int primitive_restart = restart_text[0] == '1';
    int restart_sentinel = sentinel_text[0] == '1';
+   int keep_index_mapped = index_mapped_text[0] == '1';
+   int update_restart_second = update_restart_text[0] == '1';
    int expected_draw_count = expected_draw_text[0] - '0';
    VkPrimitiveTopology topology = topology_from_name(topology_text);
    VkPrimitiveTopology expected_topology = topology_from_name(expected_topology_text);
@@ -143,8 +155,8 @@ int main(void) {
       return 1;
    }
    int frame_limit = frame_text[0] == '1' && !frame_text[1] ? 1 : 120;
-   printf("texture variant: %s red=%u other=0 draw=%d first=%d instances=%d first_instance=%d indexed=%d indirect=%d index_type=%d primitive_restart=%d sentinel=%d expect_clear=%s expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
-          mode, nonzero ? 255u : 0u, draw_count, first_vertex, instance_count, first_instance, indexed, indirect, index_type, primitive_restart, restart_sentinel, expected_clear_text ? expected_clear_text : "auto", expected_draw_count,
+   printf("texture variant: %s red=%u other=0 draw=%d first=%d instances=%d first_instance=%d indexed=%d indirect=%d index_type=%d primitive_restart=%d sentinel=%d mapped=%d update_second=%d expect_clear=%s expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
+          mode, nonzero ? 255u : 0u, draw_count, first_vertex, instance_count, first_instance, indexed, indirect, index_type, primitive_restart, restart_sentinel, keep_index_mapped, update_restart_second, expected_clear_text ? expected_clear_text : "auto", expected_draw_count,
           topology_text, expected_topology_text, frame_limit);
    dpy = wl_display_connect(NULL);
    if (!dpy) { fprintf(stderr, "no wayland display\n"); return 1; }
@@ -314,6 +326,7 @@ int main(void) {
    void *rinit; CK(vkMapMemory(dev,rbmem,0,4,0,&rinit));
    memset(rinit,0xa5,4); vkUnmapMemory(dev,rbmem);
     VkBuffer index_buffer=VK_NULL_HANDLE, indirect_buffer=VK_NULL_HANDLE;
+    void *index_mapped = NULL;
     if (indexed) {
        size_t index_count = restart_sentinel ? 7U : 3U;
        VkDeviceSize index_bytes = (VkDeviceSize)index_count * (index_type == 32 ? 4U : 2U);
@@ -334,7 +347,8 @@ int main(void) {
           uint16_t with_restart[7]={0,1,2,UINT16_MAX,3,4,5};
           memcpy(ptr,restart_sentinel ? (const void *)with_restart : (const void *)normal,index_bytes);
        }
-       vkUnmapMemory(dev,mem);
+       if (keep_index_mapped) index_mapped = ptr;
+       else vkUnmapMemory(dev,mem);
     }
     if (indirect) {
        VkDeviceSize size=indexed ? sizeof(VkDrawIndexedIndirectCommand) : sizeof(VkDrawIndirectCommand);
@@ -389,9 +403,14 @@ int main(void) {
    VkSemaphoreCreateInfo semci={.sType=VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
    VkSemaphore acquire, done; CK(vkCreateSemaphore(dev,&semci,NULL,&acquire)); CK(vkCreateSemaphore(dev,&semci,NULL,&done));
 
+   int readback_frame = update_restart_second ? 1 : 0;
    for (int frame=0; frame<frame_limit; frame++) {
       uint32_t idx=0;
       CK(vkAcquireNextImageKHR(dev,sc,~0ull,acquire,VK_NULL_HANDLE,&idx));
+      if (update_restart_second && frame == 1) {
+         if (index_type == 32) ((uint32_t *)index_mapped)[3] = 3;
+         else ((uint16_t *)index_mapped)[3] = 3;
+      }
       VkCommandBufferBeginInfo bbi={.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
       CK(vkBeginCommandBuffer(cb,&bbi));
       if (frame==0) {
@@ -421,7 +440,7 @@ int main(void) {
       else
          vkCmdDraw(cb,(uint32_t)draw_count,(uint32_t)instance_count,(uint32_t)first_vertex,(uint32_t)first_instance);
       vkCmdEndRenderPass(cb);
-      if (frame==0) {
+      if (frame==readback_frame) {
          VkImageMemoryBarrier ib={.sType=VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
             .srcAccessMask=VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,.dstAccessMask=VK_ACCESS_TRANSFER_READ_BIT,
             .oldLayout=VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,.newLayout=VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -441,8 +460,8 @@ int main(void) {
       VkPipelineStageFlags wait=VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
       VkSubmitInfo si={.sType=VK_STRUCTURE_TYPE_SUBMIT_INFO,.waitSemaphoreCount=1,.pWaitSemaphores=&acquire,
          .pWaitDstStageMask=&wait,.commandBufferCount=1,.pCommandBuffers=&cb,.signalSemaphoreCount=1,.pSignalSemaphores=&done};
-      CK(vkQueueSubmit(q,1,&si,frame==0 ? readback_fence : VK_NULL_HANDLE));
-      if (frame==0) {
+      CK(vkQueueSubmit(q,1,&si,frame==readback_frame ? readback_fence : VK_NULL_HANDLE));
+      if (frame==readback_frame) {
          CK(vkWaitForFences(dev,1,&readback_fence,VK_TRUE,~0ull));
          readback_attempted=1;
          void *rptr; CK(vkMapMemory(dev,rbmem,0,4,0,&rptr));

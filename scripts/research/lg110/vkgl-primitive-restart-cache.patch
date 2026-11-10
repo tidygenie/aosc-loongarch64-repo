@@ -1,0 +1,119 @@
+--- a/vkgl.cpp	2026-11-10 23:47:28.609708956 +0800
++++ b/vkgl.cpp	2026-11-11 00:17:20.275609409 +0800
+@@ -285,6 +285,17 @@
+    uint64_t uploaded_submit = 0;
+ };
+
++struct RestartCache {
++   Memory *mem = nullptr;
++   VkDeviceSize ioff = 0;
++   uint32_t first = 0, count = 0;
++   VkIndexType index_type = VK_INDEX_TYPE_UINT16;
++   uint64_t revision = 0, submit = 0;
++   bool valid = false;
++   std::vector<std::pair<uint32_t, uint32_t>> segments;
++};
++static std::unordered_map<Buffer *, RestartCache> g_restart_caches;
++
+ struct Image : Obj {
+    VkFormat format = VK_FORMAT_UNDEFINED;
+    VkExtent3D extent = {0, 0, 1};
+@@ -1023,6 +1034,7 @@
+ static VKAPI_ATTR void VKAPI_CALL vkgl_DestroyBuffer(VkDevice, VkBuffer buf, const VkAllocationCallbacks *) {
+    auto *b = from_handle<Buffer>((uint64_t)buf);
+    if (b->gl) { GlCtx::get().make_current(); glDeleteBuffers(1, &b->gl); }
++   g_restart_caches.erase(b);
+    unreg((uint64_t)buf);
+    delete b;
+ }
+@@ -1032,6 +1044,7 @@
+    b->mem = from_handle<Memory>((uint64_t)mem);
+    b->mem_offset = off;
+    b->uploaded_revision = 0;
++   g_restart_caches.erase(b);
+    ensure_gl_buffer(b);
+    return VK_SUCCESS;
+ }
+@@ -3295,7 +3308,7 @@
+       (p->topology == VK_PRIMITIVE_TOPOLOGY_LINE_STRIP ||
+        p->topology == VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP ||
+        p->topology == VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
+-   std::vector<std::pair<uint32_t, uint32_t>> restart_segments;
++   const std::vector<std::pair<uint32_t, uint32_t>> *restart_segments = nullptr;
+    if (software_restart) {
+       if (!ibuf || !ibuf->mem) return;
+       const VkDeviceSize width = cmd.index_type == VK_INDEX_TYPE_UINT32 ? 4 : 2;
+@@ -3314,25 +3327,47 @@
+          VKGL_LOG("primitive restart index range is outside the memory shadow\n");
+          return;
+       }
+-      const uint8_t *indices = shadow.data() + ibuf->mem_offset + relative;
+-      const uint32_t sentinel = width == 4 ? 0xffffffffU : 0xffffU;
+-      uint32_t segment_first = 0;
+-      for (uint32_t i = 0; i < cmd.count; ++i) {
+-         uint32_t index;
+-         if (width == 4) {
+-            memcpy(&index, indices + (VkDeviceSize)i * width, sizeof(index));
+-         } else {
+-            uint16_t short_index;
+-            memcpy(&short_index, indices + (VkDeviceSize)i * width, sizeof(short_index));
+-            index = short_index;
+-         }
+-         if (index == sentinel) {
+-            if (i > segment_first) restart_segments.emplace_back(segment_first, i - segment_first);
+-            segment_first = i + 1;
++      auto &cache = g_restart_caches[ibuf];
++      const bool cache_valid = cache.valid && cache.mem == ibuf->mem &&
++         cache.ioff == ioff && cache.first == cmd.first &&
++         cache.count == cmd.count && cache.index_type == cmd.index_type &&
++         (ibuf->mem->mapped ? cache.submit == g_submit_serial :
++                              cache.revision == ibuf->mem->revision);
++      if (cache_valid) {
++         VKGL_LOG("primitive restart cache hit\n");
++      } else {
++         const uint8_t *indices = shadow.data() + ibuf->mem_offset + relative;
++         const uint32_t sentinel = width == 4 ? 0xffffffffU : 0xffffU;
++         cache.segments.clear();
++         uint32_t segment_first = 0;
++         for (uint32_t i = 0; i < cmd.count; ++i) {
++            uint32_t index;
++            if (width == 4) {
++               memcpy(&index, indices + (VkDeviceSize)i * width, sizeof(index));
++            } else {
++               uint16_t short_index;
++               memcpy(&short_index, indices + (VkDeviceSize)i * width, sizeof(short_index));
++               index = short_index;
++            }
++            if (index == sentinel) {
++               if (i > segment_first)
++                  cache.segments.emplace_back(segment_first, i - segment_first);
++               segment_first = i + 1;
++            }
+          }
++         if (segment_first < cmd.count)
++            cache.segments.emplace_back(segment_first, cmd.count - segment_first);
++         cache.mem = ibuf->mem;
++         cache.ioff = ioff;
++         cache.first = cmd.first;
++         cache.count = cmd.count;
++         cache.index_type = cmd.index_type;
++         cache.revision = ibuf->mem->revision;
++         cache.submit = g_submit_serial;
++         cache.valid = true;
++         VKGL_LOG("primitive restart scan segments=%zu\n", cache.segments.size());
+       }
+-      if (segment_first < cmd.count)
+-         restart_segments.emplace_back(segment_first, cmd.count - segment_first);
++      restart_segments = &cache.segments;
+    }
+    /* Software instancing is deliberately a repeated draw, not an unadvertised
+     * hardware entry point. Locations are cached at pipeline link time. */
+@@ -3367,7 +3402,7 @@
+             GLenum it = cmd.index_type == VK_INDEX_TYPE_UINT32 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
+             const VkDeviceSize width = it == GL_UNSIGNED_INT ? 4 : 2;
+             if (software_restart) {
+-               for (const auto &segment : restart_segments) {
++               for (const auto &segment : *restart_segments) {
+                   const void *indices = (const void *)(uintptr_t)(ioff +
+                      ((VkDeviceSize)cmd.first + segment.first) * width);
+                   const GLsizei count = (GLsizei)segment.second;

@@ -212,6 +212,7 @@
 - 0.1.32新增word273主动分离：672-dword非索引流仅该词`3→2`、XDMA不变，raw仍与base同为`007f00ff`，故其单独不足以产生word270的count效果，继续不命名；draw2输入零mutation拒绝，word270回归仍精确得到`663300ff`。见[word273负因果报告](../scripts/research/lg110/lg110-draw-word273-field.md)。这不证明word273无用，也不是性能提升或原生replay。
 - indexed word281主动分离保持有效index VA、UINT16和其余签名，仅该词`1→0`；两个XDMA不变、完整GFX仅此一项，raw仍`663300ff`。非indexed零mutation拒绝，配对UINT32基线及index32-to16回归仅word268变化并`007f00ff→663300ff`。word281继续不命名，不称无用/firstInstance/index-width；见[word281负因果报告](../scripts/research/lg110/lg110-draw-word281-field.md)。
 - primitive restart已在**0.1.33-1**修复：0.1.32的restart off/on全部IB相同且真实哨兵均错误为`007f00ff`；NV/core/fixed GL enable均0x500不可用。新实现仅在restart-enabled strip/fan/line-strip扫描现有CPU index shadow，以0xffff/0xffffffff拆分普通draw，实例复用segments，默认路径保留原单次draw。strip/fan、UINT16/32、direct/indirect开启后均精确clear`663300ff`，16项合法index/baseVertex及12项instance-rate通过，无哨兵全部原生IB逐字不变；六轮AB/BA仅为回归控制。已安装并发布AOSC deb。见[GL负结果](../scripts/research/lg110/lg110-primitive-restart.md)与[0.1.33报告](../scripts/tests/vkgl/vkgl-0.1.33.md)；不是原生Vulkan或性能提升宣称。
+- restart segment cache仅为**拒绝候选**：静态120帧从120次scan降为1次并命中119次，但mapped UINT16/32仍每submit重扫且第二帧更新像素正确；Buffer内置版vertex配对中位−4.16%，外置map版vertex/texture/shading为−3.38%/−2.33%/−3.65%，故不安装、不升版、不发布deb。99.17%仅是扫描消除率，不是FPS提升。见[缓存负结果与可复现patch](../scripts/research/lg110/vkgl-primitive-restart-cache.md)。
 
 ## GCC 16 PGO候选拒绝（2026-11-10）
 
