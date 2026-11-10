@@ -156,3 +156,8 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - 新增`upgrade-homebrew-lane.sh`：持有现有共享brew-queue.lock，使当前formula完成而下一条不能出队；/proc精确argv确认目标prefix无brew.rb后保存diff/stash、浅fetch、应用patch并跑config/b2sum/installed JSON，任何失败自动回滚，不杀进程或重启lane。首次`brew --version | head`在pipefail下SIGPIPE=141，已确认旧HEAD和4补丁完整恢复；改为全量捕获后重试成功。
 - lane2现HEAD=bc63375ac3a4d6debb1ceb441ae6e22854f0909a，5文件与candidate逐字一致，b2sum及486项installed JSON通过；lane1同样7.0.13，双服务active。lane1升级后bwfmetaedit/chadwick/microsocks/miniupnpc/pstree/passt/symlinks均真实构建成功，无新增dunno错误。
 - GUI新增`--check-inventory`，通过真实QProcess→brew info→JSON→表格路径后按结果退出，带60秒超时且启动失败立即非零；0.1.0-4分别对两prefix返回PASS。offscreen/Wayland smoke继续通过。deb SHA=`7c4ed634592c6abb1b4a91cf2d6e82b16593e7920efbc907aaf046484f8fa271`，dry-run/deploy及远端精确0.1.0-4可见性全过。
+
+# 2026-11-10 选择性OS更新与present fence负结果
+
+- apt模拟原有10项更新，仅选择spirv-llvm-translator22.1.8、wayland-protocols1.50和vim9.2.1310；单独模拟证明不牵拉Mesa。更新后安装vkgl SHA仍afac548f，dmabuf/wl_shm各vulkaninfo+vkcube60帧+vkmark五场景全过、validation=0、无llvmpipe。Mesa26.2.6仅下载审查，文件清单确认会替换vkgl直接依赖的libgbm及EGL/Vulkan层，未安装。autopilot/hourly-review/brew-update/site-publish timers均active。
+- 独立候选把dmabuf QueuePresent的glFinish改为真实EGL fence wait，任何错误仍glFinish；candidate SHA=9ca09966，两路径严格烟雾0 validation。6轮AB/BA、640×480 FIFO、三场景各4秒，12进程36结果全成功。vertex/texture/shading同轮变化中位−0.61/−0.81/−1.29%，正对2/6、2/6、1/6；无可复现收益，不合并、不打deb、不换安装库。补丁、基准脚本和完整JSON公开，见[`vkgl-present-egl-fence.md`](../scripts/research/lg110/vkgl-present-egl-fence.md)。

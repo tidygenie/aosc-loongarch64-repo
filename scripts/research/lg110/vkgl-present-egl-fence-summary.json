@@ -1,0 +1,240 @@
+{
+  "runs": [
+    {
+      "fps": {
+        "shading": 135.0,
+        "texture": 98.0,
+        "vertex": 124.0
+      },
+      "log": "round-1-installed.log",
+      "round": 1,
+      "seconds": 12.336032390594482,
+      "variant": "installed"
+    },
+    {
+      "fps": {
+        "shading": 143.0,
+        "texture": 124.0,
+        "vertex": 167.0
+      },
+      "log": "round-1-fence.log",
+      "round": 1,
+      "seconds": 12.496065616607666,
+      "variant": "fence"
+    },
+    {
+      "fps": {
+        "shading": 141.0,
+        "texture": 122.0,
+        "vertex": 169.0
+      },
+      "log": "round-2-fence.log",
+      "round": 2,
+      "seconds": 12.545414686203003,
+      "variant": "fence"
+    },
+    {
+      "fps": {
+        "shading": 148.0,
+        "texture": 124.0,
+        "vertex": 162.0
+      },
+      "log": "round-2-installed.log",
+      "round": 2,
+      "seconds": 12.592037677764893,
+      "variant": "installed"
+    },
+    {
+      "fps": {
+        "shading": 154.0,
+        "texture": 122.0,
+        "vertex": 164.0
+      },
+      "log": "round-3-installed.log",
+      "round": 3,
+      "seconds": 12.524839401245117,
+      "variant": "installed"
+    },
+    {
+      "fps": {
+        "shading": 152.0,
+        "texture": 123.0,
+        "vertex": 162.0
+      },
+      "log": "round-3-fence.log",
+      "round": 3,
+      "seconds": 12.49408221244812,
+      "variant": "fence"
+    },
+    {
+      "fps": {
+        "shading": 154.0,
+        "texture": 125.0,
+        "vertex": 172.0
+      },
+      "log": "round-4-fence.log",
+      "round": 4,
+      "seconds": 12.468528985977173,
+      "variant": "fence"
+    },
+    {
+      "fps": {
+        "shading": 156.0,
+        "texture": 126.0,
+        "vertex": 172.0
+      },
+      "log": "round-4-installed.log",
+      "round": 4,
+      "seconds": 12.502933979034424,
+      "variant": "installed"
+    },
+    {
+      "fps": {
+        "shading": 150.0,
+        "texture": 122.0,
+        "vertex": 172.0
+      },
+      "log": "round-5-installed.log",
+      "round": 5,
+      "seconds": 12.547305583953857,
+      "variant": "installed"
+    },
+    {
+      "fps": {
+        "shading": 150.0,
+        "texture": 121.0,
+        "vertex": 165.0
+      },
+      "log": "round-5-fence.log",
+      "round": 5,
+      "seconds": 12.517104387283325,
+      "variant": "fence"
+    },
+    {
+      "fps": {
+        "shading": 136.0,
+        "texture": 121.0,
+        "vertex": 166.0
+      },
+      "log": "round-6-fence.log",
+      "round": 6,
+      "seconds": 12.57626223564148,
+      "variant": "fence"
+    },
+    {
+      "fps": {
+        "shading": 174.0,
+        "texture": 133.0,
+        "vertex": 189.0
+      },
+      "log": "round-6-installed.log",
+      "round": 6,
+      "seconds": 12.473381757736206,
+      "variant": "installed"
+    }
+  ],
+  "scenes": {
+    "shading": {
+      "fence": {
+        "median": 146.5,
+        "values": [
+          143.0,
+          141.0,
+          152.0,
+          154.0,
+          150.0,
+          136.0
+        ]
+      },
+      "installed": {
+        "median": 152.0,
+        "values": [
+          135.0,
+          148.0,
+          154.0,
+          156.0,
+          150.0,
+          174.0
+        ]
+      },
+      "paired_median": -1.2903762903762903,
+      "paired_percent": [
+        5.9259259259259265,
+        -4.72972972972973,
+        -1.2987012987012987,
+        -1.282051282051282,
+        0.0,
+        -21.839080459770116
+      ],
+      "positive_pairs": 1
+    },
+    "texture": {
+      "fence": {
+        "median": 122.5,
+        "values": [
+          124.0,
+          122.0,
+          123.0,
+          125.0,
+          121.0,
+          121.0
+        ]
+      },
+      "installed": {
+        "median": 123.0,
+        "values": [
+          98.0,
+          124.0,
+          122.0,
+          126.0,
+          122.0,
+          133.0
+        ]
+      },
+      "paired_median": -0.8066614623991673,
+      "paired_percent": [
+        26.53061224489796,
+        -1.6129032258064515,
+        0.819672131147541,
+        -0.7936507936507936,
+        -0.819672131147541,
+        -9.022556390977442
+      ],
+      "positive_pairs": 2
+    },
+    "vertex": {
+      "fence": {
+        "median": 166.5,
+        "values": [
+          167.0,
+          169.0,
+          162.0,
+          172.0,
+          165.0,
+          166.0
+        ]
+      },
+      "installed": {
+        "median": 168.0,
+        "values": [
+          124.0,
+          162.0,
+          164.0,
+          172.0,
+          172.0,
+          189.0
+        ]
+      },
+      "paired_median": -0.6097560975609756,
+      "paired_percent": [
+        34.67741935483871,
+        4.320987654320987,
+        -1.2195121951219512,
+        0.0,
+        -4.069767441860465,
+        -12.16931216931217
+      ],
+      "positive_pairs": 2
+    }
+  }
+}

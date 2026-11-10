@@ -1,0 +1,22 @@
+--- a/packages/graphics-drivers/vkgl-loonggpu/files/vkgl.cpp
++++ b/packages/graphics-drivers/vkgl-loonggpu/files/vkgl.cpp
+@@ -2432,10 +2432,16 @@
+       GlCtx::get().make_current();
+       wl_buffer *present_buf = sc->dbufs[idx] ? sc->dbufs[idx] : sc->wl_buffers[idx];
+       if (sc->dbufs[idx]) {
+-         /* glReadPixels used to provide an implicit full GPU sync.  Keep that
+-          * guarantee without copying pixels through the CPU. */
++         /* Preserve the old full-GPU synchronisation guarantee, but let the
++          * vendor's real EGL fence perform the wait.  Any fence error keeps
++          * the conservative glFinish fallback. */
+          glBindFramebuffer(GL_FRAMEBUFFER, img->fbo);
+-         glFinish();
++         EglFenceBackend backend;
++         void *sync = backend.create_sync();
++         auto result = sync ? backend.wait_sync(sync, vkgl_fence::infinite_timeout)
++                            : vkgl_fence::Result::Error;
++         backend.destroy_sync(sync);
++         if (result != vkgl_fence::Result::Signaled) backend.finish_commands();
+          glBindFramebuffer(GL_FRAMEBUFFER, 0);
+       } else {
+          glBindFramebuffer(GL_FRAMEBUFFER, img->fbo);
