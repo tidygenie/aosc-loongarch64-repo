@@ -77,8 +77,12 @@ red/black `0000ffff000000ff`. A third test updates vertex binding 0 through an
 8-byte buffer-binding offset, then restores offscreen vertices through its host
 mapping before submission. Retained 0.1.34 produced the clear color `663300ff`
 and failed; both 0.1.35 binaries produced the gradient center `007f40ff` with
-Khronos validation enabled. These prove ordering and upload visibility for the
-tested indirect and vertex consumers, not every possible uniform consumer.
+Khronos validation enabled. A fourth test records a red vec4 into a fragment
+uniform buffer, mutates the source, and restores blue through the host mapping
+before submission. Retained 0.1.34 produced blue/black `ff0000ff000000ff` and
+failed; both 0.1.35 binaries produced red/black `0000ffff000000ff`. These tests
+cover the specified indirect, vertex, and uniform consumers; they are not a
+claim of complete Vulkan conformance.
 
 ## Package, installation, and publication
 
