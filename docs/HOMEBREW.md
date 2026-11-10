@@ -151,3 +151,22 @@ The lane's incomplete-result branch now calls `record_failure`: only
 `test=1,pour=1` may clear a failure. A subsequent unrelated `chadwick` 0/0 result
 was retained in the deduplicated failure list, providing a live regression check
 that incomplete retries cannot silently improve the reported failure rate.
+
+## libaio official-source relocation (2026-11-10)
+
+The local core formula still referenced the removed Pagure archive and failed with
+404. Current [Homebrew core](https://github.com/Homebrew/homebrew-core/blob/master/Formula/lib/libaio.rb)
+uses the upstream Codeberg release for the same `libaio 0.3.113`; the two archive
+layouts have different SHA-256 values and are not interchangeable. The protected
+formula now matches current core, and the Codeberg archive independently matched
+`2c44d1c5fd0d43752287c9ae1eb9c023f04ef848ea8d4aafa46e9aedb678200b`.
+
+Build, upstream test, bottle pour and poured test all passed. An additional strict
+C program linked against the final bottle created an eight-event Linux AIO context
+and destroyed it, printing `libaio io_setup/io_destroy: success` on the RT kernel
+(`CONFIG_AIO=y`). This is stronger than the formula's declaration-only smoke test.
+Bottle SHA-256:
+`a4a9285d3a5d7ae2bd496d2804ec6b47959afab9a9f2038e9a17aa30676e4baf`.
+All four aliases were byte-identical locally and over HTTPS. Tap `main` and the
+bare repository contain the final formula at
+`f5f45c97d39fcb064fd1535ed900aaf77932a1bf`.
