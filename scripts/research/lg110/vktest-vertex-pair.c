@@ -2,8 +2,12 @@
  * LG110_PAIR_MODE=same is the noise control, offset alternates binding offset
  * 0/8/0, stride alternates pipeline UV stride 8/16/8, format alternates only
  * UV R32G32_SFLOAT/R32_SFLOAT/R32G32_SFLOAT by default; LG110_UV_FORMAT also
- * accepts rgb32 or rgba32 for same-colour component-count controls, and
- * pipeline alternates two otherwise identical stride=16 pipelines. Use FRAME_LIMIT=3.
+ * accepts rgb32/rgba32 and rg8unorm/rgba8unorm/rg16unorm/rgba16unorm.
+ * RGBA16 is an A-A-A same-colour control for this input, like rgb32/rgba32;
+ * the other UNORM formats are A-B-A-distinct.  With the external GDB pair
+ * mutator changing only B back to R32G32, LG110_EXPECT_FORMAT_MUTATION=1
+ * instead requires exact A-A-A pixels.  Pipeline alternates two otherwise
+ * identical stride=16 pipelines. Use FRAME_LIMIT=3.
  * Cyclic positions and constant {0,0.5} UV pairs keep default center pixels
  * equal. LG110_ATTRIBUTE_SENSITIVE=1 instead uses distinct UV pairs and checks
  * A-B-A-distinct for stride or A-A-A for same/pipeline with a direct-color
@@ -123,10 +127,19 @@ int main(void) {
    if (!strcmp(uv_format_text, "r32")) pair_uv_format = VK_FORMAT_R32_SFLOAT;
    else if (!strcmp(uv_format_text, "rgb32")) pair_uv_format = VK_FORMAT_R32G32B32_SFLOAT;
    else if (!strcmp(uv_format_text, "rgba32")) pair_uv_format = VK_FORMAT_R32G32B32A32_SFLOAT;
+   else if (!strcmp(uv_format_text, "rg8unorm")) pair_uv_format = VK_FORMAT_R8G8_UNORM;
+   else if (!strcmp(uv_format_text, "rgba8unorm")) pair_uv_format = VK_FORMAT_R8G8B8A8_UNORM;
+   else if (!strcmp(uv_format_text, "rg16unorm")) pair_uv_format = VK_FORMAT_R16G16_UNORM;
+   else if (!strcmp(uv_format_text, "rgba16unorm")) pair_uv_format = VK_FORMAT_R16G16B16A16_UNORM;
    else pair_uv_format = VK_FORMAT_MAX_ENUM;
-   int pair_format_distinct = pair_format && pair_uv_format == VK_FORMAT_R32_SFLOAT;
+   int pair_format_distinct = pair_format &&
+      pair_uv_format != VK_FORMAT_R32G32B32_SFLOAT &&
+      pair_uv_format != VK_FORMAT_R32G32B32A32_SFLOAT &&
+      pair_uv_format != VK_FORMAT_R16G16B16A16_UNORM;
    int attribute_sensitive = getenv("LG110_ATTRIBUTE_SENSITIVE") &&
                              !strcmp(getenv("LG110_ATTRIBUTE_SENSITIVE"), "1");
+   int expect_format_mutation = getenv("LG110_EXPECT_FORMAT_MUTATION") &&
+                                !strcmp(getenv("LG110_EXPECT_FORMAT_MUTATION"), "1");
    if (*pair_text && !pair_mode) {
       fprintf(stderr, "LG110_PAIR_MODE=offset|stride|pipeline|format|same\n"); return 1;
    }
@@ -154,7 +167,8 @@ int main(void) {
        ((pair_pipeline || pair_format) && strcmp(uv_stride_text, "16")) ||
        (pair_format && pair_uv_format == VK_FORMAT_MAX_ENUM) ||
        (!pair_format && getenv("LG110_UV_FORMAT")) ||
-       (attribute_sensitive && (!pair_mode || pair_offset || strcmp(frame_text, "3")))) {
+       (attribute_sensitive && (!pair_mode || pair_offset || strcmp(frame_text, "3"))) ||
+       (expect_format_mutation && (!attribute_sensitive || !pair_format_distinct))) {
       fprintf(stderr, "draw=3|2 first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 topology=... frames=120|1 pair=2|3\n"); return 1;
    }
    int position_offset = atoi(position_offset_text);
@@ -453,7 +467,7 @@ int main(void) {
    int pixels_valid=0, all_pixels_valid=1, readback_attempted=0;
    if (attribute_sensitive)
       printf("attribute_sensitive=1 pair=%s expected_pattern=%s\n",
-             pair_text, (pair_stride || pair_format_distinct) ? "A-B-A-distinct" : "A-A-A");
+             pair_text, (pair_stride || (pair_format_distinct && !expect_format_mutation)) ? "A-B-A-distinct" : "A-A-A");
    else
       printf("readback center=(320,240) format=%d tolerance=2 expected_bytes=%02x%02x%02x%02x\n",
          fmts[0].format,expected[0],expected[1],expected[2],expected[3]);
@@ -549,7 +563,7 @@ int main(void) {
    }
    if (attribute_sensitive) {
       int pattern_valid;
-      if (pair_stride || pair_format_distinct)
+      if (pair_stride || (pair_format_distinct && !expect_format_mutation))
          pattern_valid = !memcmp(pair_pixels[0],pair_pixels[2],4) &&
                          memcmp(pair_pixels[0],pair_pixels[1],4) != 0;
       else

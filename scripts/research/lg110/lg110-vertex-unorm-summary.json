@@ -1,0 +1,137 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "driver_sha256": "aff7101ab877db0026fa0f8274e03a579f1b4fd2c16fabe2478d08f224d0da0a",
+  "test_binary_sha256": "4387e7a72c718248e175f639c524eb9a55f15d2c85a1849c18f06aceb4e2fdc2",
+  "mapping": "word3[18:0] = raw_metadata[50:32]",
+  "uv_entries_per_gdb_run": 11,
+  "all_entries_mapping_valid": true,
+  "validation_clean_claimed": false,
+  "variants": [
+    {
+      "name": "rg8unorm",
+      "vk_format": "VK_FORMAT_R8G8_UNORM",
+      "vk_format_number": 16,
+      "raw_metadata": "0x0001822c00000000",
+      "word3": "0x0001822c",
+      "plain_pixel_hex": [
+        "007010ff",
+        "000000ff",
+        "007010ff"
+      ],
+      "word3_subfields": {
+        "bits_2_0": 4,
+        "bits_5_3": 5,
+        "bits_8_6": 0,
+        "bits_11_9": 1,
+        "bits_14_12": 0,
+        "bits_18_15": 3
+      },
+      "plain_log_sha256": "3d6a8c54009ae9c4d4cac80e993cd8b1a5aca230ffe65c2ac19c4e8d988c23a0",
+      "gdb_log_sha256": "7e09b9add007ec0db24b205ae2934169bb9f0fb636b47cc1373e2a8e1c97d50a",
+      "causal_mutation": {
+        "source_word3": "0x0001822c",
+        "destination_word3": "0x0005f22c",
+        "mutations": 1,
+        "unexpected": 0,
+        "mutated_pixel_hex": [
+          "007010ff",
+          "007010ff",
+          "007010ff"
+        ],
+        "log_sha256": "4e77506f40c31a8b932f15dc9449351d7e519ad26fc371a70f1ba2fc588f1756"
+      }
+    },
+    {
+      "name": "rgba8unorm",
+      "vk_format": "VK_FORMAT_R8G8B8A8_UNORM",
+      "vk_format_number": 37,
+      "raw_metadata": "0x00050fac00000000",
+      "word3": "0x00050fac",
+      "plain_pixel_hex": [
+        "007010ff",
+        "000000ff",
+        "007010ff"
+      ],
+      "word3_subfields": {
+        "bits_2_0": 4,
+        "bits_5_3": 5,
+        "bits_8_6": 6,
+        "bits_11_9": 7,
+        "bits_14_12": 0,
+        "bits_18_15": 10
+      },
+      "plain_log_sha256": "712a65e179111b7e4bb3aa34df33727fb78f6d6f0ca993bf158820a39e8cb0e9",
+      "gdb_log_sha256": "37e1bde12bc530666a1801b2e906212ba59d54e3e0741ca7a268cabe75851109",
+      "causal_mutation": {
+        "source_word3": "0x00050fac",
+        "destination_word3": "0x0005f22c",
+        "mutations": 1,
+        "unexpected": 0,
+        "mutated_pixel_hex": [
+          "007010ff",
+          "007010ff",
+          "007010ff"
+        ],
+        "log_sha256": "6a69362a774f01baf89eb0ca047459cadfe7f44851f0286cd06085190da8be89"
+      }
+    },
+    {
+      "name": "rg16unorm",
+      "vk_format": "VK_FORMAT_R16G16_UNORM",
+      "vk_format_number": 77,
+      "raw_metadata": "0x0002822c00000000",
+      "word3": "0x0002822c",
+      "plain_pixel_hex": [
+        "007010ff",
+        "001000ff",
+        "007010ff"
+      ],
+      "word3_subfields": {
+        "bits_2_0": 4,
+        "bits_5_3": 5,
+        "bits_8_6": 0,
+        "bits_11_9": 1,
+        "bits_14_12": 0,
+        "bits_18_15": 5
+      },
+      "plain_log_sha256": "baeb65a5498117c94d3e989f0c842e36965d9d6359d27d9cae8d2e2e3c273f0d",
+      "gdb_log_sha256": "821853fe5d41f550e3cd27e7bb89ea8383017a5239a2cc7b71608c8420729a1c",
+      "causal_mutation": {
+        "source_word3": "0x0002822c",
+        "destination_word3": "0x0005f22c",
+        "mutations": 1,
+        "unexpected": 0,
+        "mutated_pixel_hex": [
+          "007010ff",
+          "007010ff",
+          "007010ff"
+        ],
+        "log_sha256": "281edeae10266cb99c149d09ee9f5bbba4a0944a66a918d01046db00485ccbc1"
+      }
+    },
+    {
+      "name": "rgba16unorm",
+      "vk_format": "VK_FORMAT_R16G16B16A16_UNORM",
+      "vk_format_number": 91,
+      "raw_metadata": "0x00077fac00000000",
+      "word3": "0x00077fac",
+      "plain_pixel_hex": [
+        "007010ff",
+        "007010ff",
+        "007010ff"
+      ],
+      "word3_subfields": {
+        "bits_2_0": 4,
+        "bits_5_3": 5,
+        "bits_8_6": 6,
+        "bits_11_9": 7,
+        "bits_14_12": 7,
+        "bits_18_15": 14
+      },
+      "plain_log_sha256": "0cbacb62979eccd2b0f431790359908f2acd7091f5f397316c3122b3f14ad5d4",
+      "gdb_log_sha256": "68472fbc7ce8c5b137a6eb922755703f2a410217cc254c68e7eda7a8a1b35820",
+      "causal_mutation": null
+    }
+  ]
+}

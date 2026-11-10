@@ -144,4 +144,5 @@ Raw logs, disassembly and pixels are retained under
 `/home/houge/infra/gpu/evidence/lg110-descriptor-format-20261110/` and
 `/home/houge/infra/gpu/evidence/lg110-descriptor-format-table-20261110/`.  This is a
 vendor-format descriptor result, not a native Vulkan driver, performance claim,
-or proof for formats other than the four tested.
+or proof for formats other than the four tested.  The later normalized-integer
+extension is in [`lg110-vendor-vertex-unorm.md`](lg110-vendor-vertex-unorm.md).
