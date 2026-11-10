@@ -209,6 +209,10 @@
 - 0.1.20 的 point 请求因 vkgl 硬编码 triangles 而与 triangle 完全同 IB；修复后六种 topology 仅在 word268 呈现 `0/1/3/4/5/6 << 8` 对应值，其余 GFX 不变。主动 triangle→point 只改 word268 `0x40000400→0x40000000` 即精确复现 point clear raw，count 回归与 point 旧值拒绝通过；word273 不随 topology 改变，已更正为未命名字段。见 [draw-topology 报告](../scripts/research/lg110/lg110-draw-topology-field.md)。
 - 这些仅是特定 clear/draw 流的字段因果证据，仍不是完整 0x88/0x89 包语义、完整 draw/shader ISA、地址/tile、独立 replay 或原生 Vulkan；不能复用 AMD PM4/RADV 代替。
 
+## GCC 16 PGO候选拒绝（2026-11-10）
+
+- 干净0.1.31源码在既有O3+LA664+LTO基线上做profile-generate→LG110三场景训练→profile-use，未合并present-fence候选。六轮AB/BA的vertex/texture/shading配对中位为**−2.67% / 0% / −2.68%**，正收益对数分别2/6、2/6、1/6；不安装、不升版。完整数据见[PGO负结果](../scripts/research/lg110/vkgl-pgo-gcc16.md)，安装库SHA仍为`afac548f68ed43574b546b76e541110fba46e9c329f66a3318fcecc7dc4d2b3b`。
+
 ## 测试
 
 ```bash

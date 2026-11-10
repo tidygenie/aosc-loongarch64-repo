@@ -1,0 +1,240 @@
+{
+  "runs": [
+    {
+      "fps": {
+        "shading": 160.0,
+        "texture": 153.0,
+        "vertex": 226.0
+      },
+      "log": "round-1-installed.log",
+      "round": 1,
+      "seconds": 12.229788541793823,
+      "variant": "installed"
+    },
+    {
+      "fps": {
+        "shading": 146.0,
+        "texture": 116.0,
+        "vertex": 153.0
+      },
+      "log": "round-1-pgo.log",
+      "round": 1,
+      "seconds": 12.520687580108643,
+      "variant": "pgo"
+    },
+    {
+      "fps": {
+        "shading": 173.0,
+        "texture": 118.0,
+        "vertex": 168.0
+      },
+      "log": "round-2-pgo.log",
+      "round": 2,
+      "seconds": 12.470246076583862,
+      "variant": "pgo"
+    },
+    {
+      "fps": {
+        "shading": 145.0,
+        "texture": 115.0,
+        "vertex": 188.0
+      },
+      "log": "round-2-installed.log",
+      "round": 2,
+      "seconds": 12.452720165252686,
+      "variant": "installed"
+    },
+    {
+      "fps": {
+        "shading": 163.0,
+        "texture": 127.0,
+        "vertex": 177.0
+      },
+      "log": "round-3-installed.log",
+      "round": 3,
+      "seconds": 12.448829412460327,
+      "variant": "installed"
+    },
+    {
+      "fps": {
+        "shading": 155.0,
+        "texture": 128.0,
+        "vertex": 181.0
+      },
+      "log": "round-3-pgo.log",
+      "round": 3,
+      "seconds": 12.466733694076538,
+      "variant": "pgo"
+    },
+    {
+      "fps": {
+        "shading": 160.0,
+        "texture": 127.0,
+        "vertex": 179.0
+      },
+      "log": "round-4-pgo.log",
+      "round": 4,
+      "seconds": 12.425117492675781,
+      "variant": "pgo"
+    },
+    {
+      "fps": {
+        "shading": 165.0,
+        "texture": 127.0,
+        "vertex": 184.0
+      },
+      "log": "round-4-installed.log",
+      "round": 4,
+      "seconds": 12.478936910629272,
+      "variant": "installed"
+    },
+    {
+      "fps": {
+        "shading": 172.0,
+        "texture": 132.0,
+        "vertex": 183.0
+      },
+      "log": "round-5-installed.log",
+      "round": 5,
+      "seconds": 12.434399843215942,
+      "variant": "installed"
+    },
+    {
+      "fps": {
+        "shading": 168.0,
+        "texture": 132.0,
+        "vertex": 196.0
+      },
+      "log": "round-5-pgo.log",
+      "round": 5,
+      "seconds": 12.3652663230896,
+      "variant": "pgo"
+    },
+    {
+      "fps": {
+        "shading": 170.0,
+        "texture": 130.0,
+        "vertex": 186.0
+      },
+      "log": "round-6-pgo.log",
+      "round": 6,
+      "seconds": 12.47800087928772,
+      "variant": "pgo"
+    },
+    {
+      "fps": {
+        "shading": 171.0,
+        "texture": 134.0,
+        "vertex": 191.0
+      },
+      "log": "round-6-installed.log",
+      "round": 6,
+      "seconds": 12.411824703216553,
+      "variant": "installed"
+    }
+  ],
+  "scenes": {
+    "shading": {
+      "installed": {
+        "median": 164.0,
+        "values": [
+          160.0,
+          145.0,
+          163.0,
+          165.0,
+          172.0,
+          171.0
+        ]
+      },
+      "paired_median": -2.6779422128259336,
+      "paired_percent": [
+        -8.75,
+        19.310344827586206,
+        -4.9079754601226995,
+        -3.0303030303030303,
+        -2.3255813953488373,
+        -0.5847953216374269
+      ],
+      "pgo": {
+        "median": 164.0,
+        "values": [
+          146.0,
+          173.0,
+          155.0,
+          160.0,
+          168.0,
+          170.0
+        ]
+      },
+      "positive_pairs": 1
+    },
+    "texture": {
+      "installed": {
+        "median": 129.5,
+        "values": [
+          153.0,
+          115.0,
+          127.0,
+          127.0,
+          132.0,
+          134.0
+        ]
+      },
+      "paired_median": 0.0,
+      "paired_percent": [
+        -24.18300653594771,
+        2.608695652173913,
+        0.7874015748031495,
+        0.0,
+        0.0,
+        -2.9850746268656714
+      ],
+      "pgo": {
+        "median": 127.5,
+        "values": [
+          116.0,
+          118.0,
+          128.0,
+          127.0,
+          132.0,
+          130.0
+        ]
+      },
+      "positive_pairs": 2
+    },
+    "vertex": {
+      "installed": {
+        "median": 186.0,
+        "values": [
+          226.0,
+          188.0,
+          177.0,
+          184.0,
+          183.0,
+          191.0
+        ]
+      },
+      "paired_median": -2.6675961757341224,
+      "paired_percent": [
+        -32.30088495575221,
+        -10.638297872340425,
+        2.2598870056497176,
+        -2.717391304347826,
+        7.103825136612022,
+        -2.6178010471204187
+      ],
+      "pgo": {
+        "median": 180.0,
+        "values": [
+          153.0,
+          168.0,
+          181.0,
+          179.0,
+          196.0,
+          186.0
+        ]
+      },
+      "positive_pairs": 2
+    }
+  }
+}
