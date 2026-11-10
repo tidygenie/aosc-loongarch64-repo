@@ -356,6 +356,7 @@ struct Pipeline : Obj {
    GLuint program = 0;
    bool built = false;
    VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+   VkBool32 primitive_restart = VK_FALSE;
    VkCullModeFlags cull = VK_CULL_MODE_NONE;
    VkFrontFace front = VK_FRONT_FACE_COUNTER_CLOCKWISE;
    VkBool32 depth_test = VK_FALSE, depth_write = VK_FALSE;
@@ -3022,6 +3023,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkgl_CreateGraphicsPipelines(
       p->layout = from_handle<PipelineLayout>((uint64_t)ci[n].layout);
       p->rp = from_handle<RenderPass>((uint64_t)ci[n].renderPass);
       p->topology = ci[n].pInputAssemblyState ? ci[n].pInputAssemblyState->topology : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+      p->primitive_restart = ci[n].pInputAssemblyState ?
+         ci[n].pInputAssemblyState->primitiveRestartEnable : VK_FALSE;
       GLenum draw_mode;
       if (!gl_topology_for_vk(p->topology, &draw_mode)) {
          delete p;
@@ -3288,6 +3291,49 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets,
       VKGL_LOG("unsupported draw topology %d\n", (int)p->topology);
       return;
    }
+   bool software_restart = cmd.kind == Cmd::DrawIndexed && p->primitive_restart &&
+      (p->topology == VK_PRIMITIVE_TOPOLOGY_LINE_STRIP ||
+       p->topology == VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP ||
+       p->topology == VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN);
+   std::vector<std::pair<uint32_t, uint32_t>> restart_segments;
+   if (software_restart) {
+      if (!ibuf || !ibuf->mem) return;
+      const VkDeviceSize width = cmd.index_type == VK_INDEX_TYPE_UINT32 ? 4 : 2;
+      const VkDeviceSize first_bytes = (VkDeviceSize)cmd.first * width;
+      const VkDeviceSize count_bytes = (VkDeviceSize)cmd.count * width;
+      const auto &shadow = ibuf->mem->shadow;
+      if (ioff > ibuf->size || first_bytes > ibuf->size - ioff ||
+          count_bytes > ibuf->size - ioff - first_bytes ||
+          ibuf->mem_offset > shadow.size()) {
+         VKGL_LOG("primitive restart index range is outside the buffer\n");
+         return;
+      }
+      const VkDeviceSize relative = ioff + first_bytes;
+      if (relative > shadow.size() - ibuf->mem_offset ||
+          count_bytes > shadow.size() - ibuf->mem_offset - relative) {
+         VKGL_LOG("primitive restart index range is outside the memory shadow\n");
+         return;
+      }
+      const uint8_t *indices = shadow.data() + ibuf->mem_offset + relative;
+      const uint32_t sentinel = width == 4 ? 0xffffffffU : 0xffffU;
+      uint32_t segment_first = 0;
+      for (uint32_t i = 0; i < cmd.count; ++i) {
+         uint32_t index;
+         if (width == 4) {
+            memcpy(&index, indices + (VkDeviceSize)i * width, sizeof(index));
+         } else {
+            uint16_t short_index;
+            memcpy(&short_index, indices + (VkDeviceSize)i * width, sizeof(short_index));
+            index = short_index;
+         }
+         if (index == sentinel) {
+            if (i > segment_first) restart_segments.emplace_back(segment_first, i - segment_first);
+            segment_first = i + 1;
+         }
+      }
+      if (segment_first < cmd.count)
+         restart_segments.emplace_back(segment_first, cmd.count - segment_first);
+   }
    /* Software instancing is deliberately a repeated draw, not an unadvertised
     * hardware entry point. Locations are cached at pipeline link time. */
    for (uint32_t instance = 0; instance < cmd.instances; ++instance) {
@@ -3319,29 +3365,60 @@ void vkgl_execute_draw(Pipeline *p, std::vector<DescriptorSet *> &sets,
                ibuf->uploaded_submit = g_submit_serial;
             }
             GLenum it = cmd.index_type == VK_INDEX_TYPE_UINT32 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
-            const void *indices = (const void *)(uintptr_t)(ioff +
-                (VkDeviceSize)cmd.first * (it == GL_UNSIGNED_INT ? 4 : 2));
-            if (cmd.vertex_offset != 0) {
-               using BaseVertexFn = void (*)(GLenum, GLsizei, GLenum,
-                                                      const void *, GLint);
-               static BaseVertexFn base_vertex = nullptr;
-               static bool resolved = false;
-               if (!resolved) {
-                  base_vertex = reinterpret_cast<BaseVertexFn>(
-                      eglGetProcAddress("glDrawElementsBaseVertex"));
-                  resolved = true;
-               }
-               if (base_vertex) {
-                  base_vertex(draw_mode, (GLsizei)cmd.count, it, indices,
-                              (GLint)cmd.vertex_offset);
-               } else {
-                  static int reported = 0;
-                  if (reported++ < 1)
-                     fprintf(stderr, "vkgl: vertexOffset requires glDrawElementsBaseVertex\n");
-                  break;
+            const VkDeviceSize width = it == GL_UNSIGNED_INT ? 4 : 2;
+            if (software_restart) {
+               for (const auto &segment : restart_segments) {
+                  const void *indices = (const void *)(uintptr_t)(ioff +
+                     ((VkDeviceSize)cmd.first + segment.first) * width);
+                  const GLsizei count = (GLsizei)segment.second;
+                  if (cmd.vertex_offset != 0) {
+                     using BaseVertexFn = void (*)(GLenum, GLsizei, GLenum,
+                                                           const void *, GLint);
+                     static BaseVertexFn base_vertex = nullptr;
+                     static bool resolved = false;
+                     if (!resolved) {
+                        base_vertex = reinterpret_cast<BaseVertexFn>(
+                            eglGetProcAddress("glDrawElementsBaseVertex"));
+                        resolved = true;
+                     }
+                     if (base_vertex) {
+                        base_vertex(draw_mode, count, it, indices,
+                                    (GLint)cmd.vertex_offset);
+                     } else {
+                        static int reported = 0;
+                        if (reported++ < 1)
+                           fprintf(stderr, "vkgl: vertexOffset requires glDrawElementsBaseVertex\n");
+                        return;
+                     }
+                  } else {
+                     glDrawElements(draw_mode, count, it, indices);
+                  }
                }
             } else {
-               glDrawElements(draw_mode, (GLsizei)cmd.count, it, indices);
+               const void *indices = (const void *)(uintptr_t)(ioff +
+                   (VkDeviceSize)cmd.first * width);
+               if (cmd.vertex_offset != 0) {
+                  using BaseVertexFn = void (*)(GLenum, GLsizei, GLenum,
+                                                        const void *, GLint);
+                  static BaseVertexFn base_vertex = nullptr;
+                  static bool resolved = false;
+                  if (!resolved) {
+                     base_vertex = reinterpret_cast<BaseVertexFn>(
+                         eglGetProcAddress("glDrawElementsBaseVertex"));
+                     resolved = true;
+                  }
+                  if (base_vertex) {
+                     base_vertex(draw_mode, (GLsizei)cmd.count, it, indices,
+                                 (GLint)cmd.vertex_offset);
+                  } else {
+                     static int reported = 0;
+                     if (reported++ < 1)
+                        fprintf(stderr, "vkgl: vertexOffset requires glDrawElementsBaseVertex\n");
+                     break;
+                  }
+               } else {
+                  glDrawElements(draw_mode, (GLsizei)cmd.count, it, indices);
+               }
             }
          }
       } else {

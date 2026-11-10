@@ -10,6 +10,7 @@
 #include <wayland-client.h>
 #include "xdg-shell-client-protocol.h"
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -83,6 +84,8 @@ int main(void) {
    const char *index_type_text = getenv("LG110_INDEX_TYPE");
    const char *topology_text = getenv("LG110_DRAW_TOPOLOGY");
    const char *restart_text = getenv("LG110_PRIMITIVE_RESTART");
+   const char *sentinel_text = getenv("LG110_RESTART_SENTINEL");
+   const char *expected_clear_text = getenv("LG110_EXPECT_CLEAR");
    const char *expected_topology_text = getenv("LG110_EXPECT_TOPOLOGY");
    const char *frame_text = getenv("LG110_FRAME_LIMIT");
    if (!draw_text) draw_text = "3";
@@ -95,23 +98,30 @@ int main(void) {
    if (!index_type_text) index_type_text = "16";
    if (!topology_text) topology_text = "triangle";
    if (!restart_text) restart_text = "0";
+   if (!sentinel_text) sentinel_text = "0";
    if (!expected_topology_text) expected_topology_text = topology_text;
    if (!frame_text) frame_text = "120";
    int expect_unsupported = getenv("LG110_EXPECT_UNSUPPORTED") &&
                             !strcmp(getenv("LG110_EXPECT_UNSUPPORTED"), "1");
    if ((strcmp(index_type_text, "16") && strcmp(index_type_text, "32")) ||
        (strcmp(restart_text, "0") && strcmp(restart_text, "1")) ||
+       (strcmp(sentinel_text, "0") && strcmp(sentinel_text, "1")) ||
+       (expected_clear_text && strcmp(expected_clear_text, "0") && strcmp(expected_clear_text, "1")) ||
        (strcmp(indexed_text, "0") && strcmp(indexed_text, "1")) ||
        (strcmp(indirect_text, "0") && strcmp(indirect_text, "1")) ||
+       (!strcmp(sentinel_text, "1") &&
+        (!strcmp(indexed_text, "0") ||
+         (strcmp(topology_text, "triangle-strip") && strcmp(topology_text, "triangle-fan")))) ||
        (strcmp(instance_text, "0") && strcmp(instance_text, "1") && strcmp(instance_text, "2")) ||
        (strcmp(first_instance_text, "0") && strcmp(first_instance_text, "1")) ||
        (strcmp(first_text, "0") && strcmp(first_text, "1")) ||
-       (strcmp(draw_text, "3") && strcmp(draw_text, "2")) ||
+       (strcmp(draw_text, "3") && strcmp(draw_text, "2") &&
+        (strcmp(draw_text, "7") || strcmp(sentinel_text, "1"))) ||
        (strcmp(expected_draw_text, "3") && strcmp(expected_draw_text, "2")) ||
        topology_from_name(topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        topology_from_name(expected_topology_text) == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM ||
        (strcmp(frame_text, "120") && strcmp(frame_text, "1"))) {
-      fprintf(stderr, "draw=3|2 first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 primitive_restart=0|1 topology=... frames=120|1\n"); return 1;
+      fprintf(stderr, "draw=3|2|7(restart) first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 primitive_restart=0|1 sentinel=0|1 expect_clear=0|1 topology=... frames=120|1\n"); return 1;
    }
    int draw_count = draw_text[0] - '0';
    int first_vertex = first_text[0] - '0';
@@ -121,6 +131,7 @@ int main(void) {
    int indirect = indirect_text[0] - '0';
    int index_type = atoi(index_type_text);
    int primitive_restart = restart_text[0] == '1';
+   int restart_sentinel = sentinel_text[0] == '1';
    int expected_draw_count = expected_draw_text[0] - '0';
    VkPrimitiveTopology topology = topology_from_name(topology_text);
    VkPrimitiveTopology expected_topology = topology_from_name(expected_topology_text);
@@ -132,8 +143,8 @@ int main(void) {
       return 1;
    }
    int frame_limit = frame_text[0] == '1' && !frame_text[1] ? 1 : 120;
-   printf("texture variant: %s red=%u other=0 draw=%d first=%d instances=%d first_instance=%d indexed=%d indirect=%d index_type=%d primitive_restart=%d expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
-          mode, nonzero ? 255u : 0u, draw_count, first_vertex, instance_count, first_instance, indexed, indirect, index_type, primitive_restart, expected_draw_count,
+   printf("texture variant: %s red=%u other=0 draw=%d first=%d instances=%d first_instance=%d indexed=%d indirect=%d index_type=%d primitive_restart=%d sentinel=%d expect_clear=%s expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
+          mode, nonzero ? 255u : 0u, draw_count, first_vertex, instance_count, first_instance, indexed, indirect, index_type, primitive_restart, restart_sentinel, expected_clear_text ? expected_clear_text : "auto", expected_draw_count,
           topology_text, expected_topology_text, frame_limit);
    dpy = wl_display_connect(NULL);
    if (!dpy) { fprintf(stderr, "no wayland display\n"); return 1; }
@@ -304,16 +315,25 @@ int main(void) {
    memset(rinit,0xa5,4); vkUnmapMemory(dev,rbmem);
     VkBuffer index_buffer=VK_NULL_HANDLE, indirect_buffer=VK_NULL_HANDLE;
     if (indexed) {
+       size_t index_count = restart_sentinel ? 7U : 3U;
+       VkDeviceSize index_bytes = (VkDeviceSize)index_count * (index_type == 32 ? 4U : 2U);
        VkBufferCreateInfo bci={.sType=VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-          .size=(VkDeviceSize)(index_type==32 ? 12 : 6),.usage=VK_BUFFER_USAGE_INDEX_BUFFER_BIT,.sharingMode=VK_SHARING_MODE_EXCLUSIVE};
+          .size=index_bytes,.usage=VK_BUFFER_USAGE_INDEX_BUFFER_BIT,.sharingMode=VK_SHARING_MODE_EXCLUSIVE};
        CK(vkCreateBuffer(dev,&bci,NULL,&index_buffer));
        VkMemoryRequirements mr; vkGetBufferMemoryRequirements(dev,index_buffer,&mr);
        VkMemoryAllocateInfo ma={.sType=VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,.allocationSize=mr.size,.memoryTypeIndex=0};
        VkDeviceMemory mem; CK(vkAllocateMemory(dev,&ma,NULL,&mem));
        CK(vkBindBufferMemory(dev,index_buffer,mem,0));
-       void *ptr; CK(vkMapMemory(dev,mem,0,index_type==32 ? 12 : 6,0,&ptr));
-       if (index_type==32) { uint32_t indices[3]={0,1,2}; memcpy(ptr,indices,sizeof(indices)); }
-       else { uint16_t indices[3]={0,1,2}; memcpy(ptr,indices,sizeof(indices)); }
+       void *ptr; CK(vkMapMemory(dev,mem,0,index_bytes,0,&ptr));
+       if (index_type==32) {
+          uint32_t normal[3]={0,1,2};
+          uint32_t with_restart[7]={0,1,2,UINT32_MAX,3,4,5};
+          memcpy(ptr,restart_sentinel ? (const void *)with_restart : (const void *)normal,index_bytes);
+       } else {
+          uint16_t normal[3]={0,1,2};
+          uint16_t with_restart[7]={0,1,2,UINT16_MAX,3,4,5};
+          memcpy(ptr,restart_sentinel ? (const void *)with_restart : (const void *)normal,index_bytes);
+       }
        vkUnmapMemory(dev,mem);
     }
     if (indirect) {
@@ -352,7 +372,9 @@ int main(void) {
       expected[0]=(unsigned char)expected_red; expected[1]=(unsigned char)expected_green;
       expected[2]=0; expected[3]=255;
    } else { fprintf(stderr,"unsupported readback format %d\n",fmts[0].format); return 1; }
-   if (expected_draw_count == 2 || topology_clear_at_center(expected_topology)) {
+   int expect_clear = expected_draw_count == 2 || topology_clear_at_center(expected_topology);
+   if (expected_clear_text) expect_clear = expected_clear_text[0] == '1';
+   if (expect_clear) {
       if (fmts[0].format==VK_FORMAT_B8G8R8A8_UNORM) {
          expected[0]=102; expected[1]=51; expected[2]=0; expected[3]=255;
       } else {

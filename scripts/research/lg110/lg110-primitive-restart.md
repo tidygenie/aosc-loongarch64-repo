@@ -88,5 +88,16 @@ Build the capability probe with strict C11 warnings and `-lEGL -lGL -lgbm`.
 External raw logs, complete IB dumps, candidate patch and JSON assertions are in
 `/home/houge/infra/gpu/evidence/lg110-primitive-restart-20261110/`.
 `candidate-rejection-summary.json` asserts all four restart-off/on IB arrays.
-Binaries and full dumps stay outside Git. A future fix needs a demonstrated
-functional path; repeating the same NV-enable candidate is not justified.
+Binaries and full dumps stay outside Git. Repeating the same NV-enable candidate
+is not justified.
+
+## Resolved by software segment splitting in 0.1.33
+
+The final implementation does not call the broken restart enables. It scans the
+existing CPU index shadow only for restart-enabled strip/fan draws and splits at
+the real UINT16/UINT32 sentinel. Dedicated in-bounds sentinel geometry changed
+from the incorrect `007f00ff` on 0.1.32 to the required clear `663300ff` on
+0.1.33; no-sentinel native IBs remain identical. Direct/indirect, strip/fan,
+UINT16/32, instance, index-offset and baseVertex regressions passed. The package
+was installed and published after paired performance controls. See
+[`../../tests/vkgl/vkgl-0.1.33.md`](../../tests/vkgl/vkgl-0.1.33.md).
