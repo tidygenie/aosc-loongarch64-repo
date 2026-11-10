@@ -12,6 +12,13 @@ export CI=1
 
 cd "$SRCDIR"
 
+# The lightweight builder creates an empty SRCDIR for git:: recipes. Fetch the
+# exact version tag here so a clean build does not depend on a stale checkout.
+if [[ ! -f build.sh || ! -f service/go.mod ]]; then
+  git clone --depth=1 --branch "v$VER" https://github.com/v2rayA/v2rayA.git .
+fi
+test "$(git rev-parse HEAD)" = "$(git rev-parse "v$VER^{}")"
+
 # 上游 build.sh 写死 CGO_ENABLED=0，导致 SQLite 驱动不可用（v2raya 启动即失败）。
 # 这里改成 1，让 service 端能用 mattn/go-sqlite3。
 sed -i 's/CGO_ENABLED=0 go build/CGO_ENABLED=1 go build/g' build.sh
