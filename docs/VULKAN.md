@@ -210,6 +210,7 @@
 - 这些仅是特定 clear/draw 流的字段因果证据，仍不是完整 0x88/0x89 包语义、完整 draw/shader ISA、地址/tile、独立 replay 或原生 Vulkan；不能复用 AMD PM4/RADV 代替。
 - vertex format研究已扩至R8G8/RGBA8/R16G16/RGBA16 UNORM，每run 11个UV构造均满足raw[50:32]→word3[18:0]；四种均完成单B descriptor因果恢复。非端点等价数据进一步发现旧RGBA16落默认GL_FLOAT，单行fixed候选改为normalized UNSIGNED_SHORT后，四种float/UNORM像素均精确为`004030ff`；baseline重建与安装库逐字同SHA。fixed另过12项instance-rate及dmabuf/shm smoke，已作为**0.1.32-1安装并发布AOSC deb**；六轮AB/BA仅作回归控制，不宣称性能提升。见[UNORM与RGBA16报告](../scripts/research/lg110/lg110-vendor-vertex-unorm.md)、[0.1.32发布报告](../scripts/tests/vkgl/vkgl-0.1.32.md)及机器summary；不是原生Vulkan。
 - 0.1.32新增word273主动分离：672-dword非索引流仅该词`3→2`、XDMA不变，raw仍与base同为`007f00ff`，故其单独不足以产生word270的count效果，继续不命名；draw2输入零mutation拒绝，word270回归仍精确得到`663300ff`。见[word273负因果报告](../scripts/research/lg110/lg110-draw-word273-field.md)。这不证明word273无用，也不是性能提升或原生replay。
+- indexed word281主动分离保持有效index VA、UINT16和其余签名，仅该词`1→0`；两个XDMA不变、完整GFX仅此一项，raw仍`663300ff`。非indexed零mutation拒绝，配对UINT32基线及index32-to16回归仅word268变化并`007f00ff→663300ff`。word281继续不命名，不称无用/firstInstance/index-width；见[word281负因果报告](../scripts/research/lg110/lg110-draw-word281-field.md)。
 
 ## GCC 16 PGO候选拒绝（2026-11-10）
 

@@ -10,7 +10,8 @@
  * =first-index changes word269 0→3; =base-vertex changes word274 0→1;
  * =base-neg-to-zero changes word274 -1→0 with firstIndex=3. All three require
  * the indexed UINT16 signature and nonzero index VA. =word273 changes only
- * word273 3→2 on the original nonindexed stream. Exact stream
+ * word273 3→2 on the original nonindexed stream. =word281 changes only word281
+ * 1→0 on the indexed UINT16 stream with a valid nonzero index VA. Exact stream
  * signatures,
  * old values, writable mappings, and post-store readback are mandatory.
  * Passive BO_HASH uses HASH_CHUNK dwords per record. LARGE_FULL reads large
@@ -170,6 +171,8 @@ static void configure(void)
             mutate_draw_mode = 9;
         else if (strcmp(draw_value, "word273") == 0)
             mutate_draw_mode = 10;
+        else if (strcmp(draw_value, "word281") == 0)
+            mutate_draw_mode = 11;
         else {
             fprintf(stderr, "LG110DRAWMUTATE invalid field; passive only\n");
         }
@@ -1024,7 +1027,7 @@ static void trace_cs_locked(unsigned int sequence, int fd,
 }
 
 #define LG110_DRAW_DWORDS 672U
-#define LG110_DRAW_SIGNATURE_DWORDS 281U
+#define LG110_DRAW_SIGNATURE_DWORDS 282U
 
 static int draw_word_selected(unsigned int index)
 {
@@ -1035,7 +1038,8 @@ static int draw_word_selected(unsigned int index)
                               mutate_draw_mode == 9)) ||
            (index == 275U && mutate_draw_mode == 5) ||
            (index == 269U && mutate_draw_mode == 7) ||
-           (index == 273U && mutate_draw_mode == 10);
+           (index == 273U && mutate_draw_mode == 10) ||
+           (index == 281U && mutate_draw_mode == 11);
 }
 
 static int draw_signature_matches(const uint32_t *words)
@@ -1060,9 +1064,11 @@ static int draw_signature_matches(const uint32_t *words)
     for (i = 0; i < sizeof(signature) / sizeof(signature[0]); ++i)
         if (!draw_word_selected(signature[i].index)) {
             uint32_t expected = signature[i].value;
-            if (mutate_draw_mode >= 6 && mutate_draw_mode <= 9 && signature[i].index == 268U)
+            if (((mutate_draw_mode >= 6 && mutate_draw_mode <= 9) ||
+                 mutate_draw_mode == 11) && signature[i].index == 268U)
                 expected = 0x40000402U;
-            if (mutate_draw_mode >= 6 && mutate_draw_mode <= 9 && signature[i].index == 276U)
+            if (((mutate_draw_mode >= 6 && mutate_draw_mode <= 9) ||
+                 mutate_draw_mode == 11) && signature[i].index == 276U)
                 expected = 0xffffffffU;
             if (mutate_draw_mode == 9 && signature[i].index == 269U)
                 expected = 3U;
@@ -1116,14 +1122,17 @@ static void maybe_mutate_draw_ib(int fd, const struct drm_loonggpu_cs_in *input)
             if (mutate_draw_mode == 6) {
                 guard_ok = words[270] == 3U && words[276] == 0xffffffffU &&
                            words[268] == 0x40000404U && words[280] != 0U;
-            } else if (mutate_draw_mode >= 7 && mutate_draw_mode <= 9) {
+            } else if ((mutate_draw_mode >= 7 && mutate_draw_mode <= 9) ||
+                       mutate_draw_mode == 11) {
                 guard_ok = words[270] == 3U && words[276] == 0xffffffffU &&
                            words[268] == 0x40000402U && words[280] != 0U;
                 if (mutate_draw_mode == 7 || mutate_draw_mode == 8)
                     guard_ok = guard_ok && words[269] == 0U && words[274] == 0U;
-                else
+                else if (mutate_draw_mode == 9)
                     guard_ok = guard_ok && words[269] == 3U &&
                                words[274] == 0xffffffffU;
+                else if (mutate_draw_mode == 11)
+                    guard_ok = guard_ok && words[281] == 1U;
             } else {
                 guard_ok = words[270] == 3U && words[276] == 2U &&
                            (mutate_draw_mode == 1 || words[268] == 0x40000400U) &&
@@ -1197,6 +1206,14 @@ static void maybe_mutate_draw_ib(int fd, const struct drm_loonggpu_cs_in *input)
                     patched = observed == 2U;
                     log_line("LG110DRAWMUTATE mode=word273 word=273 old=0x00000003 "
                              "new=0x00000002 observed=0x%08x patched=%d",
+                             observed, patched ? 1 : 0);
+                } else if (mutate_draw_mode == 11) {
+                    target[281] = 0U;
+                    __sync_synchronize();
+                    observed = target[281];
+                    patched = observed == 0U;
+                    log_line("LG110DRAWMUTATE mode=word281 word=281 old=0x00000001 "
+                             "new=0x00000000 observed=0x%08x patched=%d",
                              observed, patched ? 1 : 0);
                 } else {
                     unsigned int index = mutate_draw_mode == 4 ? 274U : 275U;
