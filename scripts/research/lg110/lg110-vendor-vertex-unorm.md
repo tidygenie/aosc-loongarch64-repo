@@ -8,13 +8,16 @@ This extends [`lg110-vendor-vertex-format.md`](lg110-vendor-vertex-format.md)
 from four 32-bit float formats to four normalized integer UV formats.  It also
 fixes one discovered vkgl compatibility defect in the public source.
 
-The installed vkgl remains SHA-256
-`afac548f68ed43574b546b76e541110fba46e9c329f66a3318fcecc7dc4d2b3b`;
-the fixed candidate is **not installed or released**.  The installed vendor
-file remains `/usr/lib/gsgpu/dri/gsgpu_dri.so`, SHA-256
+The pre-release baseline was SHA-256
+`afac548f68ed43574b546b76e541110fba46e9c329f66a3318fcecc7dc4d2b3b`.
+The fixed library was subsequently installed and released as 0.1.32-1 with
+SHA-256 `a84c177852cac3f405c1c155d75affcf4ef6d3f7e33dcceed42b6dfb73e041b3`.
+`candidate_installed=false` in the summary describes the capture-time matrix,
+not the later release.  The installed vendor file remains
+`/usr/lib/gsgpu/dri/gsgpu_dri.so`, SHA-256
 `aff7101ab877db0026fa0f8274e03a579f1b4fd2c16fabe2478d08f224d0da0a`.
-No installed driver, kernel module, or vkgl library was modified.  GDB writes
-were limited to descriptors in short-lived test processes.
+No vendor driver or kernel module was modified.  GDB writes were limited to
+descriptors in short-lived test processes.
 
 This is Vulkan-over-GL compatibility and descriptor research, not native
 Vulkan or a performance claim.  The vertex-pair harness is not claimed to be
@@ -158,6 +161,8 @@ Raw logs and per-frame pixels are outside Git under
 `/home/houge/infra/gpu/evidence/lg110-rgba16-unorm-smoke/`.
 The public summary stores the UNORM log SHA-256 values.
 
-The candidate remains uninstalled pending release review and performance
-controls.  No maximum-performance, general-format conformance, native Vulkan,
-or whole-objective completion claim is made.
+Release validation, paired performance controls, package identity, and AOSC
+publication are recorded in
+[`../../tests/vkgl/vkgl-0.1.32.md`](../../tests/vkgl/vkgl-0.1.32.md).
+No maximum-performance, general-format conformance, native Vulkan, or
+whole-objective completion claim is made.

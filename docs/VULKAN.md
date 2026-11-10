@@ -208,7 +208,7 @@
 - draw3/draw2 被动差分的 XDMA 全同，672-word GFX 仅 word270 `3→2`、word276 `2→1`，中心由 `007f00ff` 变为 clear `663300ff`。主动实验仅改 word270、保持 word276=2，仍精确抑制三角形并复现 draw2 raw；已是 draw2 的输入被旧值防护拒绝且零 IB 差异。公开严格重建复现全部四项。这证明该流 word270 的 vertex-count 因果，word276 不命名。见 [draw-count 报告](../scripts/research/lg110/lg110-draw-count-field.md)。
 - 0.1.20 的 point 请求因 vkgl 硬编码 triangles 而与 triangle 完全同 IB；修复后六种 topology 仅在 word268 呈现 `0/1/3/4/5/6 << 8` 对应值，其余 GFX 不变。主动 triangle→point 只改 word268 `0x40000400→0x40000000` 即精确复现 point clear raw，count 回归与 point 旧值拒绝通过；word273 不随 topology 改变，已更正为未命名字段。见 [draw-topology 报告](../scripts/research/lg110/lg110-draw-topology-field.md)。
 - 这些仅是特定 clear/draw 流的字段因果证据，仍不是完整 0x88/0x89 包语义、完整 draw/shader ISA、地址/tile、独立 replay 或原生 Vulkan；不能复用 AMD PM4/RADV 代替。
-- vertex format研究已扩至R8G8/RGBA8/R16G16/RGBA16 UNORM，每run 11个UV构造均满足raw[50:32]→word3[18:0]；四种均完成单B descriptor因果恢复。非端点等价数据进一步发现旧RGBA16落默认GL_FLOAT，单行fixed候选改为normalized UNSIGNED_SHORT后，四种float/UNORM像素均精确为`004030ff`；baseline重建与安装库逐字同SHA。fixed另过12项instance-rate及dmabuf/shm smoke，仍**未安装/未发布**。见[UNORM与RGBA16报告](../scripts/research/lg110/lg110-vendor-vertex-unorm.md)及机器summary；不是原生Vulkan或性能提升。
+- vertex format研究已扩至R8G8/RGBA8/R16G16/RGBA16 UNORM，每run 11个UV构造均满足raw[50:32]→word3[18:0]；四种均完成单B descriptor因果恢复。非端点等价数据进一步发现旧RGBA16落默认GL_FLOAT，单行fixed候选改为normalized UNSIGNED_SHORT后，四种float/UNORM像素均精确为`004030ff`；baseline重建与安装库逐字同SHA。fixed另过12项instance-rate及dmabuf/shm smoke，已作为**0.1.32-1安装并发布AOSC deb**；六轮AB/BA仅作回归控制，不宣称性能提升。见[UNORM与RGBA16报告](../scripts/research/lg110/lg110-vendor-vertex-unorm.md)、[0.1.32发布报告](../scripts/tests/vkgl/vkgl-0.1.32.md)及机器summary；不是原生Vulkan。
 
 ## GCC 16 PGO候选拒绝（2026-11-10）
 
