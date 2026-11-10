@@ -2860,6 +2860,7 @@ static GLenum gl_type_for_format(VkFormat f, GLint *components, GLboolean *norma
    case VK_FORMAT_R8G8_UNORM:          *components = 2; *normalized = GL_TRUE; return GL_UNSIGNED_BYTE;
    case VK_FORMAT_R8G8B8A8_SNORM:      *components = 4; *normalized = GL_TRUE; return GL_BYTE;
    case VK_FORMAT_R16G16_UNORM:        *components = 2; *normalized = GL_TRUE; return GL_UNSIGNED_SHORT;
+   case VK_FORMAT_R16G16B16A16_UNORM:  *components = 4; *normalized = GL_TRUE; return GL_UNSIGNED_SHORT;
    default:                            *components = 4; return GL_FLOAT;
    }
 }

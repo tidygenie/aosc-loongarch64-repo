@@ -3,11 +3,13 @@
  * 0/8/0, stride alternates pipeline UV stride 8/16/8, format alternates only
  * UV R32G32_SFLOAT/R32_SFLOAT/R32G32_SFLOAT by default; LG110_UV_FORMAT also
  * accepts rgb32/rgba32 and rg8unorm/rgba8unorm/rg16unorm/rgba16unorm.
- * RGBA16 is an A-A-A same-colour control for this input, like rgb32/rgba32;
- * the other UNORM formats are A-B-A-distinct.  With the external GDB pair
- * mutator changing only B back to R32G32, LG110_EXPECT_FORMAT_MUTATION=1
- * instead requires exact A-A-A pixels.  Pipeline alternates two otherwise
- * identical stride=16 pipelines. Use FRAME_LIMIT=3.
+ * rgb32/rgba32 are A-A-A same-colour controls; UNORM formats are
+ * A-B-A-distinct with the corrected RGBA16 mapping.  With the external GDB
+ * pair mutator changing only B back to R32G32, LG110_EXPECT_FORMAT_MUTATION=1
+ * instead requires exact A-A-A pixels.  Pair mode numeric instead binds a
+ * separate B buffer containing equivalent non-endpoint UNORM values, checking
+ * numeric conversion as well as format routing.  Pipeline alternates two
+ * otherwise identical stride=16 pipelines. Use FRAME_LIMIT=3.
  * Cyclic positions and constant {0,0.5} UV pairs keep default center pixels
  * equal. LG110_ATTRIBUTE_SENSITIVE=1 instead uses distinct UV pairs and checks
  * A-B-A-distinct for stride or A-A-A for same/pipeline with a direct-color
@@ -20,6 +22,7 @@
 #include <wayland-client.h>
 #include "xdg-shell-client-protocol.h"
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -119,8 +122,9 @@ int main(void) {
    int pair_stride = !strcmp(pair_text, "stride");
    int pair_pipeline = !strcmp(pair_text, "pipeline");
    int pair_format = !strcmp(pair_text, "format");
+   int pair_numeric = !strcmp(pair_text, "numeric");
    int pair_same = !strcmp(pair_text, "same");
-   int pair_mode = pair_offset || pair_stride || pair_pipeline || pair_format || pair_same;
+   int pair_mode = pair_offset || pair_stride || pair_pipeline || pair_format || pair_numeric || pair_same;
    const char *uv_format_text = getenv("LG110_UV_FORMAT");
    if (!uv_format_text) uv_format_text = "r32";
    VkFormat pair_uv_format;
@@ -132,16 +136,19 @@ int main(void) {
    else if (!strcmp(uv_format_text, "rg16unorm")) pair_uv_format = VK_FORMAT_R16G16_UNORM;
    else if (!strcmp(uv_format_text, "rgba16unorm")) pair_uv_format = VK_FORMAT_R16G16B16A16_UNORM;
    else pair_uv_format = VK_FORMAT_MAX_ENUM;
+   int pair_uv_normalized = pair_uv_format == VK_FORMAT_R8G8_UNORM ||
+      pair_uv_format == VK_FORMAT_R8G8B8A8_UNORM ||
+      pair_uv_format == VK_FORMAT_R16G16_UNORM ||
+      pair_uv_format == VK_FORMAT_R16G16B16A16_UNORM;
    int pair_format_distinct = pair_format &&
       pair_uv_format != VK_FORMAT_R32G32B32_SFLOAT &&
-      pair_uv_format != VK_FORMAT_R32G32B32A32_SFLOAT &&
-      pair_uv_format != VK_FORMAT_R16G16B16A16_UNORM;
+      pair_uv_format != VK_FORMAT_R32G32B32A32_SFLOAT;
    int attribute_sensitive = getenv("LG110_ATTRIBUTE_SENSITIVE") &&
                              !strcmp(getenv("LG110_ATTRIBUTE_SENSITIVE"), "1");
    int expect_format_mutation = getenv("LG110_EXPECT_FORMAT_MUTATION") &&
                                 !strcmp(getenv("LG110_EXPECT_FORMAT_MUTATION"), "1");
    if (*pair_text && !pair_mode) {
-      fprintf(stderr, "LG110_PAIR_MODE=offset|stride|pipeline|format|same\n"); return 1;
+      fprintf(stderr, "LG110_PAIR_MODE=offset|stride|pipeline|format|numeric|same\n"); return 1;
    }
    int expect_unsupported = getenv("LG110_EXPECT_UNSUPPORTED") &&
                             !strcmp(getenv("LG110_EXPECT_UNSUPPORTED"), "1");
@@ -164,9 +171,10 @@ int main(void) {
        (!pair_mode && (!strcmp(frame_text, "2") || !strcmp(frame_text, "3"))) ||
        (pair_offset && strcmp(position_offset_text, "0")) ||
        (pair_stride && strcmp(uv_stride_text, "8")) ||
-       ((pair_pipeline || pair_format) && strcmp(uv_stride_text, "16")) ||
-       (pair_format && pair_uv_format == VK_FORMAT_MAX_ENUM) ||
-       (!pair_format && getenv("LG110_UV_FORMAT")) ||
+       ((pair_pipeline || pair_format || pair_numeric) && strcmp(uv_stride_text, "16")) ||
+       ((pair_format || pair_numeric) && pair_uv_format == VK_FORMAT_MAX_ENUM) ||
+       (pair_numeric && !pair_uv_normalized) ||
+       (!(pair_format || pair_numeric) && getenv("LG110_UV_FORMAT")) ||
        (attribute_sensitive && (!pair_mode || pair_offset || strcmp(frame_text, "3"))) ||
        (expect_format_mutation && (!attribute_sensitive || !pair_format_distinct))) {
       fprintf(stderr, "draw=3|2 first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 topology=... frames=120|1 pair=2|3\n"); return 1;
@@ -196,7 +204,7 @@ int main(void) {
    printf("texture variant: %s red=%u other=0 draw=%d first=%d instances=%d first_instance=%d indexed=%d indirect=%d index_type=%d first_index=%d vertex_offset=%d expected_draw=%d topology=%s expected_topology=%s frames=%d\n",
           mode, nonzero ? 255u : 0u, draw_count, first_vertex, instance_count, first_instance, indexed, indirect, index_type, first_index, vertex_offset, expected_draw_count,
           topology_text, expected_topology_text, frame_limit);
-   if (pair_format)
+   if (pair_format || pair_numeric)
       printf("pair_uv_format=%s vk_format=%d\n", uv_format_text, pair_uv_format);
    dpy = wl_display_connect(NULL);
    if (!dpy) { fprintf(stderr, "no wayland display\n"); return 1; }
@@ -361,9 +369,9 @@ int main(void) {
    }
    CK(pipeline_result);
    pipes[1] = pipes[0];
-   if (pair_stride || pair_pipeline || pair_format) {
+   if (pair_stride || pair_pipeline || pair_format || pair_numeric) {
       if (pair_stride) vibindings[1].stride = 16;
-      if (pair_format) viattributes[1].format = pair_uv_format;
+      if (pair_format || pair_numeric) viattributes[1].format = pair_uv_format;
       CK(vkCreateGraphicsPipelines(dev,VK_NULL_HANDLE,1,&gpci,NULL,&pipes[1]));
    }
 
@@ -381,9 +389,11 @@ int main(void) {
    CK(vkBindBufferMemory(dev,readback,rbmem,0));
    void *rinit; CK(vkMapMemory(dev,rbmem,0,4,0,&rinit));
    memset(rinit,0xa5,4); vkUnmapMemory(dev,rbmem);
-    VkBuffer vertex_buffers[2];
-    const VkDeviceSize vertex_sizes[2]={40,64};
-    for (int binding=0;binding<2;binding++) {
+    VkBuffer vertex_buffers[3];
+    const VkDeviceSize vertex_sizes[3]={40,64,64};
+    int vertex_buffer_count=pair_numeric ? 3 : 2;
+    const uint16_t numeric_samples[4][2]={{0,0},{128,64},{64,192},{26,230}};
+    for (int binding=0;binding<vertex_buffer_count;binding++) {
        VkBufferCreateInfo bci={.sType=VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
           .size=vertex_sizes[binding],.usage=VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,.sharingMode=VK_SHARING_MODE_EXCLUSIVE};
        CK(vkCreateBuffer(dev,&bci,NULL,&vertex_buffers[binding]));
@@ -395,13 +405,40 @@ int main(void) {
        if (binding==0) {
           const float positions[10]={-1,-1, 3,-1, -1,3, -1,-1, 3,-1};
           memcpy(ptr,positions,sizeof(positions));
-       } else if (attribute_sensitive) {
+       } else if (binding==1 && attribute_sensitive) {
           const float uv_stride[16]={0,0, 1,0, 0,1, 1,1,
                                      0.25f,0.75f, 0.8f,0.1f, 0.1f,0.9f, 0.6f,0.4f};
-          memcpy(ptr,uv_stride,sizeof(uv_stride));
-       } else {
+          if (pair_numeric) {
+             float numeric_uv[16];
+             for (int vertex=0;vertex<4;vertex++) {
+                numeric_uv[vertex*4]=numeric_samples[vertex][0]/255.0f;
+                numeric_uv[vertex*4+1]=numeric_samples[vertex][1]/255.0f;
+                numeric_uv[vertex*4+2]=0;
+                numeric_uv[vertex*4+3]=0;
+             }
+             memcpy(ptr,numeric_uv,sizeof(numeric_uv));
+          } else {
+             memcpy(ptr,uv_stride,sizeof(uv_stride));
+          }
+       } else if (binding==1) {
           const float uv_stride[16]={0,0.5, 0,0.5, 0,0.5, 0,0.5, 0,0.5, 0,0.5, 0,0.5, 0,0.5};
           memcpy(ptr,uv_stride,sizeof(uv_stride));
+       } else {
+          memset(ptr,0,vertex_sizes[binding]);
+          if (pair_uv_format == VK_FORMAT_R8G8_UNORM ||
+              pair_uv_format == VK_FORMAT_R8G8B8A8_UNORM) {
+             for (int vertex=0;vertex<4;vertex++) {
+                const uint8_t numeric_uv[2]={(uint8_t)numeric_samples[vertex][0],
+                   (uint8_t)numeric_samples[vertex][1]};
+                memcpy((unsigned char*)ptr+vertex*16,numeric_uv,2);
+             }
+          } else {
+             for (int vertex=0;vertex<4;vertex++) {
+                const uint16_t numeric_uv[2]={numeric_samples[vertex][0]*257,
+                   numeric_samples[vertex][1]*257};
+                memcpy((unsigned char*)ptr+vertex*16,numeric_uv,4);
+             }
+          }
        }
        vkUnmapMemory(dev,mem);
     }
@@ -499,7 +536,9 @@ int main(void) {
       vkCmdSetViewport(cb,0,1,&vp);
       vkCmdSetScissor(cb,0,1,&scissor);
       const VkDeviceSize vertex_offsets[2]={(VkDeviceSize)(pair_offset ? (frame % 2) * 8 : position_offset),0};
-      vkCmdBindVertexBuffers(cb,0,2,vertex_buffers,vertex_offsets);
+      const VkBuffer frame_vertex_buffers[2]={vertex_buffers[0],
+         vertex_buffers[pair_numeric && (frame % 2) ? 2 : 1]};
+      vkCmdBindVertexBuffers(cb,0,2,frame_vertex_buffers,vertex_offsets);
       if (indexed) vkCmdBindIndexBuffer(cb,index_buffer,0,index_type==32 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16);
       if (indirect && indexed)
          vkCmdDrawIndexedIndirect(cb,indirect_buffer,0,1,sizeof(VkDrawIndexedIndirectCommand));

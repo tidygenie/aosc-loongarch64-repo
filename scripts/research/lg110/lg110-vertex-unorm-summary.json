@@ -2,7 +2,9 @@
   "schema": 1,
   "date": "2026-11-10",
   "driver_sha256": "aff7101ab877db0026fa0f8274e03a579f1b4fd2c16fabe2478d08f224d0da0a",
-  "test_binary_sha256": "4387e7a72c718248e175f639c524eb9a55f15d2c85a1849c18f06aceb4e2fdc2",
+  "vkgl_candidate_sha256": "a84c177852cac3f405c1c155d75affcf4ef6d3f7e33dcceed42b6dfb73e041b3",
+  "candidate_installed": false,
+  "test_binary_sha256": "351b5588666a96d5207dfa62a71553b756abd0150be4ec2a12d2978dcdb8e9ca",
   "mapping": "word3[18:0] = raw_metadata[50:32]",
   "uv_entries_per_gdb_run": 11,
   "all_entries_mapping_valid": true,
@@ -28,7 +30,33 @@
         "bits_18_15": 3
       },
       "plain_log_sha256": "3d6a8c54009ae9c4d4cac80e993cd8b1a5aca230ffe65c2ac19c4e8d988c23a0",
-      "gdb_log_sha256": "7e09b9add007ec0db24b205ae2934169bb9f0fb636b47cc1373e2a8e1c97d50a",
+      "gdb_log_sha256": "55de0542fc6c4a73f2a5391ae3800ab923318f3862574164f2cb977f241eb4c4",
+      "numeric_equivalence": {
+        "samples_8bit": [
+          [
+            0,
+            0
+          ],
+          [
+            128,
+            64
+          ],
+          [
+            64,
+            192
+          ],
+          [
+            26,
+            230
+          ]
+        ],
+        "pixel_hex": [
+          "004030ff",
+          "004030ff",
+          "004030ff"
+        ],
+        "log_sha256": "af511f7dfaf1078643fb543d53e073d6e0d786e7744c710168d61a0a9f2d78fc"
+      },
       "causal_mutation": {
         "source_word3": "0x0001822c",
         "destination_word3": "0x0005f22c",
@@ -39,7 +67,7 @@
           "007010ff",
           "007010ff"
         ],
-        "log_sha256": "4e77506f40c31a8b932f15dc9449351d7e519ad26fc371a70f1ba2fc588f1756"
+        "log_sha256": "542a6aa237b48bb348d07018eeeaa47cb4e1e199ea57cb179fa42512e71508fa"
       }
     },
     {
@@ -62,7 +90,33 @@
         "bits_18_15": 10
       },
       "plain_log_sha256": "712a65e179111b7e4bb3aa34df33727fb78f6d6f0ca993bf158820a39e8cb0e9",
-      "gdb_log_sha256": "37e1bde12bc530666a1801b2e906212ba59d54e3e0741ca7a268cabe75851109",
+      "gdb_log_sha256": "8c1b341b3b4036ebf41b92424d5e9bb9b5a49841d11ee9a31d700e7663e49caa",
+      "numeric_equivalence": {
+        "samples_8bit": [
+          [
+            0,
+            0
+          ],
+          [
+            128,
+            64
+          ],
+          [
+            64,
+            192
+          ],
+          [
+            26,
+            230
+          ]
+        ],
+        "pixel_hex": [
+          "004030ff",
+          "004030ff",
+          "004030ff"
+        ],
+        "log_sha256": "991a47dae2602de821ed1ed4097e8f8696aef66ac1a6e82db4b4c649c6a34c78"
+      },
       "causal_mutation": {
         "source_word3": "0x00050fac",
         "destination_word3": "0x0005f22c",
@@ -73,7 +127,7 @@
           "007010ff",
           "007010ff"
         ],
-        "log_sha256": "6a69362a774f01baf89eb0ca047459cadfe7f44851f0286cd06085190da8be89"
+        "log_sha256": "c015633248da84abe6d426fd815857b414039f7fdbb97f29931aebdedcaafd7a"
       }
     },
     {
@@ -96,7 +150,33 @@
         "bits_18_15": 5
       },
       "plain_log_sha256": "baeb65a5498117c94d3e989f0c842e36965d9d6359d27d9cae8d2e2e3c273f0d",
-      "gdb_log_sha256": "821853fe5d41f550e3cd27e7bb89ea8383017a5239a2cc7b71608c8420729a1c",
+      "gdb_log_sha256": "27afb4f79f7bf14fff7d203c3a4e3e10af6af4e24cb0fc7bc109977cb094c782",
+      "numeric_equivalence": {
+        "samples_8bit": [
+          [
+            0,
+            0
+          ],
+          [
+            128,
+            64
+          ],
+          [
+            64,
+            192
+          ],
+          [
+            26,
+            230
+          ]
+        ],
+        "pixel_hex": [
+          "004030ff",
+          "004030ff",
+          "004030ff"
+        ],
+        "log_sha256": "b795a2a7a7ca2548c6665090533fe565f4c1a5a9968ee90ab4c9aab37b418028"
+      },
       "causal_mutation": {
         "source_word3": "0x0002822c",
         "destination_word3": "0x0005f22c",
@@ -107,18 +187,18 @@
           "007010ff",
           "007010ff"
         ],
-        "log_sha256": "281edeae10266cb99c149d09ee9f5bbba4a0944a66a918d01046db00485ccbc1"
+        "log_sha256": "075370c5d1929f63b6cfacd20e233ac9a26467ea87d7caa5938aa3dee3f9ac33"
       }
     },
     {
       "name": "rgba16unorm",
       "vk_format": "VK_FORMAT_R16G16B16A16_UNORM",
       "vk_format_number": 91,
-      "raw_metadata": "0x00077fac00000000",
-      "word3": "0x00077fac",
+      "raw_metadata": "0x00060fac00000000",
+      "word3": "0x00060fac",
       "plain_pixel_hex": [
         "007010ff",
-        "007010ff",
+        "001000ff",
         "007010ff"
       ],
       "word3_subfields": {
@@ -126,12 +206,57 @@
         "bits_5_3": 5,
         "bits_8_6": 6,
         "bits_11_9": 7,
-        "bits_14_12": 7,
-        "bits_18_15": 14
+        "bits_14_12": 0,
+        "bits_18_15": 12
       },
-      "plain_log_sha256": "0cbacb62979eccd2b0f431790359908f2acd7091f5f397316c3122b3f14ad5d4",
-      "gdb_log_sha256": "68472fbc7ce8c5b137a6eb922755703f2a410217cc254c68e7eda7a8a1b35820",
-      "causal_mutation": null
+      "plain_log_sha256": "f25e03e4f11ddf59219f2183cf89912b84715483fee5eb504a4831430aefc9f3",
+      "gdb_log_sha256": "dd562b461cf42a1cded6f262d2e17307188e5a52f2b5ea7894907dd61895bc0a",
+      "numeric_equivalence": {
+        "samples_8bit": [
+          [
+            0,
+            0
+          ],
+          [
+            128,
+            64
+          ],
+          [
+            64,
+            192
+          ],
+          [
+            26,
+            230
+          ]
+        ],
+        "pixel_hex": [
+          "004030ff",
+          "004030ff",
+          "004030ff"
+        ],
+        "log_sha256": "683ee1351420afa4a9d27da68c5e5410c9f5ccac95a7c56b78126788ee6e2a0b"
+      },
+      "causal_mutation": {
+        "source_word3": "0x00060fac",
+        "destination_word3": "0x0005f22c",
+        "mutations": 1,
+        "unexpected": 0,
+        "mutated_pixel_hex": [
+          "007010ff",
+          "007010ff",
+          "007010ff"
+        ],
+        "log_sha256": "3f642e499a4558c5d5370f169f3cbdb9d6e130fe3e12cb3b68b20513f4d4b131"
+      },
+      "baseline_numeric_failure": {
+        "pixel_hex": [
+          "004030ff",
+          "000000ff",
+          "004030ff"
+        ],
+        "log_sha256": "68bfc9e8bb47887b3e4009d5770d9a22eb36dbcc45b7d2ab7df3e1704d890411"
+      }
     }
   ]
 }

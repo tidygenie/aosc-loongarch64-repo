@@ -387,7 +387,7 @@ int main(void) {
       expected[0]=red_instance ? 255 : 0; expected[1]=red_instance ? 0 : 128;
       expected[2]=0; expected[3]=255;
    } else { fprintf(stderr,"unsupported readback format %d\n",fmts[0].format); return 1; }
-   if (expected_draw_count == 2 || topology_clear_at_center(expected_topology)) {
+   if (instance_count == 0 || expected_draw_count == 2 || topology_clear_at_center(expected_topology)) {
       if (fmts[0].format==VK_FORMAT_B8G8R8A8_UNORM) {
          expected[0]=102; expected[1]=51; expected[2]=0; expected[3]=255;
       } else {

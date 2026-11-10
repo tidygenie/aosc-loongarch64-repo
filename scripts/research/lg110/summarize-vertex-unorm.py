@@ -10,7 +10,7 @@ FORMATS = {
     "rg8unorm": ("VK_FORMAT_R8G8_UNORM", 16, True),
     "rgba8unorm": ("VK_FORMAT_R8G8B8A8_UNORM", 37, True),
     "rg16unorm": ("VK_FORMAT_R16G16_UNORM", 77, True),
-    "rgba16unorm": ("VK_FORMAT_R16G16B16A16_UNORM", 91, False),
+    "rgba16unorm": ("VK_FORMAT_R16G16B16A16_UNORM", 91, True),
 }
 A_RAW = 0x000005F22C00000000
 A_WORD3 = 0x0005F22C
@@ -72,11 +72,14 @@ def main():
     parser.add_argument("evidence", type=Path)
     parser.add_argument("binary", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--vkgl", type=Path, required=True)
     args = parser.parse_args()
     result = {
         "schema": 1,
         "date": "2026-11-10",
         "driver_sha256": "aff7101ab877db0026fa0f8274e03a579f1b4fd2c16fabe2478d08f224d0da0a",
+        "vkgl_candidate_sha256": sha256(args.vkgl),
+        "candidate_installed": False,
         "test_binary_sha256": sha256(args.binary),
         "mapping": "word3[18:0] = raw_metadata[50:32]",
         "uv_entries_per_gdb_run": 11,
@@ -96,6 +99,12 @@ def main():
         plain_pixels = pixels(plain, args.evidence / f"{name}-plain.bin")
         assert (plain_pixels[0] == plain_pixels[2])
         assert (plain_pixels[0] != plain_pixels[1]) == distinct
+        numeric_path = args.evidence / f"{name}-numeric.log"
+        numeric = numeric_path.read_text()
+        assert "pair=numeric expected_pattern=A-A-A" in numeric
+        assert "attribute_sensitive pattern_valid=1" in numeric
+        numeric_pixels = pixels(numeric, args.evidence / f"{name}-numeric.bin")
+        assert numeric_pixels == ["004030ff"] * 3
         entry = {
             "name": name,
             "vk_format": vk_format,
@@ -106,6 +115,11 @@ def main():
             "word3_subfields": subfields(word3),
             "plain_log_sha256": sha256(plain_path),
             "gdb_log_sha256": sha256(gdb_path),
+            "numeric_equivalence": {
+                "samples_8bit": [[0, 0], [128, 64], [64, 192], [26, 230]],
+                "pixel_hex": numeric_pixels,
+                "log_sha256": sha256(numeric_path),
+            },
             "causal_mutation": None,
         }
         if distinct:
@@ -125,6 +139,16 @@ def main():
                 "unexpected": 0,
                 "mutated_pixel_hex": mutated_pixels,
                 "log_sha256": sha256(mutation_path),
+            }
+        if name == "rgba16unorm":
+            baseline_path = args.evidence / f"{name}-numeric-baseline.log"
+            baseline = baseline_path.read_text()
+            baseline_pixels = pixels(baseline, args.evidence / f"{name}-numeric-baseline.bin")
+            assert baseline_pixels == ["004030ff", "000000ff", "004030ff"]
+            assert "attribute_sensitive pattern_valid=0" in baseline
+            entry["baseline_numeric_failure"] = {
+                "pixel_hex": baseline_pixels,
+                "log_sha256": sha256(baseline_path),
             }
         result["variants"].append(entry)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
