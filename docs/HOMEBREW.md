@@ -128,3 +128,26 @@ bottle were verified byte-identical locally and through HTTPS. Tap `main` and th
 remote bare repository are synchronized at
 `0282da1e20b4c91f94340fd60d41317ab868a950`. These targeted fixes do not imply
 that every remaining failed formula is portable or buildable.
+
+## liburing native configure and RT-aware testing (2026-11-10)
+
+`liburing 2.15` explicitly uses a non-autotools configure. Generic
+`--build=loongarch64-unknown-linux-gnu` injection was therefore rejected as an
+unknown option. The formula is now custom-protected in its upstream form, removed
+from `needs-build-triplet.txt`, and finalized without that option.
+
+The first source build then exposed a test-environment assumption: core expected
+`io_uring_queue_init` to fail with EPERM, but the RT kernel returned success. The
+test now accepts either a real ring creation followed by `io_uring_queue_exit`,
+or explicit EPERM in a restricted environment; every other error still fails.
+This is not a disabled or ignored test. Final build/test/bottle/pour all passed,
+and an independent GNU-C program using the final bottle printed
+`queue_init: success`. Bottle SHA-256:
+`28163d3823503d95985c0f18973524d9b3cc4bf49b2b6589ab622b756a50bf0d`.
+All four aliases match locally and over HTTPS; tap `main` contains the final
+formula at `af2385d74cb5ef98c4da78a14b4c60dc4dadf9b0`.
+
+The lane's incomplete-result branch now calls `record_failure`: only
+`test=1,pour=1` may clear a failure. A subsequent unrelated `chadwick` 0/0 result
+was retained in the deduplicated failure list, providing a live regression check
+that incomplete retries cannot silently improve the reported failure rate.

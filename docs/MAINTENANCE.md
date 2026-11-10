@@ -187,3 +187,9 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 - aview旧configure的`main(){}`触发GCC16 implicit-int；现有ENV.append未进入conftest。custom用绝对`cc-compat/cxx-compat`设置ENV CC/CXX并传给make，不覆盖Makefile变量；config.log明确记录`/home/houge/infra/ci/bin/cc-compat`且compiler works=yes。首轮test=pour=1，重复轮也test=pour=1；最终瓶SHA=`6ba08869ac7df3d4364c1ab9683c0b27141b406ed8e522cfd07f7a2837ebf00c`，四别名本地/远端一致，tap main=`f7c97c7bc316c002d6088cd3910144d764f7eda5`，formula SHA=`ec13ab5772fd2a3615743978ce9304359dfa74ac83dce83f039a427cfcb34c70`且clear_failure已移除失败项。
 - 重复轮暴露requeue会把active包再次插入。requeue现于queue锁内对claims锁做非阻塞flock；active请求仅去重不插队，inactive仍置顶。对运行中的aview实测输出跳过、queue逐字不变、lane PID不变，bash -n通过；不杀构建、不重启lane。
 - cmix首错为`uint64_t`未声明，后续bmp/tga/pgm均级联；补cstdint后又依次发现UINT64_C和uintptr_t缺口。最终全树审计并仅补`preprocessor.cpp`、`paq8.cpp`、`phda9_preprocess.h`、`fxcmv1.cpp`四个真实使用点。21版build、压缩/解压test、bottle回装+测试全过，瓶SHA=`90165193edb2b9e7d2ab2f6ae313452b363852a0ad1bd85741353e8fa60d72dc`，四别名本地/远端一致，tap main=`a7756ea72e558dce3d803a672a22c5961eedc813`，formula SHA=`2fb31c30eafc85ec8bc74556d05964bf8adeffd0041a5823b4277fdf942b63d9`，失败项自动清除。
+
+# 2026-11-10 RT io_uring与选择性更新复核
+
+- 当前仍运行`7.3.1-mainline-16k-rt-gcc-o3`，`CONFIG_IO_URING=y`，`kernel.io_uring_disabled=0`、`group=-1`。liburing 2.15原生configure移除误注入的autotools `--build=`后编译成功；核心test原假设必须EPERM，实际RT环境允许ring创建。受保护test现验证成功创建+queue_exit或明确EPERM，其他错误失败；build/test/pour及独立最终bottle程序均通过。见[`HOMEBREW.md`](HOMEBREW.md)。
+- apt模拟仍只有Mesa26.2.6、PipeWire1.6.11、WirePlumber0.5.19、libcamera0.8.0、Qt5/PyQt5/fcitx5-qt七项。Mesa继续因libgbm/EGL/Vulkan替换风险拒绝；其余对当前Qt6 GUI、RT内核和LG110开发无可证实促进，本轮均不安装，未执行autoremove。
+- clang-LTO liblol discovery候选仍要求实际clang启动和`discovery_only=1`，本轮未改GRUB、未加载候选、未重启或宣称修复。未闭环Homebrew结果现重新记录失败，不能用清单消失冒充成功。
