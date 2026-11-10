@@ -1,6 +1,7 @@
 /* Same-process A/B/A vertex-state differential with per-frame readback.
  * LG110_PAIR_MODE=same is the noise control, offset alternates binding offset
- * 0/8/0, stride alternates pipeline UV stride 8/16/8, and pipeline alternates
+ * 0/8/0, stride alternates pipeline UV stride 8/16/8, format alternates only
+ * UV R32G32_SFLOAT/R32_SFLOAT/R32G32_SFLOAT, and pipeline alternates
  * two otherwise identical stride=16 pipelines. Use FRAME_LIMIT=3.
  * Cyclic positions and constant {0,0.5} UV pairs keep default center pixels
  * equal. LG110_ATTRIBUTE_SENSITIVE=1 instead uses distinct UV pairs and checks
@@ -112,12 +113,13 @@ int main(void) {
    int pair_offset = !strcmp(pair_text, "offset");
    int pair_stride = !strcmp(pair_text, "stride");
    int pair_pipeline = !strcmp(pair_text, "pipeline");
+   int pair_format = !strcmp(pair_text, "format");
    int pair_same = !strcmp(pair_text, "same");
-   int pair_mode = pair_offset || pair_stride || pair_pipeline || pair_same;
+   int pair_mode = pair_offset || pair_stride || pair_pipeline || pair_format || pair_same;
    int attribute_sensitive = getenv("LG110_ATTRIBUTE_SENSITIVE") &&
                              !strcmp(getenv("LG110_ATTRIBUTE_SENSITIVE"), "1");
    if (*pair_text && !pair_mode) {
-      fprintf(stderr, "LG110_PAIR_MODE=offset|stride|pipeline|same\n"); return 1;
+      fprintf(stderr, "LG110_PAIR_MODE=offset|stride|pipeline|format|same\n"); return 1;
    }
    int expect_unsupported = getenv("LG110_EXPECT_UNSUPPORTED") &&
                             !strcmp(getenv("LG110_EXPECT_UNSUPPORTED"), "1");
@@ -140,7 +142,7 @@ int main(void) {
        (!pair_mode && (!strcmp(frame_text, "2") || !strcmp(frame_text, "3"))) ||
        (pair_offset && strcmp(position_offset_text, "0")) ||
        (pair_stride && strcmp(uv_stride_text, "8")) ||
-       (pair_pipeline && strcmp(uv_stride_text, "16")) ||
+       ((pair_pipeline || pair_format) && strcmp(uv_stride_text, "16")) ||
        (attribute_sensitive && (!pair_mode || pair_offset || strcmp(frame_text, "3")))) {
       fprintf(stderr, "draw=3|2 first=0|1 instances=0|1|2 first_instance=0|1 indexed=0|1 indirect=0|1 index_type=16|32 topology=... frames=120|1 pair=2|3\n"); return 1;
    }
@@ -332,8 +334,9 @@ int main(void) {
    }
    CK(pipeline_result);
    pipes[1] = pipes[0];
-   if (pair_stride || pair_pipeline) {
+   if (pair_stride || pair_pipeline || pair_format) {
       if (pair_stride) vibindings[1].stride = 16;
+      if (pair_format) viattributes[1].format = VK_FORMAT_R32_SFLOAT;
       CK(vkCreateGraphicsPipelines(dev,VK_NULL_HANDLE,1,&gpci,NULL,&pipes[1]));
    }
 
@@ -437,7 +440,7 @@ int main(void) {
    int pixels_valid=0, all_pixels_valid=1, readback_attempted=0;
    if (attribute_sensitive)
       printf("attribute_sensitive=1 pair=%s expected_pattern=%s\n",
-             pair_text, pair_stride ? "A-B-A-distinct" : "A-A-A");
+             pair_text, (pair_stride || pair_format) ? "A-B-A-distinct" : "A-A-A");
    else
       printf("readback center=(320,240) format=%d tolerance=2 expected_bytes=%02x%02x%02x%02x\n",
          fmts[0].format,expected[0],expected[1],expected[2],expected[3]);
@@ -533,7 +536,7 @@ int main(void) {
    }
    if (attribute_sensitive) {
       int pattern_valid;
-      if (pair_stride)
+      if (pair_stride || pair_format)
          pattern_valid = !memcmp(pair_pixels[0],pair_pixels[2],4) &&
                          memcmp(pair_pixels[0],pair_pixels[1],4) != 0;
       else

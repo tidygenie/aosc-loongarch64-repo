@@ -8,12 +8,17 @@ break __driDriverGetExtensions_gsgpu
 run
 set $gsgpu_base = (unsigned long)&__driDriverGetExtensions_gsgpu - 0x7cbc0
 set $mutations = 0
+set $desc_base = 0
 disable 1
 break *($gsgpu_base + 0x17bcbc)
 commands
  silent
- set $off = $s4 & 0xffffff
+ set $off = 0
  if $s8 == 2
+  if $desc_base == 0
+   set $desc_base = $s4 - 0x2b10
+  end
+  set $off = $s4 - $desc_base
   printf "OBSERVE_UV off=0x%x word1=0x%x\n", $off, *(unsigned int*)($s4 + 4)
  end
  if $s8 == 2 && ($off == 0x2b10 || $off == 0x8f90 || $off == 0xf390)

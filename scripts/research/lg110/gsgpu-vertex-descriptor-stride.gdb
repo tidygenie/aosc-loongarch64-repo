@@ -6,6 +6,12 @@ run
 set $gsgpu_base = (unsigned long)&__driDriverGetExtensions_gsgpu - 0x7cbc0
 printf "GSGPU_BASE=0x%lx\n", $gsgpu_base
 disable 1
+break *($gsgpu_base + 0x17bc50)
+commands
+ silent
+ printf "VBO_FORMAT_META index=%u raw=0x%lx\n", $s8, $t2
+ continue
+end
 break *($gsgpu_base + 0x17bcbc)
 commands
  silent

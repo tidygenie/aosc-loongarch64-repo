@@ -211,3 +211,6 @@ This establishes the concrete vendor vertex-descriptor field, its handle-8
 BO storage, the drawcall's indirect descriptor VA, and a causal pixel mutation.
 It does not claim a native Vulkan implementation, zero-copy, or any performance
 improvement.
+
+The follow-up format mapping and direct word-3 causal proof are in
+[`lg110-vendor-vertex-format.md`](lg110-vendor-vertex-format.md).

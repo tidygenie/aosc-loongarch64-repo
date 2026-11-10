@@ -161,3 +161,9 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 
 - apt模拟原有10项更新，仅选择spirv-llvm-translator22.1.8、wayland-protocols1.50和vim9.2.1310；单独模拟证明不牵拉Mesa。更新后安装vkgl SHA仍afac548f，dmabuf/wl_shm各vulkaninfo+vkcube60帧+vkmark五场景全过、validation=0、无llvmpipe。Mesa26.2.6仅下载审查，文件清单确认会替换vkgl直接依赖的libgbm及EGL/Vulkan层，未安装。autopilot/hourly-review/brew-update/site-publish timers均active。
 - 独立候选把dmabuf QueuePresent的glFinish改为真实EGL fence wait，任何错误仍glFinish；candidate SHA=9ca09966，两路径严格烟雾0 validation。6轮AB/BA、640×480 FIFO、三场景各4秒，12进程36结果全成功。vertex/texture/shading同轮变化中位−0.61/−0.81/−1.29%，正对2/6、2/6、1/6；无可复现收益，不合并、不打deb、不换安装库。补丁、基准脚本和完整JSON公开，见[`vkgl-present-egl-fence.md`](../scripts/research/lg110/vkgl-present-egl-fence.md)。
+
+# 2026-11-10 LG110顶点format descriptor因果闭环
+
+- `vktest-vertex-pair`新增format A-B-A，仅改变UV R32G32_SFLOAT/R32_SFLOAT，严格-Werror构建；像素007010ff→000010ff→007010ff，position和UV word0/1/2不变，UV word3=0005f22c/00027204。原测试仍有swapchain semaphore复用validation警告，不称clean。
+- 在17bc50首次64位load后观察raw meta：R32G32=0x000005f22c00000000、R32=0x000002720400000000。反汇编6组bit insert证明所有观测项word3[18:0]=raw[50:32]，bits31:19未由该段清除；末点t1/t2仅是截位结果，早期0x7/0xb/4输出已废弃。
+- 新`gsgpu-mutate-vertex-format.gdb`在全R32G32 pipeline下仅写三帧UV word3低19位为R32，恰好3次且外部像素三帧000010ff，因果成立。首次0写因16MiB CPU mapping未对齐而mask偏移错误；改为首UV=2b10求base后成功，同修复stride脚本并复现3次/004040ff。旧offset误用attribute参数被usage拒绝，按原模式重跑后6/6控制全过。详见[`lg110-vendor-vertex-format.md`](../scripts/research/lg110/lg110-vendor-vertex-format.md)。
