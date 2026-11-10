@@ -103,3 +103,28 @@ All four filename aliases for each bottle were verified byte-identical locally,
 on the server, and over HTTPS. The tap `main` branch was pushed through commit
 `7c3e73be2a733f133698a8c7a5eaa4dda96961b4`. This reduces current failures but
 does not claim that the remaining queue or all formulas are fixed.
+
+## libcap and pgformatter source-build repairs (2026-11-10)
+
+Two additional protected custom formulas completed build, upstream test, bottle
+pour and poured-test verification:
+
+- `libcap 2.78`: the initial `good-names.go` diff error was secondary; the source
+  build also compiles several Go cap/psx programs. The formula prepends the
+  installed native Go toolchain only at build time, sets `GOTOOLCHAIN=local` and
+  `GOPROXY=off`, and keeps libcap's vendored modules. The name differential and
+  real Go application builds passed. Bottle SHA-256:
+  `7be1098bf7232709b53af2f463ed6e4781b97bcc781fb9b863928704f2ec826a`.
+  `capsh --print` was also run from the independently extracted final bottle.
+- `pgformatter 5.11`: the local Perl installs to `usr/{bin,share}`, while the
+  core formula unconditionally renamed `usr/local/man`. The custom formula
+  installs the observed man directory and `usr/bin/site_perl/pg_format` directly;
+  it does not replace the system Perl. Bottle SHA-256:
+  `b280ef8e18f00e14898812c3659a1b0d035c727baf0281dbea47c43ded7c3a1a`.
+  The final bottle's `pg_format` correctly formatted `SELECT * FROM foo`.
+
+Both formula SHA values match the repacked archives. All four aliases of each
+bottle were verified byte-identical locally and through HTTPS. Tap `main` and the
+remote bare repository are synchronized at
+`0282da1e20b4c91f94340fd60d41317ab868a950`. These targeted fixes do not imply
+that every remaining failed formula is portable or buildable.
