@@ -144,3 +144,9 @@ vkmark2025.01-4双路径验证事件为0；vkgl库SHA保持f4479026，host forma
 # 2026-11-08 LG110 descriptor IB间接引用闭环
 
 - 完整IB在seq3 word220、seq4/5 word218分别含descriptor VA低字010c2b00/010c8f80/010cf380，高字均1。先捕获UV descriptor再监视实际drawcall+336，硬件写watchpoint命中`182074 st.d`（报告PC为下一指令182078）。函数181fe8精确计算`ctx[3912]->gpu_va + ctx[3908]`并写drawcall+336，首帧1010c0000+2b00与IB一致。公开`gsgpu-descriptor-pointer-writer.gdb`；API stride→VBO缓存→handle8 word1→IB间接VA→像素因果链闭合，仍无原生Vulkan/性能宣称。
+
+# 2026-11-10 Homebrew 7.0.13、GUI与liblol候选
+
+- clang full-LTO全量构建于11月9日00:41完成。发现构建树只有kp0.addr修正而缺discovery_only四个hunk，补齐后重编`la_ow_syscall.v2.ko`，vermagic匹配clang-lto且参数出现，SHA=`04d17dfcacef0345584f97bdc06e443f37dd7d591b2524f7157dc713c4d99add`；gcc-o3拒绝保护通过，未加载，运行验证留待受控clang启动。
+- Homebrew 7.0.13浅标签候选保留原4个LoongArch补丁，并修复CPU.type/Linux family导致的`packages.dunno_linux`404。候选及lane1的`--version`、`--config`、b2sum配方、安装JSON均通过，lane1已升级；lane2仍在scheme48构建，拒绝中途覆盖，保留下一轮边界升级。完整patch已纳入Git，旧7.0.11 diff和stash保留回滚。所有测试使用NO_INSTALL_FROM_API，官方无LoongArch API。
+- 新增非官方Qt6 `brew-ui-linux`，支持已安装JSON清单、精确formula安装、选中卸载/升级、全部升级、显式update、串行argv、完整输出和进程组取消；不调用autoremove。后端JSON与offscreen测试、安装后offscreen/Wayland smoke通过。修复轻量构建器多依赖未转逗号及GUI启动失败不复位问题。最终0.1.0-3 deb SHA=`f122a3768fc86a3b1e5e4a1f88a0e57ce9a4472543f6052fc40067532369f5e8`，dry-run/deploy/签名/HTTPS/隔离apt全部通过。依赖使用官方qt-6/glibc/gcc-runtime，无需第三方补包。详见[`HOMEBREW.md`](HOMEBREW.md)。

@@ -1,0 +1,8 @@
+PKGNAME=brew-ui-linux
+PKGSEC=admin
+PKGDEP="qt-6 glibc gcc-runtime"
+BUILDDEP="cmake gcc qt-6"
+PKGDES="Unofficial native Qt Homebrew package manager for Linux"
+PKGHOMEPAGE="https://github.com/HougeLangley/aosc-loongarch64-thirdparty"
+ABTYPE=self
+REL=3

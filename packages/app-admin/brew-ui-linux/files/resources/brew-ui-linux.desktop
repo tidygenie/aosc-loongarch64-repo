@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Homebrew Manager for Linux
+Comment=Manage Homebrew formulae with visible commands and output
+Exec=brew-ui-linux
+Icon=package-x-generic
+Terminal=false
+Categories=System;PackageManager;Qt;
+Keywords=Homebrew;brew;package;install;

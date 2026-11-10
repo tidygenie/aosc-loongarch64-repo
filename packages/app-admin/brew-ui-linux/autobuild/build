@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$SRCDIR"
+
+cmake -S . -B build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/usr \
+  -DBUILD_TESTING=ON
+cmake --build build --parallel "${ABTHREADS:-2}"
+ctest --test-dir build --output-on-failure
+DESTDIR="$PKGDIR" cmake --install build
+install -Dvm644 README.md "$PKGDIR/usr/share/doc/brew-ui-linux/README.md"
+if [[ -f LICENSE ]]; then
+  install -Dvm644 LICENSE "$PKGDIR/usr/share/doc/brew-ui-linux/LICENSE"
+fi
+"$PKGDIR/usr/bin/brew-ui-linux" --version

@@ -47,7 +47,7 @@ Maintainer: Local Infra <infra@localhost>
 Installed-Size: ${SIZE}
 Section: ${PKGSEC}
 Priority: optional
-Depends: ${PKGDEP}
+Depends: ${PKGDEP// /, }
 Description: ${PKGDES}
 CTL
 DEB="$OUT/${PKGNAME}_${VER}-${REL}_loongarch64.deb"

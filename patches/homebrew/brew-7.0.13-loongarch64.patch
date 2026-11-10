@@ -1,0 +1,107 @@
+diff --git a/Library/Homebrew/Gemfile.lock b/Library/Homebrew/Gemfile.lock
+index b8d0010..4dc2d47 100644
+--- a/Library/Homebrew/Gemfile.lock
++++ b/Library/Homebrew/Gemfile.lock
+@@ -167,6 +167,7 @@ GEM
+ PLATFORMS
+   aarch64-linux-gnu
+   arm64-darwin
++  loongarch64-linux
+   x86_64-darwin
+   x86_64-linux-gnu
+ 
+diff --git a/Library/Homebrew/extend/os/linux/hardware/cpu.rb b/Library/Homebrew/extend/os/linux/hardware/cpu.rb
+index ffd6732..3200233 100644
+--- a/Library/Homebrew/extend/os/linux/hardware/cpu.rb
++++ b/Library/Homebrew/extend/os/linux/hardware/cpu.rb
+@@ -23,6 +23,7 @@ module OS
+           def family
+             return :arm if arm?
+             return :ppc if ppc?
++            return :loongarch64 if arch == :loongarch64
+             return :dunno unless intel?
+ 
+             # See https://software.intel.com/en-us/articles/intel-architecture-and-processor-identification-with-cpuid-model-and-family-numbers
+diff --git a/Library/Homebrew/extend/os/linux/install.rb b/Library/Homebrew/extend/os/linux/install.rb
+index 5e242f4..ddf1769 100644
+--- a/Library/Homebrew/extend/os/linux/install.rb
++++ b/Library/Homebrew/extend/os/linux/install.rb
+@@ -38,6 +38,8 @@ module OS
+         def check_cpu
+           return if ::Hardware::CPU.intel? && ::Hardware::CPU.is_64_bit?
+           return if ::Hardware::CPU.arm?
++          # LoongArch 移植
++          return if RUBY_PLATFORM.include?("loongarch64") || RUBY_PLATFORM.include?("loong64")
+ 
+           message = "Sorry, Homebrew does not support your computer's CPU architecture!"
+           if ::Hardware::CPU.ppc64le?
+diff --git a/Library/Homebrew/hardware.rb b/Library/Homebrew/hardware.rb
+index ff1548d..3e1d0ea 100644
+--- a/Library/Homebrew/hardware.rb
++++ b/Library/Homebrew/hardware.rb
+@@ -15,10 +15,12 @@ module Hardware
+     PPC_ARCHS         = T.let((PPC_32BIT_ARCHS + PPC_64BIT_ARCHS).freeze, T::Array[Symbol])
+     ARM_64BIT_ARCHS   = [:arm64, :aarch64].freeze
+     ARM_ARCHS         = ARM_64BIT_ARCHS
++    LOONG_ARCHS       = [:loongarch64, :loong64].freeze
+     ALL_ARCHS = T.let([
+       *INTEL_ARCHS,
+       *PPC_ARCHS,
+       *ARM_ARCHS,
++      *LOONG_ARCHS,
+     ].freeze, T::Array[Symbol])
+ 
+     INTEL_64BIT_OLDEST_CPU = :core2
+@@ -59,7 +61,9 @@ module Hardware
+ 
+       sig { returns(Symbol) }
+       def arch_64_bit
+-        if arm?
++        if RUBY_PLATFORM.include?("loongarch64") || RUBY_PLATFORM.include?("loong64")
++          :loongarch64
++        elsif arm?
+           :arm64
+         elsif intel?
+           :x86_64
+@@ -90,6 +94,7 @@ module Hardware
+         when /x86_64/, /i\d86/ then :intel
+         when /arm/, /aarch64/ then :arm
+         when /ppc|powerpc/ then :ppc
++        when /loongarch64|loong64/ then :loongarch64
+         else :dunno
+         end
+       end
+@@ -113,7 +118,7 @@ module Hardware
+       sig { returns(T.nilable(Integer)) }
+       def bits
+         @bits ||= T.let(case RUBY_PLATFORM
+-        when /x86_64/, /ppc64|powerpc64/, /aarch64|arm64/ then 64
++        when /x86_64/, /ppc64|powerpc64/, /aarch64|arm64/, /loongarch64|loong64/ then 64
+         when /i\d86/, /ppc/, /arm/ then 32
+         end, T.nilable(Integer))
+       end
+@@ -234,6 +239,9 @@ module Hardware
+ 
+     sig { params(_version: T.nilable(MacOSVersion)).returns(Symbol) }
+     def oldest_cpu(_version = nil)
++      # LoongArch 移植：返回真实架构名，避免 --build=dunno-linux-gnu
++      return :loongarch64 if Hardware::CPU.arch == :loongarch64
++
+       if Hardware::CPU.intel?
+         if Hardware::CPU.is_64_bit?
+           Hardware::CPU::INTEL_64BIT_OLDEST_CPU
+diff --git a/Library/Homebrew/os/linux/ld.rb b/Library/Homebrew/os/linux/ld.rb
+index 5bb1518..10a5d31 100644
+--- a/Library/Homebrew/os/linux/ld.rb
++++ b/Library/Homebrew/os/linux/ld.rb
+@@ -20,6 +20,10 @@ module OS
+           /lib/ld-linux-aarch64.so.1
+           /system/bin/linker64
+         ].freeze,
++        loongarch64: %w[
++          /lib64/ld-linux-loongarch-lp64d.so.1
++          /lib/ld-linux-loongarch-lp64d.so.1
++        ].freeze,
+         i386:    %w[
+           /lib/ld-linux.so.2
+           /system/bin/linker
