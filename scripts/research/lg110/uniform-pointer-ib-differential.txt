@@ -1,0 +1,4 @@
+seq=1 dwords=16 passive_vs_aux_differences=0 aux_vs_pointer_differences=0
+seq=2 dwords=544 passive_vs_aux_differences=0 aux_vs_pointer_differences=1
+  word240: aux=0x010c3cb0 pointer=0x010c3cc0
+seq=3 dwords=272 passive_vs_aux_differences=0 aux_vs_pointer_differences=0

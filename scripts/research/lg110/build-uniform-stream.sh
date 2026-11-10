@@ -17,6 +17,10 @@ cc -std=c11 -O2 -g -fPIC -shared -Wall -Wextra -Wpedantic \
 cc -std=c11 -O2 -g -fPIC -shared -Wall -Wextra -Wpedantic \
   $(pkg-config --cflags libdrm) -I/usr/src/loonggpu-1.0.2/include \
   -o "$out/lg110-uniform-mutation.so" "$here/lg110-uniform-mutation.c" -ldl -lpthread
+cc -std=c11 -O2 -g -fPIC -shared -Wall -Wextra -Wpedantic \
+  $(pkg-config --cflags libdrm) -I/usr/src/loonggpu-1.0.2/include \
+  -o "$out/lg110-uniform-pointer-mutation.so" \
+  "$here/lg110-uniform-pointer-mutation.c" -ldl -lpthread
 glslangValidator -V "$here/grad.vert" -o "$out/shaders/grad.vert.spv"
 glslangValidator -V "$here/../../tests/vkgl/update-uniform.frag" \
   -o "$out/shaders/update-uniform.frag.spv"
