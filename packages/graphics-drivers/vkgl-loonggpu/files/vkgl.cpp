@@ -439,7 +439,7 @@ struct Cmd {
    VkDeviceSize size = 0;
    std::vector<CommandBuffer *> secondary;
    uint32_t indirect_stride = 0;
-   const void *update_data = nullptr;
+   std::vector<uint8_t> update_payload;
    uint32_t update_size = 0;
    VkDeviceSize update_offset = 0;
 };
@@ -1540,12 +1540,18 @@ static VKAPI_ATTR void VKAPI_CALL vkgl_CmdCopyImageToBuffer(VkCommandBuffer cb, 
 }
 static VKAPI_ATTR void VKAPI_CALL vkgl_CmdUpdateBuffer(VkCommandBuffer cb, VkBuffer buf, VkDeviceSize off,
                                                        VkDeviceSize size, const void *data) {
+   auto *c = from_handle<CommandBuffer>((uint64_t)cb);
    auto *b = from_handle<Buffer>((uint64_t)buf);
-   if (b && b->mem && off + size <= b->size &&
-       b->mem_offset + off + size <= b->mem->shadow.size()) {
-      memcpy(b->mem->shadow.data() + b->mem_offset + off, data, (size_t)size);
-      b->mem->revision++;
-   }
+   if (!c || !b || !b->mem || !data || size == 0 || size > UINT32_MAX) return;
+   const VkDeviceSize shadow_size = b->mem->shadow.size();
+   if (off > b->size || size > b->size - off ||
+       b->mem_offset > shadow_size || off > shadow_size - b->mem_offset ||
+       size > shadow_size - b->mem_offset - off) return;
+   Cmd cmd{}; cmd.kind = Cmd::UpdateBuffer;
+   cmd.buf = b; cmd.update_offset = off; cmd.update_size = (uint32_t)size;
+   const auto *bytes = static_cast<const uint8_t *>(data);
+   cmd.update_payload.assign(bytes, bytes + size);
+   c->cmds.push_back(std::move(cmd));
 }
 
 // ---------------------------------------------------------------------------
@@ -2018,8 +2024,22 @@ static void execute_cmds(CommandBuffer *c) {
          dst->uploaded_revision = dst->mem->revision;
          break;
       }
-      case Cmd::UpdateBuffer:
+      case Cmd::UpdateBuffer: {
+         Buffer *b = cmd.buf;
+         const VkDeviceSize off = cmd.update_offset;
+         const VkDeviceSize size = cmd.update_size;
+         if (b && b->mem && cmd.update_payload.size() == cmd.update_size &&
+             off <= b->size && size <= b->size - off) {
+            const VkDeviceSize shadow_size = b->mem->shadow.size();
+            if (b->mem_offset <= shadow_size && off <= shadow_size - b->mem_offset &&
+                size <= shadow_size - b->mem_offset - off) {
+               memcpy(b->mem->shadow.data() + b->mem_offset + off,
+                      cmd.update_payload.data(), cmd.update_payload.size());
+               b->mem->revision++;
+            }
+         }
          break;
+      }
       case Cmd::ClearColorImage:
          if (cmd.img) {
             ensure_fbo(cmd.img);
