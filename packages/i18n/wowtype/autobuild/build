@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# WowType：文本输入构建（不含 voice/voicekey/Tencent 模型）
+set -euo pipefail
+
+export CARGO_NET_RETRY=5
+DATA_VER=2026.10.31.2
+DATA_URL="https://github.com/Gloridust/WowType/releases/download/v${VER}/wowtype-data-rime-ice-${DATA_VER}.tar.gz"
+DATA_SHA=e3c031eae278d49b5bfa83dc8c3509a1f367c04f8d11e5f24625483249a3b534
+
+cd "$SRCDIR"
+
+# abbs-lite 的 git 源可能给出空目录；按 tag 精确补拉
+if [[ ! -f Cargo.lock || ! -d fcitx5-addon ]]; then
+  git clone --depth=1 --branch "v$VER" https://github.com/Gloridust/WowType.git .
+fi
+test "$(git rev-parse HEAD)" = "$(git rev-parse "v$VER^{}")"
+
+# 数据档：固定 URL + 固定 sha256（构建期内校验，不依赖生成档案的可复现性）
+DATA_DIR="$SRCDIR/../wowtype-data"
+mkdir -p "$DATA_DIR"
+DATA_TAR="$DATA_DIR/wowtype-data.tar.gz"
+if [[ ! -f "$DATA_TAR" ]] || [[ "$(sha256sum "$DATA_TAR" | cut -d' ' -f1)" != "$DATA_SHA" ]]; then
+  curl -fL --retry 3 -o "$DATA_TAR" "$DATA_URL"
+fi
+echo "$DATA_SHA  $DATA_TAR" | sha256sum -c -
+rm -rf "$DATA_DIR/extracted"; mkdir -p "$DATA_DIR/extracted"
+tar -xzf "$DATA_TAR" -C "$DATA_DIR/extracted"
+for f in lexicon.tsv english.txt words.lm LICENSE SOURCE.txt; do
+  test -s "$DATA_DIR/extracted/$f"
+done
+
+# 下游补丁：由 AOSC 源安装时禁用 GitHub amd64 自更新路径
+# （构建树会被 abbs-lite 复用，先还原再打，保证可重复构建）
+git checkout -- settings/wowtype-config
+python3 - <<'PY'
+from pathlib import Path
+p = Path("settings/wowtype-config")
+s = p.read_text()
+old_plan = '''    """要下载的包：[(文件名, 地址)]，和一段说明。装不了时列表为空，说明里写原因。"""
+    if dpkg_version(ENGINE_PKG) is None:'''
+new_plan = '''    """要下载的包：[(文件名, 地址)]，和一段说明。装不了时列表为空，说明里写原因。"""
+    if os.path.exists("/usr/share/wowtype/AOSC_PACKAGED"):
+        return [], "此版本由 AOSC 第三方源打包，请用系统包管理器（oma/apt）更新"
+    if dpkg_version(ENGINE_PKG) is None:'''
+assert s.count(old_plan) == 1
+s = s.replace(old_plan, new_plan)
+old_bg = '''    values, _ = read_config()
+    if values.get("CheckUpdate") != "True":
+        return 0'''
+new_bg = '''    if os.path.exists("/usr/share/wowtype/AOSC_PACKAGED"):
+        return 0
+    values, _ = read_config()
+    if values.get("CheckUpdate") != "True":
+        return 0'''
+assert s.count(old_bg) == 1
+s = s.replace(old_bg, new_bg)
+p.write_text(s)
+print("[aosc-patch] 更新路径已指向系统包管理器")
+PY
+
+# 文本核心：--no-default-features 排除 wowtype-voice（voicekey/ALSA/Tencent 模型均不进包）
+cargo build --release --locked -p wowtype-core --no-default-features
+cargo test --locked -p wowtype-core --no-default-features
+
+cmake -S fcitx5-addon -B build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/usr \
+  -DCMAKE_INSTALL_LIBDIR=lib \
+  -DWOWTYPE_VERSION="$VER" \
+  -DWOWTYPE_VOICE=OFF
+cmake --build build -j"$ABTHREADS"
+DESTDIR="$PKGDIR" cmake --install build
+
+install -Dm755 target/release/wowtype-check "$PKGDIR/usr/bin/wowtype-check"
+install -Dm755 target/release/wowtype-show  "$PKGDIR/usr/bin/wowtype-show"
+install -Dm644 "$DATA_DIR/extracted/lexicon.tsv" "$PKGDIR/usr/share/wowtype/lexicon.tsv"
+install -Dm644 "$DATA_DIR/extracted/english.txt" "$PKGDIR/usr/share/wowtype/english.txt"
+install -Dm644 "$DATA_DIR/extracted/words.lm"    "$PKGDIR/usr/share/wowtype/words.lm"
+
+# 与上游 end-user deb 一致：不带未拆分的开发头
+rm -rf "$PKGDIR/usr/include"
+
+# 许可/来源文档
+install -d "$PKGDIR/usr/share/doc/wowtype"
+install -Dm644 README.md "$PKGDIR/usr/share/doc/wowtype/README.md"
+install -Dm644 "$DATA_DIR/extracted/LICENSE"    "$PKGDIR/usr/share/doc/wowtype/LICENSE.rime-ice"
+install -Dm644 "$DATA_DIR/extracted/SOURCE.txt" "$PKGDIR/usr/share/doc/wowtype/DATA-SOURCE.txt"
+cat > "$PKGDIR/usr/share/doc/wowtype/LICENSE.MIT" <<'EOF'
+MIT License
+
+Copyright (c) 2026 Gloridust / WowType contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+EOF
+echo 'Full Apache License 2.0 text: https://www.apache.org/licenses/LICENSE-2.0' \
+  > "$PKGDIR/usr/share/doc/wowtype/LICENSE.Apache-2.0"
+cat > "$PKGDIR/usr/share/doc/wowtype/copyright" <<'EOF'
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/
+
+Files: *
+Copyright: 2026 Gloridust / WowType contributors
+License: MIT OR Apache-2.0
+ Upstream declares "MIT OR Apache-2.0" in core/Cargo.toml and README.md.
+ The v0.3.10 source archive ships no license text files; canonical texts
+ are provided in LICENSE.MIT and LICENSE.Apache-2.0 under the same terms.
+
+Files: usr/share/wowtype/lexicon.tsv, usr/share/wowtype/english.txt
+Copyright: rime-ice contributors
+License: GPL-3.0
+ See LICENSE.rime-ice. Provenance in DATA-SOURCE.txt.
+
+Files: usr/share/wowtype/words.lm
+License: CC-BY-SA-4.0
+ Derived from LCCC (MIT) and Chinese Wikipedia (CC BY-SA 4.0);
+ provenance in DATA-SOURCE.txt.
+
+Files: usr/share/wowtype/s2t.tsv
+Copyright: OpenCC contributors
+License: Apache-2.0
+
+Comment: This AOSC build is text-only. The upstream "voice" feature and the
+ experimental voice daemon are NOT compiled or shipped; no Tencent model or
+ voicekey-derived code is included in this package.
+EOF
+printf 'AOSC third-party build (text-only; voice excluded)\n' \
+  > "$PKGDIR/usr/share/wowtype/AOSC_PACKAGED"
+
+# 构建期功能验证（安装树内真实数据）
+W="$PKGDIR/usr/share/wowtype"
+"$PKGDIR/usr/bin/wowtype-check" --lexicon "$W/lexicon.tsv" --lm "$W/words.lm" --s2t "$W/s2t.tsv" \
+  | tee /tmp/wowtype-build-check.log
+grep -q '0 项失败' /tmp/wowtype-build-check.log
+"$PKGDIR/usr/bin/wowtype-show" --lexicon "$W/lexicon.tsv" --english "$W/english.txt" \
+  --lm "$W/words.lm" --max 5 nihao zhongwen | tee /tmp/wowtype-build-show.log
+grep -q '你好' /tmp/wowtype-build-show.log
+grep -q '中文' /tmp/wowtype-build-show.log
+
+# 模块可加载且导出 fcitx5 addon 工厂
+cat > /tmp/wowtype-dlopen.c <<'EOF'
+#include <dlfcn.h>
+#include <stdio.h>
+int main(int argc, char **argv) {
+    void *h = dlopen(argv[1], RTLD_NOW);
+    if (!h) { fprintf(stderr, "dlopen: %s\n", dlerror()); return 1; }
+    void *sym = dlsym(h, "fcitx_addon_factory_instance_wowtype");
+    if (!sym) { fprintf(stderr, "dlsym: %s\n", dlerror()); return 2; }
+    printf("DLOADED_FACTORY_OK %p\n", sym);
+    return 0;
+}
+EOF
+gcc /tmp/wowtype-dlopen.c -o /tmp/wowtype-dlopen -ldl
+/tmp/wowtype-dlopen "$PKGDIR/usr/lib/fcitx5/libwowtype.so"
+! ldd "$PKGDIR/usr/lib/fcitx5/libwowtype.so" | grep -q libasound
+
+echo "[build] wowtype $VER 文本版构建与验证完成"

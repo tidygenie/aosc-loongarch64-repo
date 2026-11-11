@@ -1,0 +1,8 @@
+PKGNAME=wowtype
+PKGSEC=utils
+PKGDEP="glibc gcc-runtime fcitx5 python-3 pygobject-3 gtk-4 libadwaita"
+BUILDDEP="cargo cmake extra-cmake-modules gcc pkg-config"
+PKGDES="WeChat-style pinyin input method engine for Fcitx 5 (text-only AOSC build)"
+PKGHOMEPAGE="https://github.com/Gloridust/WowType"
+ABTYPE=self
+REL=1
