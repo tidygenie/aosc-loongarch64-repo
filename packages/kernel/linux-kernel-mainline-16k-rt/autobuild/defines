@@ -5,4 +5,4 @@ BUILDDEP="gcc clang lld llvm bc bison flex pahole perl rsync"
 PKGDES="Mainline Linux with AOSC LoongArch patches, 16K pages and PREEMPT_RT (gcc -O3 / clang full-LTO)"
 PKGHOMEPAGE="https://github.com/HougeLangley/aosc-loongarch64-thirdparty"
 ABTYPE=self
-REL=1
+REL=2

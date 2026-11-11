@@ -16,4 +16,4 @@ case "$VARIANT" in
   clang-lto) make -j1 LLVM=1 all ;;
   *) echo "unknown VARIANT=$VARIANT" >&2; exit 1 ;;
 esac
-KSRC="$PWD" bash "$(dirname "${BASH_SOURCE[0]}")/../files/package-kernel.sh" "$VARIANT"
+KSRC="$PWD" DEBREL="${REL:-1}" bash "$(dirname "${BASH_SOURCE[0]}")/../files/package-kernel-v3.sh" "$VARIANT"
