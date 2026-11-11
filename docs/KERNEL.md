@@ -36,7 +36,7 @@ LoongArch 相关的 `AOSCOS-loongarch-*` 系列（0369–0374）全部应用成�
 #   对每个 patch 依次 patch -p1 -N --fuzz=5
 ```
 
-本仓库另外收录了两个让 clang full-LTO 能编过 AOSC 补丁代码的修复
+本仓库另外收录以下让 gcc-O3 / clang full-LTO 变体正确构建和运行的修复
 （`packages/kernel/.../autobuild/patches/`）：
 
 | 补丁 | 原因 |
@@ -45,6 +45,7 @@ LoongArch 相关的 `AOSCOS-loongarch-*` 系列（0369–0374）全部应用成�
 | `0002-loongarch-ow-syscall-no-lto-for-feat-test.patch` | `feat_test.o` 要被 `$(OBJDUMP)` 读，full-LTO 下是 bitcode，需 `-fno-lto` |
 | `0004-mt7921-txpwr-heap-allocation.patch` | clang full-LTO 链接时 `mt7921_txpwr()` 栈帧 4016 B 超过 `-Wframe-larger-than=2048`，改为 kzalloc |
 | `0003-gpio-xilinx-init-state-for-O3.patch` | `-O3` 下 gcc 发现 `xgpio_get()` 用未初始化的 bitmap 做读改写（`-Werror=uninitialized`），补 `bitmap_zero()` |
+| `0005-loongarch-ow-syscall-lto-kprobe-addr.patch` | full LTO 可能内联 `kallsyms_lookup_name()`，改用首个 kprobe 已解析的地址；增加不写系统调用表的 `discovery_only` 安全验证模式 |
 
 ## 配置
 
@@ -120,7 +121,7 @@ sudo dpkg -i linux-kernel-*_loongarch64.deb linux-headers-*_loongarch64.deb
 - 修复后本次启动无 XDMA timeout/GPU reset；KWin 与嵌套 Weston 的 GL renderer 均为
   `LoongGPU(TM) LG110 (...clang-lto...)`，Plasma/Weston 映射 gsgpu，无 llvmpipe/swrast。
 - vkgl dmabuf vkcube 也已在 clang 会话运行。一次性验证服务完成后自动禁用，GRUB 保留 gcc-O3 回退。
-- clang 内核 deb 强依赖 `loonggpu-kernel-dkms >= 2:1.0.2+lnd25.1-2`；postinst 不再忽略
+- 当前 clang 内核 deb 强依赖 `loonggpu-kernel-dkms >= 2:1.0.2+lnd25.1-3`；postinst 不再忽略
   DKMS 错误，并硬校验 initramfs 内存在 `updates/dkms/loonggpu.ko`。
 
 ## 实际落地的 LoongArch 相关补丁（48 个）

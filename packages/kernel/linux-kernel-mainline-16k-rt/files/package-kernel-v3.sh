@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Package the mainline 16K RT kernels as AOSC loongarch64 DEBs.
-# Usage: package-kernel-v3.sh <gcc-o3|clang-lto>
+# Usage: package-kernel-v3.sh <gcc-o3|clang-lto>; DEBREL=N selects the deb revision.
 set -euo pipefail
+DEBREL="${DEBREL:-1}"
+[[ "$DEBREL" =~ ^[0-9]+$ ]]
 
-VARIANT="${1:?usage: package-kernel-v2.sh <gcc|llvm>}"
+VARIANT="${1:?usage: package-kernel-v3.sh <gcc-o3|clang-lto>}"
 case "$VARIANT" in
   gcc-o3)    SRC="${KSRC:-/home/houge/infra/kernel/build-src/mainline-gcc-o3}";    OTHER=clang-lto ;;
   clang-lto) SRC="${KSRC:-/home/houge/infra/kernel/build-src/mainline-clang-lto}"; OTHER=gcc-o3 ;;
@@ -20,7 +22,7 @@ OTHER_PKG="linux-kernel-mainline-16k-rt-${VER}-${OTHER}"
 OTHER_HDR="linux-headers-mainline-16k-rt-${VER}-${OTHER}"
 DKMS_DEP=""
 if [[ "$VARIANT" == clang-lto ]]; then
-  DKMS_DEP=", loonggpu-kernel-dkms (>= 2:1.0.2+lnd25.1-2)"
+  DKMS_DEP=", loonggpu-kernel-dkms (>= 2:1.0.2+lnd25.1-3)"
 fi
 
 # Refuse to package a tree that does not satisfy the required ABI/configuration.
@@ -44,9 +46,6 @@ if [ -x /usr/bin/dracut ]; then dracut -q --force '/boot/initramfs-$REL.img' '$R
 if ! lsinitrd '/boot/initramfs-$REL.img' 2>/dev/null | grep -q 'updates/dkms/loonggpu.ko'; then
   echo "LoongGPU is missing from /boot/initramfs-$REL.img" >&2
   exit 1
-fi
-if [ -x /etc/kernel/postinst.d/apt-auto-removal ]; then
-  /etc/kernel/postinst.d/apt-auto-removal || true
 fi
 EOF
   cat > "$dir/prerm" <<EOF
@@ -90,7 +89,7 @@ make_maintainer_scripts "$STAGE/DEBIAN"
 SIZE=$(du -sk "$STAGE" | cut -f1)
 cat > "$STAGE/DEBIAN/control" <<CTL
 Package: ${PKG}
-Version: ${VER}-1
+Version: ${VER}-${DEBREL}
 Architecture: loongarch64
 Maintainer: Local Infra <infra@localhost>
 Installed-Size: ${SIZE}
@@ -102,7 +101,7 @@ Description: Mainline Linux ${VER} for LoongArch (16K pages, PREEMPT_RT, ${VARIA
  Built from kernel.org ${VER} with the AOSC OS configuration as a baseline,
  16KB pages, PREEMPT_RT scheduling, and single-threaded ${VARIANT} build.
 CTL
-dpkg-deb --build --root-owner-group "$STAGE" "$OUT/${PKG}_${VER}-1_loongarch64.deb" >/dev/null
+dpkg-deb --build --root-owner-group "$STAGE" "$OUT/${PKG}_${VER}-${DEBREL}_loongarch64.deb" >/dev/null
 rm -rf -- "$STAGE"
 
 # ---------- headers / external-module build tree ----------
@@ -121,7 +120,7 @@ mkdir -p "$STAGE2/DEBIAN" "$HDRROOT"
 SIZE2=$(du -sk "$STAGE2" | cut -f1)
 cat > "$STAGE2/DEBIAN/control" <<CTL
 Package: ${HDR}
-Version: ${VER}-1
+Version: ${VER}-${DEBREL}
 Architecture: loongarch64
 Maintainer: Local Infra <infra@localhost>
 Installed-Size: ${SIZE2}
@@ -132,8 +131,8 @@ Recommends: dkms
 Description: Headers for mainline Linux ${VER} (16K pages, PREEMPT_RT, ${VARIANT})
  Build tree for out-of-tree modules and DKMS against ${REL}.
 CTL
-dpkg-deb --build --root-owner-group "$STAGE2" "$OUT/${HDR}_${VER}-1_loongarch64.deb" >/dev/null
+dpkg-deb --build --root-owner-group "$STAGE2" "$OUT/${HDR}_${VER}-${DEBREL}_loongarch64.deb" >/dev/null
 rm -rf -- "$STAGE2"
 
 echo "==> products:"
-ls -lh "$OUT/${PKG}_${VER}-1_loongarch64.deb" "$OUT/${HDR}_${VER}-1_loongarch64.deb"
+ls -lh "$OUT/${PKG}_${VER}-${DEBREL}_loongarch64.deb" "$OUT/${HDR}_${VER}-${DEBREL}_loongarch64.deb"
