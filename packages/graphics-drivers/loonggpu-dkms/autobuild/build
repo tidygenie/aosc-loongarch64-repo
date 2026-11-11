@@ -19,6 +19,7 @@ done
 grep -q 'CONFIG_CC_IS_CLANG' Makefile
 grep -q 'src_node_start = src_mm.start' loonggpu/loonggpu_ttm.c
 grep -q 'src_page_offset = src_node_start & (PAGE_SIZE - 1)' loonggpu/loonggpu_ttm.c
+grep -q 'rbo->preferred_domains = domain;' loonggpu/loonggpu_dc_plane.c
 
 mkdir -p "$PKGDIR/DEBIAN"
 echo /etc/udev/rules.d/70-loonggpu.rules > "$PKGDIR/DEBIAN/conffiles"

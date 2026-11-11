@@ -1,0 +1,32 @@
+From: Local Infra <infra@localhost>
+Subject: [PATCH] loonggpu: preserve validated scanout placement
+
+A GBM scanout BO can initially prefer GTT even though every page flip pins it
+in VRAM.  After the flip is unpinned, the next render CS migrates it back to
+GTT and the following flip copies the full frame to VRAM again.  Preserve the
+domain selected by a successful scanout pin so the next CS keeps the BO in its
+validated placement.  Failure paths and the forced-GTT fallback for shares
+from another GPU are unchanged.
+---
+ loonggpu/loonggpu_dc_plane.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/loonggpu/loonggpu_dc_plane.c b/loonggpu/loonggpu_dc_plane.c
+--- a/loonggpu/loonggpu_dc_plane.c
++++ b/loonggpu/loonggpu_dc_plane.c
+@@ -56,6 +56,15 @@ static int dc_plane_helper_prepare_fb(struct drm_plane *plane,
+ 		return r;
+ 	}
+ 
++	/*
++	 * A successfully pinned scanout BO has demonstrated that this domain
++	 * is valid.  Preserve it as the preferred domain after the later unpin;
++	 * otherwise a GBM framebuffer that initially preferred GTT is migrated
++	 * back to GTT by every render CS and immediately copied to VRAM again by
++	 * the next page flip.  Other-GPU shares retain their forced GTT domain.
++	 */
++	rbo->preferred_domains = domain;
++
+ 	r = loonggpu_bo_kmap(rbo, &fb_vaddr);
+ 	if (unlikely(r != 0)) {
+ 		loonggpu_bo_unpin(rbo);
